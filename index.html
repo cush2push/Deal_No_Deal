@@ -60,7 +60,6 @@
   #cutscene-text { font-size: 1.6em; letter-spacing: 2px; font-weight: bold; margin-bottom: 20px; animation: flashText 0.5s infinite alternate; text-transform: uppercase; text-align: center; padding: 0 20px; z-index: 10; }
   @keyframes flashText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
-  /* Specific Animations for the 13 Scenes */
   .scan-line-container { width: 80%; max-width: 300px; height: 4px; background: #222; position: relative; overflow: hidden; border-radius: 2px; margin: 0 auto; }
   .scan-line { position: absolute; top: 0; left: -50px; width: 100px; height: 100%; background: #f1c40f; box-shadow: 0 0 15px #f1c40f; animation: scanAnim 1s infinite linear; }
   .spike-container { position: relative; width: 300px; height: 200px; margin: 0 auto; overflow: hidden; }
@@ -68,7 +67,6 @@
   .wilson-container { position: relative; width: 100%; max-width: 400px; height: 150px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
   .wilson-ball { font-size: 5rem; position: relative; animation: driftBob 2.5s ease-in-out infinite; line-height: 1; }
   .blood-hand { position: absolute; color: #cc0000; font-size: 2.5rem; top: 12px; left: 18px; text-shadow: none; opacity: 0.9; transform: rotate(-15deg); }
-  
   .spotlight { position: absolute; width: 200vw; height: 200vh; top: -50vh; left: -50vw; background: radial-gradient(circle at 50% 50%, transparent 5%, rgba(0,0,0,0.98) 15%); animation: spotMove 2s infinite alternate ease-in-out; z-index: 5; pointer-events: none; }
 
   @keyframes scanAnim { 0% { left: -100px; } 100% { left: 100%; } }
@@ -88,7 +86,7 @@
   @keyframes hatWiggle { 0% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-10deg); } }
   @keyframes refSignal { 0% { transform: translateY(0); } 100% { transform: translateY(-20px); } }
 
-  /* Full Screen Animation Overlay with Progressive Tension Backgrounds */
+  /* Full Screen Animation Overlay */
   #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; transition: background 1s ease; }
   
   .bg-calm { background: radial-gradient(circle, #1a2a40, #0a111a) !important; }
@@ -98,7 +96,6 @@
   @keyframes strobeCritical { 0% { background: radial-gradient(circle, #4a0000, #000); } 100% { background: radial-gradient(circle, #8b0000, #220000); } }
 
   .fs-title { color: white; font-size: 2em; margin-bottom: 35px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
-  
   .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
   
   .shake-light { animation: suspenseShake 0.4s infinite alternate; }
@@ -108,7 +105,6 @@
 
   .fs-case-body { position: absolute; width: 100%; height: 100%; background: #48639c; border: 6px solid #203154; border-radius: 12px; box-shadow: inset 0 -40px rgba(0,0,0,0.4), 0 15px 35px rgba(0,0,0,0.9); z-index: 1; }
   .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #5d7cb8; border: 6px solid #203154; border-radius: 12px; transform-origin: top; transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); z-index: 3; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-  
   .open-anim .fs-lid { transform: rotateX(120deg); }
   
   .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.2); width: 140%; text-align: center; color: #ffd700; font-size: 2.2em; font-weight: bold; text-shadow: 3px 3px 8px #000, 0 0 20px gold; opacity: 0; z-index: 4; transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.6s; }
@@ -122,8 +118,9 @@
   @keyframes pulseVault { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
   /* Full Screen Video Ad Overlay */
-  #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; align-items: center; justify-content: center; }
+  #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; flex-direction: column; align-items: center; justify-content: center; }
   #ad-video { width: 100%; height: 100%; object-fit: contain; }
+  #tap-to-play-msg { display: none; position: absolute; color: #f1c40f; font-size: 1.8em; font-weight: bold; z-index: 2600; text-shadow: 2px 2px 10px #000; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; cursor: pointer; }
 
   /* Bigger Modal */
   #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 15px; }
@@ -142,6 +139,8 @@
     #cases-area { width: 100%; max-width: 400px; }
     #top-bar { font-size: 0.95em; flex-direction: column; gap: 5px; text-align: center; }
     #cutscene-text { font-size: 1.2em; }
+    #modal-content { padding: 20px; }
+    #modal-title { font-size: 1.8em; }
   }
 </style>
 </head>
@@ -246,6 +245,7 @@
 <!-- FULL SCREEN VIDEO AD OVERLAY -->
 <div id="ad-overlay">
   <video id="ad-video" playsinline webkit-playsinline></video>
+  <div id="tap-to-play-msg">▶ TAP TO PLAY COMMERCIAL</div>
 </div>
 
 <!-- BIGGER BANKER MODAL -->
@@ -272,7 +272,9 @@
   let currentRound = 0;
   let casesOpenedThisRound = 0;
   let totalCasesOpenedGlobal = 0;
+  
   let ad2HasPlayed = false;
+  let isAnimating = false; // Lock to prevent multi-tap timer looping bug
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
@@ -358,10 +360,13 @@
 
     const dummyVideo = document.getElementById('ad-video');
     dummyVideo.load();
-    dummyVideo.play().then(() => {
-      dummyVideo.pause();
-      dummyVideo.currentTime = 0;
-    }).catch(() => {});
+    let p = dummyVideo.play();
+    if(p !== undefined) {
+      p.then(() => {
+        dummyVideo.pause();
+        dummyVideo.currentTime = 0;
+      }).catch(() => {});
+    }
   }
 
   function renderPrizeBoards() {
@@ -393,6 +398,8 @@
   }
 
   function handleCaseClick(index, btnElem) {
+    if (isAnimating) return; // Prevent multi-click bug that caused timer loop!
+
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
       btnElem.classList.add('keeper');
@@ -404,6 +411,7 @@
 
     if (gameState === 'OPEN_CASES') {
       if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
+      isAnimating = true;
       triggerOpeningSequence(index, null, false);
     }
 
@@ -428,6 +436,7 @@
 
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
         
+        isAnimating = true;
         setTimeout(() => {
           triggerOpeningSequence(thirdCaseIndex, () => {
             updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
@@ -438,6 +447,7 @@
     else if (gameState === 'FINALE_KEEP_ELIMINATE') {
       if (!btnElem.classList.contains('keeper') && !btnElem.classList.contains('opened')) {
         gameState = 'FINAL_REVEAL';
+        isAnimating = true;
         triggerOpeningSequence(index, () => {
           updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
         }, false);
@@ -445,12 +455,14 @@
     } 
     else if (gameState === 'FINAL_REVEAL') {
       if (btnElem.classList.contains('keeper')) {
+        isAnimating = true;
         triggerOpeningSequence(index, () => {
           finalWinningPrize = cases[index];
           
           const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
           const overallAvg = totalSum / prizes.length;
 
+          // Ad 3 + Last Chance ONLY if winning prize < average
           if (finalWinningPrize.val < overallAvg) {
             if (ad3ObjectUrl) {
               playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
@@ -608,8 +620,12 @@
   }
 
   function finishOpeningFlow() {
-    if (pendingCallback) {
-      pendingCallback();
+    let cb = pendingCallback;
+    pendingCallback = null; // Clear to prevent multi-call
+    isAnimating = false; // Release the lock!
+    
+    if (cb) {
+      cb();
     } else {
       casesOpenedThisRound++;
       updateInstructions();
@@ -617,20 +633,33 @@
     }
   }
 
+  // --- NEW LAST CHANCE & GAMBLER LOGIC ---
   function checkLastChanceOffer() {
-    const minVal = finalWinningPrize.val * 1.30;
-    const maxVal = finalWinningPrize.val * 1.75;
-    const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
+    const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
+    const overallAvg = totalSum / prizes.length;
+    
+    // We only reach this function if winningPrize < overallAvg. 
+    // "offer a prize between winning value and 20% over average"
+    let eligibleItems = prizes.filter(p => p.val > finalWinningPrize.val && p.val <= (overallAvg * 1.20));
+
+    // Fallback: If no prizes fit perfectly in that math gap, pick from the next 1-4 better prizes
+    if (eligibleItems.length === 0) {
+      const sorted = [...prizes].sort((a,b) => a.val - b.val);
+      const winIdx = sorted.findIndex(p => p.id === finalWinningPrize.id);
+      const maxIdx = Math.min(winIdx + 4, sorted.length - 1);
+      eligibleItems = sorted.slice(winIdx + 1, maxIdx + 1);
+    }
 
     if (eligibleItems.length > 0) {
-      const replacementItem = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+      const safePrize = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+      
       showModal(
         "LAST CHANCE OFFER!", 
-        `${playerName}, your prize was below average!\n\nWould you like to swap for a Last Chance offer prize (${replacementItem.desc}), or take a Gambler's Pass to gamble for a chance at ANY other prize?`,
+        `${playerName}, your prize was below the board average!\n\nWould you like to Play it Safe for a guaranteed moderate upgrade, or Risk it for the Biscuit for an equal chance at ANY prize?`,
         [
-          { text: "DEAL (TAKE OFFER)", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
-          { text: "GAMBLER'S PASS", class: "gamble-btn", action: () => executeGamblersPass() },
-          { text: "NO DEAL (KEEP)", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
+          { text: "PLAY IT SAFE", class: "deal-btn", action: () => executeLastChanceDeal(safePrize) },
+          { text: "RISK IT FOR THE BISCUIT", class: "gamble-btn", action: () => executeGamblersPass() },
+          { text: "KEEP MY CASE", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
         ],
         true
       );
@@ -648,12 +677,12 @@
     vaultText.innerText = "UNLOCKING VAULT...";
 
     setTimeout(() => {
-      vaultText.innerHTML = `🌟 JACKPOT UPGRADE! 🌟<br><br>${newItem.desc}`;
+      vaultText.innerHTML = `🌟 PLAY IT SAFE UPGRADE! 🌟<br><br>${newItem.desc}`;
     }, 1500);
 
     setTimeout(() => {
       revealContainer.style.display = 'none';
-      showModal("Game Over", `${playerName}, you took the Last Chance Deal and upgraded to:\n\n${newItem.desc}`, [], false);
+      showModal("Game Over", `${playerName}, you played it safe and upgraded to:\n\n${newItem.desc}`, [], false);
     }, 4500);
   }
 
@@ -665,6 +694,7 @@
     vaultText.innerText = "🎲 ROLLING GAMBLER'S PASS... 🎲";
 
     setTimeout(() => {
+      // Risk it for the biscuit: Equal chance at ALL original cases!
       const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
       vaultText.innerHTML = `🎲 GAMBLER'S PASS RESULT! 🎲<br><br>${randomPrize.desc}`;
 
@@ -698,25 +728,26 @@
     }
   }
 
+  // Safely play video and avoid the stuttering/loop bug on mobile
   function playVideoAd(videoUrl, callback) {
     const adOverlay = document.getElementById('ad-overlay');
     const adVideo = document.getElementById('ad-video');
+    const tapMsg = document.getElementById('tap-to-play-msg');
     
     currentAdCallback = callback;
     adVideo.src = videoUrl;
     adVideo.load();
     adOverlay.style.display = 'flex';
+    tapMsg.style.display = 'none';
 
-    adVideo.play().catch(() => {
-      adOverlay.onclick = () => {
-        adVideo.play();
-        adOverlay.onclick = null;
-      };
-    });
+    // Clear old listeners so they don't fire multiple times
+    adVideo.onended = null;
+    adVideo.onerror = null;
+    adOverlay.onclick = null;
 
-    adVideo.onended = () => {
+    const finishAd = () => {
       adOverlay.style.display = 'none';
-      adOverlay.onclick = null;
+      adVideo.pause();
       if (currentAdCallback) {
         let cb = currentAdCallback;
         currentAdCallback = null;
@@ -724,15 +755,21 @@
       }
     };
 
-    adVideo.onerror = () => {
-      adOverlay.style.display = 'none';
-      adOverlay.onclick = null;
-      if (currentAdCallback) {
-        let cb = currentAdCallback;
-        currentAdCallback = null;
-        cb();
-      }
-    };
+    adVideo.onended = finishAd;
+    adVideo.onerror = finishAd;
+
+    let p = adVideo.play();
+    if(p !== undefined) {
+      p.catch((err) => {
+        console.log("Autoplay caught:", err);
+        tapMsg.style.display = 'block';
+        adOverlay.onclick = () => {
+          tapMsg.style.display = 'none';
+          adVideo.play();
+          adOverlay.onclick = null;
+        };
+      });
+    }
   }
 
   function triggerBanker() {
