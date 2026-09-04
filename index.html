@@ -10,13 +10,13 @@
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
   button:hover { background: #f1c40f; }
   
-  /* Player Name Screen */
-  #player-screen { max-width: 450px; width: 100%; margin: 40px auto; background: #222; padding: 25px; border-radius: 10px; border: 2px solid #d4af37; text-align: left; display: block; }
-  #player-screen h1 { color: #ffd700; margin-bottom: 5px; text-align: center; }
-  #player-input { width: 100%; padding: 10px; font-size: 16px; background: #333; border: 1px solid #666; color: white; border-radius: 5px; text-align: center; margin: 10px 0; }
+  /* Generic Container Card */
+  .flow-screen { max-width: 480px; width: 100%; margin: 60px auto; background: #222; padding: 25px; border-radius: 10px; border: 2px solid #d4af37; text-align: left; display: none; }
+  .flow-screen h1 { color: #ffd700; margin-bottom: 5px; text-align: center; }
+  .flow-input { width: 100%; padding: 10px; font-size: 16px; background: #333; border: 1px solid #666; color: white; border-radius: 5px; text-align: center; margin: 10px 0; }
   
-  .media-upload-group { margin-bottom: 10px; background: #333; padding: 8px; border-radius: 5px; }
-  .media-upload-group label { display: block; font-size: 0.85em; margin-bottom: 3px; color: #f1c40f; }
+  .media-upload-group { margin-bottom: 12px; background: #333; padding: 10px; border-radius: 5px; }
+  .media-upload-group label { display: block; font-size: 0.85em; margin-bottom: 4px; color: #f1c40f; }
   .media-upload-group input[type="file"] { width: 100%; color: #ccc; font-size: 0.8em; }
 
   /* Setup Screen & Inputs */
@@ -107,13 +107,9 @@
 </head>
 <body>
 
-<!-- PLAYER NAME & MEDIA UPLOAD SCREEN -->
-<div id="player-screen">
-  <h1>Deal or No Deal</h1>
-  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Configure player & commercial breaks</p>
-  
-  <label style="color: #f1c40f; font-size: 0.85em; display: block;">Contestant Name</label>
-  <input type="text" id="player-input" placeholder="Player Name" value="Contestant" />
+<div id="media-screen" class="flow-screen" style="display: block;">
+  <h1>Commercial Breaks</h1>
+  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Upload videos or skip</p>
   
   <div class="media-upload-group">
     <label>Ad #1 Video (After 8th case)</label>
@@ -121,7 +117,7 @@
   </div>
 
   <div class="media-upload-group">
-    <label>Ad #2 Video (Before 22nd case)</label>
+    <label>Ad #2 Video (After 22nd case)</label>
     <input type="file" id="ad2-file" accept="video/*" />
   </div>
 
@@ -130,18 +126,25 @@
     <input type="file" id="ad3-file" accept="video/*" />
   </div>
 
-  <button onclick="goToSetup()" style="width: 100%; font-size: 1.1em; margin-top: 5px;">Continue to Setup</button>
+  <button onclick="goToSetup()" style="width: 100%; font-size: 1.1em; margin-top: 10px;">Continue to Prizes</button>
 </div>
 
-<!-- SETUP SCREEN -->
-<div id="setup-screen">
+<div id="setup-screen" style="max-width:600px; width:100%; margin:auto; background:#222; padding:15px; border-radius:10px; display:none;">
   <h1 id="setup-title">Game Setup</h1>
   <p class="setup-help">Enter your 25 prizes and values.</p>
   <div id="setup-rows"></div>
-  <button onclick="startGame()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Start Game</button>
+  <button onclick="goToPlayerName()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Continue to Player Name</button>
 </div>
 
-<!-- GAME SCREEN -->
+<div id="player-screen" class="flow-screen">
+  <h1>Contestant</h1>
+  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Who is playing today?</p>
+  
+  <input type="text" id="player-input" class="flow-input" placeholder="Player Name" value="Contestant" />
+  
+  <button onclick="startGame()" style="width: 100%; font-size: 1.1em; margin-top: 10px;">Start Game</button>
+</div>
+
 <div id="game-screen">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
@@ -160,7 +163,6 @@
   </div>
 </div>
 
-<!-- ROBUST FULL SCREEN ANIMATION OVERLAY -->
 <div id="fs-overlay">
   <div class="fs-title" id="fs-title">Opening Case...</div>
   <div class="fs-case-container" id="fs-case">
@@ -171,17 +173,14 @@
   <div id="fs-timer">Continuing in 5s...</div>
 </div>
 
-<!-- FANCY LAST CHANCE REVEAL OVERLAY -->
 <div id="last-chance-reveal">
   <div class="vault-box" id="vault-text">UNLOCKING VAULT...</div>
 </div>
 
-<!-- FULL SCREEN SEAMLESS VIDEO AD OVERLAY -->
 <div id="ad-overlay">
   <video id="ad-video" playsinline webkit-playsinline></video>
 </div>
 
-<!-- BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
@@ -212,6 +211,7 @@
   let finalWinningPrize = null;
   let currentAdCallback = null;
 
+  // Build Setup Rows on Load
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
     let defaultVal = i * 10;
@@ -227,9 +227,6 @@
   }
 
   function goToSetup() {
-    const inputVal = document.getElementById('player-input').value.trim();
-    if (inputVal !== "") playerName = inputVal;
-    
     const ad1File = document.getElementById('ad1-file').files[0];
     const ad2File = document.getElementById('ad2-file').files[0];
     const ad3File = document.getElementById('ad3-file').files[0];
@@ -238,14 +235,21 @@
     if (ad2File) ad2ObjectUrl = URL.createObjectURL(ad2File);
     if (ad3File) ad3ObjectUrl = URL.createObjectURL(ad3File);
 
-    document.getElementById('setup-title').innerText = `${playerName}'s Game Setup`;
-    document.getElementById('player-display').innerText = playerName;
-
-    document.getElementById('player-screen').style.display = 'none';
+    document.getElementById('media-screen').style.display = 'none';
     document.getElementById('setup-screen').style.display = 'block';
   }
 
+  function goToPlayerName() {
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('player-screen').style.display = 'block';
+  }
+
   function startGame() {
+    const inputVal = document.getElementById('player-input').value.trim();
+    if (inputVal !== "") playerName = inputVal;
+    
+    document.getElementById('player-display').innerText = playerName;
+
     prizes = [];
     for (let i = 1; i <= 25; i++) {
       let numericValue = parseFloat(document.getElementById(`val-${i}`).value);
@@ -269,8 +273,16 @@
     }
 
     renderCases();
-    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('player-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'flex';
+
+    // Unlock audio/video context for mobile browsers
+    const dummyVideo = document.getElementById('ad-video');
+    dummyVideo.load();
+    dummyVideo.play().then(() => {
+      dummyVideo.pause();
+      dummyVideo.currentTime = 0;
+    }).catch(() => {});
   }
 
   function renderPrizeBoards() {
@@ -387,10 +399,10 @@
     if (isFinal) {
       titleElem.innerText = `${playerName}'s Final Reveal...`;
     } else if (isHighValue) {
-      titleElem.innerText = "💥 OUCH! BAD NEWS! 💥";
+      titleElem.innerText = `💥 OUCH, ${playerName.toUpperCase()}! 💥`;
       overlay.classList.add('flash-sad');
     } else {
-      titleElem.innerText = "🎉 GREAT NEWS! SAFE! 🎉";
+      titleElem.innerText = `🎉 AMAZING, ${playerName.toUpperCase()}! 🎉`;
       overlay.classList.add('flash-happy');
     }
 
@@ -542,10 +554,7 @@
     adVideo.load();
     adOverlay.style.display = 'flex';
 
-    // Attempt instant autoplay tied directly to the briefcase click context
-    adVideo.play().catch(error => {
-      console.log("Autoplay restricted, enabling touch-to-play fallback:", error);
-      // Fallback: If browser blocks it, touching anywhere on the black overlay will start it instantly
+    adVideo.play().catch(() => {
       adOverlay.onclick = () => {
         adVideo.play();
         adOverlay.onclick = null;
