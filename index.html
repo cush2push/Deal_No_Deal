@@ -481,12 +481,9 @@
   }
 
   function checkLastChanceOffer() {
-    const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
-    const overallAvg = totalSum / prizes.length;
-    const threshold = overallAvg * 0.80;
-
-    if (finalWinningPrize.val <= threshold) {
-      // 130% to 175% range
+    // Only pop up if winning case value is strictly lower than 12
+    if (finalWinningPrize.val < 12) {
+      // Find range: 130% to 175% of the winning case value
       const minVal = finalWinningPrize.val * 1.30;
       const maxVal = finalWinningPrize.val * 1.75;
       const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
@@ -495,7 +492,7 @@
         const replacementItem = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
         showModal(
           "LAST CHANCE OFFER!", 
-          `${playerName}, your winning prize was below average!\n\nWould you like to swap for a Last Chance mystery prize, or take a Gambler's Pass to gamble for a chance at ANY other prize?`,
+          `${playerName}, you won a prize under 12!\n\nWould you like to swap for a Last Chance offer prize (${replacementItem.desc}), or take a Gambler's Pass to gamble for a chance at ANY other prize?`,
           [
             { text: "DEAL (TAKE OFFER)", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
             { text: "GAMBLER'S PASS", class: "gamble-btn", action: () => executeGamblersPass() },
@@ -534,7 +531,6 @@
     vaultText.innerText = "🎲 ROLLING GAMBLER'S PASS... 🎲";
 
     setTimeout(() => {
-      // Equal % chance at any other item in the entire game pool
       const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
       vaultText.innerHTML = `🎲 GAMBLER'S PASS RESULT! 🎲<br><br>${randomPrize.desc}`;
 
