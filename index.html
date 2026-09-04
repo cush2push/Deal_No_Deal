@@ -89,10 +89,12 @@
   #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; align-items: center; justify-content: center; }
   #ad-video { width: 100%; height: 100%; object-fit: contain; }
 
-  /* Modal */
+  /* Bigger Modal */
   #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 15px; }
-  #modal-content { background: #222; padding: 30px 20px; border: 2px solid #d4af37; border-radius: 10px; max-width: 450px; width: 100%; text-align: center; }
-  .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+  #modal-content { background: #222; padding: 40px; border: 3px solid #d4af37; border-radius: 15px; max-width: 650px; width: 95%; text-align: center; }
+  #modal-title { font-size: 2.2em; margin-bottom: 20px; color: #ffd700; }
+  .modal-buttons { margin-top: 30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+  .modal-buttons button { font-size: 1.2em; padding: 15px 30px; }
   .deal-btn { background: #27ae60; color: white; }
   .nodeal-btn { background: #c0392b; color: white; }
   .gamble-btn { background: #8e44ad; color: white; }
@@ -108,7 +110,23 @@
 </head>
 <body>
 
-<div id="media-screen" class="flow-screen" style="display: block;">
+<!-- STEP 1: WELCOME SCREEN -->
+<div id="welcome-screen" class="flow-screen" style="display: block;">
+  <h1>Deal or No Deal</h1>
+  <p style="color: #aaa; text-align: center; margin-bottom: 25px;">Welcome to the ultimate game of chance.</p>
+  
+  <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
+    <label style="font-size: 1.1em; color: #f1c40f; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
+      <input type="checkbox" id="enable-ads" style="transform: scale(1.5);" />
+      Enable Commercial Breaks
+    </label>
+  </div>
+
+  <button onclick="handleWelcomeNext()" style="width: 100%; font-size: 1.2em;">Next</button>
+</div>
+
+<!-- STEP 2: VIDEO AD SELECTION SCREEN (OPTIONAL) -->
+<div id="media-screen" class="flow-screen">
   <h1>Commercial Breaks</h1>
   <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Upload videos or skip</p>
   
@@ -130,6 +148,7 @@
   <button onclick="goToSetup()" style="width: 100%; font-size: 1.1em; margin-top: 10px;">Continue to Prizes</button>
 </div>
 
+<!-- STEP 3: PRIZE SETUP SCREEN -->
 <div id="setup-screen" style="max-width:600px; width:100%; margin:auto; background:#222; padding:15px; border-radius:10px; display:none;">
   <h1 id="setup-title">Game Setup</h1>
   <p class="setup-help">Enter your 25 prizes and values.</p>
@@ -137,6 +156,7 @@
   <button onclick="goToPlayerName()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Continue to Player Name</button>
 </div>
 
+<!-- STEP 4: CONTESTANT NAME SCREEN -->
 <div id="player-screen" class="flow-screen">
   <h1>Contestant</h1>
   <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Who is playing today?</p>
@@ -146,6 +166,7 @@
   <button onclick="startGame()" style="width: 100%; font-size: 1.1em; margin-top: 10px;">Start Game</button>
 </div>
 
+<!-- GAME SCREEN -->
 <div id="game-screen">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
@@ -164,6 +185,7 @@
   </div>
 </div>
 
+<!-- ROBUST FULL SCREEN ANIMATION OVERLAY -->
 <div id="fs-overlay">
   <div class="fs-title" id="fs-title">Opening Case...</div>
   <div class="fs-case-container" id="fs-case">
@@ -174,19 +196,22 @@
   <div id="fs-timer">Continuing in 5s...</div>
 </div>
 
+<!-- FANCY LAST CHANCE REVEAL OVERLAY -->
 <div id="last-chance-reveal">
   <div class="vault-box" id="vault-text">UNLOCKING VAULT...</div>
 </div>
 
+<!-- FULL SCREEN VIDEO AD OVERLAY -->
 <div id="ad-overlay">
   <video id="ad-video" playsinline webkit-playsinline></video>
 </div>
 
+<!-- BIGGER BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
-    <img id="banker-img" src="banker.png" style="display: none; width: 130px; height: 130px; object-fit: cover; border-radius: 50%; margin: 10px auto; border: 4px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.8);">
-    <p id="modal-text" style="font-size: 24px; font-weight: bold; color: #27ae60; margin: 15px 0;"></p>
+    <img id="banker-img" src="banker.png" style="display: none; width: 180px; height: 180px; object-fit: cover; border-radius: 50%; margin: 10px auto; border: 5px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.8);">
+    <p id="modal-text" style="font-size: 32px; font-weight: bold; color: #27ae60; margin: 25px 0;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
   </div>
 </div>
@@ -226,6 +251,17 @@
         </div>
       </div>
     `;
+  }
+
+  function handleWelcomeNext() {
+    document.getElementById('welcome-screen').style.display = 'none';
+    const enableAds = document.getElementById('enable-ads').checked;
+    
+    if (enableAds) {
+      document.getElementById('media-screen').style.display = 'block';
+    } else {
+      document.getElementById('setup-screen').style.display = 'block';
+    }
   }
 
   function goToSetup() {
@@ -369,11 +405,22 @@
       if (btnElem.classList.contains('keeper')) {
         openFullscreenCase(index, () => {
           finalWinningPrize = cases[index];
-          if (ad3ObjectUrl) {
-            playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
+          
+          // Calculate overall average of ALL prizes (active or inactive)
+          const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
+          const overallAvg = totalSum / prizes.length;
+
+          // Only show Ad #3 and run last chance logic if winning prize is LESS than overall average
+          if (finalWinningPrize.val < overallAvg) {
+            if (ad3ObjectUrl) {
+              playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
+            } else {
+              checkLastChanceOffer();
+            }
           } else {
-            checkLastChanceOffer();
+            finalizeGameOver(finalWinningPrize);
           }
+
         }, true);
       }
     }
@@ -481,26 +528,27 @@
   }
 
   function checkLastChanceOffer() {
-    if (finalWinningPrize.val < 12) {
-      const minVal = finalWinningPrize.val * 1.30;
-      const maxVal = finalWinningPrize.val * 1.75;
-      const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
+    // The conditional check for < average is already handled in final reveal before ad trigger
+    // So we just find the 130% to 175% range items here
+    const minVal = finalWinningPrize.val * 1.30;
+    const maxVal = finalWinningPrize.val * 1.75;
+    const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
 
-      if (eligibleItems.length > 0) {
-        const replacementItem = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
-        showModal(
-          "LAST CHANCE OFFER!", 
-          `${playerName}, you won a prize under 12!\n\nWould you like to swap for a Last Chance offer prize (${replacementItem.desc}), or take a Gambler's Pass to gamble for a chance at ANY other prize?`,
-          [
-            { text: "DEAL (TAKE OFFER)", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
-            { text: "GAMBLER'S PASS", class: "gamble-btn", action: () => executeGamblersPass() },
-            { text: "NO DEAL (KEEP)", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
-          ],
-          true
-        );
-        return;
-      }
+    if (eligibleItems.length > 0) {
+      const replacementItem = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+      showModal(
+        "LAST CHANCE OFFER!", 
+        `${playerName}, your prize was below average!\n\nWould you like to swap for a Last Chance offer prize (${replacementItem.desc}), or take a Gambler's Pass to gamble for a chance at ANY other prize?`,
+        [
+          { text: "DEAL (TAKE OFFER)", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
+          { text: "GAMBLER'S PASS", class: "gamble-btn", action: () => executeGamblersPass() },
+          { text: "NO DEAL (KEEP)", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
+        ],
+        true
+      );
+      return;
     }
+    
     finalizeGameOver(finalWinningPrize);
   }
 
@@ -599,7 +647,6 @@
     };
   }
 
-  // Updated Banker Logic: Maps the numeric calculated value to the closest matching prize name on the board
   function triggerBanker() {
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
@@ -607,8 +654,9 @@
     const modifier = (Math.random() * 0.20) + 0.45; // 45% to 65%
     const targetVal = ev * modifier;
 
-    // Find the active prize on the board closest in numeric value to targetVal
-    let closestPrize = activePrizes.reduce((prev, curr) => {
+    // The Banker can offer ANY case (active or eliminated) that falls in the value range.
+    // We search the entire `prizes` array (all 25 items) to find the closest match to our calculated target value.
+    let closestPrize = prizes.reduce((prev, curr) => {
       return (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev);
     });
 
