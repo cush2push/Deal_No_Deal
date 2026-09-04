@@ -85,10 +85,9 @@
   .vault-box { width: 350px; height: 250px; background: radial-gradient(circle, #d4af37, #8b6508); border: 8px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px gold; font-size: 2em; font-weight: bold; color: black; text-align: center; padding: 20px; animation: pulseVault 1.5s infinite alternate; }
   @keyframes pulseVault { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
-  /* Video Ad Overlay with Play Button for Mobile Compliance */
-  #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; flex-direction: column; align-items: center; justify-content: center; }
-  #ad-video { width: 100%; height: 85%; object-fit: contain; }
-  #play-ad-btn { margin-top: 15px; font-size: 1.4em; padding: 12px 30px; background: #e74c3c; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+  /* Full Screen Video Ad Overlay */
+  #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; align-items: center; justify-content: center; }
+  #ad-video { width: 100%; height: 100%; object-fit: contain; }
 
   /* Modal */
   #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 15px; }
@@ -108,6 +107,7 @@
 </head>
 <body>
 
+<!-- PLAYER NAME & MEDIA UPLOAD SCREEN -->
 <div id="player-screen">
   <h1>Deal or No Deal</h1>
   <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Configure player & commercial breaks</p>
@@ -133,6 +133,7 @@
   <button onclick="goToSetup()" style="width: 100%; font-size: 1.1em; margin-top: 5px;">Continue to Setup</button>
 </div>
 
+<!-- SETUP SCREEN -->
 <div id="setup-screen">
   <h1 id="setup-title">Game Setup</h1>
   <p class="setup-help">Enter your 25 prizes and values.</p>
@@ -140,6 +141,7 @@
   <button onclick="startGame()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Start Game</button>
 </div>
 
+<!-- GAME SCREEN -->
 <div id="game-screen">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
@@ -158,6 +160,7 @@
   </div>
 </div>
 
+<!-- ROBUST FULL SCREEN ANIMATION OVERLAY -->
 <div id="fs-overlay">
   <div class="fs-title" id="fs-title">Opening Case...</div>
   <div class="fs-case-container" id="fs-case">
@@ -168,15 +171,17 @@
   <div id="fs-timer">Continuing in 5s...</div>
 </div>
 
+<!-- FANCY LAST CHANCE REVEAL OVERLAY -->
 <div id="last-chance-reveal">
   <div class="vault-box" id="vault-text">UNLOCKING VAULT...</div>
 </div>
 
+<!-- FULL SCREEN SEAMLESS VIDEO AD OVERLAY -->
 <div id="ad-overlay">
   <video id="ad-video" playsinline webkit-playsinline></video>
-  <button id="play-ad-btn" onclick="triggerManualPlay()">▶ Play Commercial</button>
 </div>
 
+<!-- BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
@@ -331,3 +336,299 @@
         updateInstructions(`${playerName} SWAPPED! The unselected case is eliminated automatically.`);
 
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
+        
+        setTimeout(() => {
+          openFullscreenCase(thirdCaseIndex, () => {
+            updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
+          }, false);
+        }, 1200);
+      }
+    } 
+    else if (gameState === 'FINALE_KEEP_ELIMINATE') {
+      if (!btnElem.classList.contains('keeper') && !btnElem.classList.contains('opened')) {
+        gameState = 'FINAL_REVEAL';
+        openFullscreenCase(index, () => {
+          updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
+        }, false);
+      }
+    } 
+    else if (gameState === 'FINAL_REVEAL') {
+      if (btnElem.classList.contains('keeper')) {
+        openFullscreenCase(index, () => {
+          finalWinningPrize = cases[index];
+          if (ad3ObjectUrl) {
+            playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
+          } else {
+            checkLastChanceOffer();
+          }
+        }, true);
+      }
+    }
+  }
+
+  function openFullscreenCase(index, callback, isFinal = false) {
+    pendingCaseIndex = index;
+    pendingCallback = callback;
+    const caseData = cases[index];
+
+    const activePrizes = prizes.filter(p => p.active);
+    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
+    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
+
+    const overlay = document.getElementById('fs-overlay');
+    const caseAnim = document.getElementById('fs-case');
+    const titleElem = document.getElementById('fs-title');
+
+    overlay.className = '';
+    caseAnim.classList.remove('open-anim', 'shake');
+
+    let isHighValue = caseData.val > averageVal && !isFinal;
+
+    if (isFinal) {
+      titleElem.innerText = `${playerName}'s Final Reveal...`;
+    } else if (isHighValue) {
+      titleElem.innerText = "💥 OUCH! BAD NEWS! 💥";
+      overlay.classList.add('flash-sad');
+    } else {
+      titleElem.innerText = "🎉 GREAT NEWS! SAFE! 🎉";
+      overlay.classList.add('flash-happy');
+    }
+
+    document.getElementById('fs-prize-text').innerHTML = `$${caseData.val}<br><span style="font-size:0.4em; color:white;">${caseData.desc}</span>`;
+    
+    overlay.style.display = 'flex';
+
+    const activeCasesCount = activePrizes.length;
+    const isSuspense = activeCasesCount <= 5 && !isFinal;
+
+    if (isSuspense) {
+      caseAnim.classList.add('shake');
+    }
+
+    void caseAnim.offsetWidth;
+
+    let openDelay = isSuspense ? 1200 : 200;
+
+    setTimeout(() => { 
+      caseAnim.classList.remove('shake');
+      caseAnim.classList.add('open-anim'); 
+    }, openDelay);
+
+    let timeLeft = 5;
+    const timerElem = document.getElementById('fs-timer');
+    timerElem.innerText = `Continuing in ${timeLeft}s...`;
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        timerElem.innerText = `Continuing in ${timeLeft}s...`;
+      } else {
+        clearInterval(timerInterval);
+        closeFullscreen();
+      }
+    }, 1000);
+  }
+
+  function closeFullscreen() {
+    clearInterval(timerInterval);
+    document.getElementById('fs-overlay').style.display = 'none';
+    
+    const index = pendingCaseIndex;
+    const caseData = cases[index];
+    caseData.active = false;
+
+    document.getElementById(`case-${index}`).classList.add('opened');
+    document.getElementById(`board-prize-${caseData.id}`).classList.add('prize-eliminated');
+
+    if (gameState !== 'FINAL_REVEAL') {
+      totalCasesOpenedGlobal++;
+    }
+
+    if (totalCasesOpenedGlobal === 8 && ad1ObjectUrl) {
+      playVideoAd(ad1ObjectUrl, finishOpeningFlow);
+      return;
+    } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl) {
+      playVideoAd(ad2ObjectUrl, finishOpeningFlow);
+      return;
+    }
+
+    finishOpeningFlow();
+  }
+
+  function finishOpeningFlow() {
+    if (pendingCallback) {
+      pendingCallback();
+    } else {
+      casesOpenedThisRound++;
+      updateInstructions();
+      checkRoundProgress();
+    }
+  }
+
+  function checkLastChanceOffer() {
+    const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
+    const overallAvg = totalSum / prizes.length;
+    const threshold = overallAvg * 0.80;
+
+    if (finalWinningPrize.val <= threshold) {
+      const minVal = finalWinningPrize.val * 0.75;
+      const maxVal = finalWinningPrize.val * 1.50;
+      const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
+
+      if (eligibleItems.length > 0) {
+        const replacementItem = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
+        showModal(
+          "LAST CHANCE OFFER!", 
+          `Your winning case value ($${finalWinningPrize.val}) was significantly below average!\n\nWould you like to trade it for a Last Chance mystery prize?`,
+          [
+            { text: "DEAL", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
+            { text: "NO DEAL", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
+          ],
+          true
+        );
+        return;
+      }
+    }
+    finalizeGameOver(finalWinningPrize);
+  }
+
+  function executeLastChanceDeal(newItem) {
+    closeModal();
+    const revealContainer = document.getElementById('last-chance-reveal');
+    const vaultText = document.getElementById('vault-text');
+    revealContainer.style.display = 'flex';
+    vaultText.innerText = "UNLOCKING VAULT...";
+
+    setTimeout(() => {
+      vaultText.innerHTML = `🌟 JACKPOT UPGRADE! 🌟<br><br>$${newItem.val}<br><span style="font-size:0.6em;">${newItem.desc}</span>`;
+    }, 1500);
+
+    setTimeout(() => {
+      revealContainer.style.display = 'none';
+      showModal("Game Over", `${playerName}, you took the Last Chance Deal and upgraded to:\n\n$${newItem.val} - ${newItem.desc}`, [], false);
+    }, 4500);
+  }
+
+  function finalizeGameOver(prize) {
+    closeModal();
+    showModal("Game Over", `${playerName}, you are going home with:\n\n$${prize.val} - ${prize.desc}`, [], false);
+  }
+
+  function updateInstructions(override = null) {
+    if (override) {
+      document.getElementById('instruction-text').innerText = override;
+      return;
+    }
+    const target = roundSchedule[currentRound];
+    const left = target - casesOpenedThisRound;
+    document.getElementById('cases-left').innerText = left > 0 ? left : 0;
+    document.getElementById('instruction-text').innerText = `${playerName}, select briefcases to open`;
+  }
+
+  function checkRoundProgress() {
+    const target = roundSchedule[currentRound];
+    if (casesOpenedThisRound >= target) {
+      triggerBanker();
+    }
+  }
+
+  function playVideoAd(videoUrl, callback) {
+    const adOverlay = document.getElementById('ad-overlay');
+    const adVideo = document.getElementById('ad-video');
+    
+    currentAdCallback = callback;
+    adVideo.src = videoUrl;
+    adVideo.load();
+    adOverlay.style.display = 'flex';
+
+    // Attempt instant autoplay tied directly to the briefcase click context
+    adVideo.play().catch(error => {
+      console.log("Autoplay restricted, enabling touch-to-play fallback:", error);
+      // Fallback: If browser blocks it, touching anywhere on the black overlay will start it instantly
+      adOverlay.onclick = () => {
+        adVideo.play();
+        adOverlay.onclick = null;
+      };
+    });
+
+    adVideo.onended = () => {
+      adOverlay.style.display = 'none';
+      adOverlay.onclick = null;
+      if (currentAdCallback) {
+        let cb = currentAdCallback;
+        currentAdCallback = null;
+        cb();
+      }
+    };
+
+    adVideo.onerror = () => {
+      adOverlay.style.display = 'none';
+      adOverlay.onclick = null;
+      if (currentAdCallback) {
+        let cb = currentAdCallback;
+        currentAdCallback = null;
+        cb();
+      }
+    };
+  }
+
+  function triggerBanker() {
+    const activePrizes = prizes.filter(p => p.active);
+    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
+    const ev = sum / activePrizes.length;
+    const modifier = (Math.random() * 0.30) + 0.25; 
+    const offerValue = Math.round(ev * modifier);
+
+    showModal("The Banker is Calling...", `$${offerValue}`, [
+      { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
+      { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
+    ], true);
+  }
+
+  function acceptDeal(offer) {
+    showModal("Game Over", `${playerName} took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, [], false);
+  }
+
+  function rejectDeal() {
+    closeModal();
+    casesOpenedThisRound = 0;
+    currentRound++;
+    
+    if (currentRound >= roundSchedule.length) {
+      gameState = 'FINALE_CHOICE';
+      updateInstructions(`3 Cases Left, ${playerName}! Click your Keeper to KEEP, or click a board case to SWAP.`);
+      document.getElementById('cases-left').innerText = "FINAL";
+      document.getElementById(`case-${keeperCase.caseIndex}`).onclick = () => handleCaseClick(keeperCase.caseIndex, document.getElementById(`case-${keeperCase.caseIndex}`));
+    } else {
+      updateInstructions();
+    }
+  }
+
+  function showModal(title, text, buttons, showBanker = false) {
+    document.getElementById('modal-title').innerText = title;
+    
+    const bankerImg = document.getElementById('banker-img');
+    if (showBanker) {
+      bankerImg.style.display = 'block';
+    } else {
+      bankerImg.style.display = 'none';
+    }
+
+    document.getElementById('modal-text').innerText = text;
+    const actions = document.getElementById('modal-actions');
+    actions.innerHTML = '';
+    buttons.forEach(btn => {
+      const b = document.createElement('button');
+      b.innerText = btn.text;
+      if (btn.class) b.className = btn.class;
+      b.onclick = btn.action;
+      actions.appendChild(b);
+    });
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
+</script>
+</body>
+</html>
