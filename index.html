@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,84 +6,103 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Custom Deal or No Deal - Deluxe</title>
 <style>
-  body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 20px; text-align: center; }
+  * { box-sizing: border-box; }
+  body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 10px; text-align: center; }
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
   button:hover { background: #f1c40f; }
   
   /* Setup Screen & Inputs */
-  #setup-screen { max-width: 600px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
-  .setup-help { color: #aaa; margin-bottom: 20px; font-size: 0.9em; }
-  .setup-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; background: #333; padding: 10px; border-radius: 5px; }
-  .setup-row input[type="text"] { flex: 1; padding: 10px; background: #444; border: 1px solid #666; color: white; border-radius: 4px; font-size: 16px; }
+  #setup-screen { max-width: 600px; width: 100%; margin: auto; background: #222; padding: 15px; border-radius: 10px; }
+  .setup-help { color: #aaa; margin-bottom: 15px; font-size: 0.9em; }
+  .setup-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; background: #333; padding: 8px; border-radius: 5px; flex-wrap: wrap; }
+  .setup-row span { font-weight: bold; min-width: 25px; }
+  .setup-row input[type="text"] { flex: 1; min-width: 140px; padding: 8px; background: #444; border: 1px solid #666; color: white; border-radius: 4px; font-size: 14px; }
   
-  /* Number Input Styling */
-  .val-container { display: flex; align-items: center; gap: 5px; background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; color: gold; font-weight: bold; font-size: 1.1em; }
-  .num-input { width: 70px; padding: 8px; background: #444; border: 1px solid #666; color: gold; border-radius: 4px; font-weight: bold; font-size: 16px; text-align: center; }
+  .val-container { display: flex; align-items: center; gap: 5px; background: #222; padding: 4px 8px; border-radius: 5px; border: 1px solid #444; color: gold; font-weight: bold; font-size: 1em; }
+  .num-input { width: 65px; padding: 6px; background: #444; border: 1px solid #666; color: gold; border-radius: 4px; font-weight: bold; font-size: 14px; text-align: center; }
   .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .num-input[type=number] { -moz-appearance: textfield; }
 
   /* Game Screen */
-  #game-screen { display: none; display: flex; flex-direction: column; height: 95vh; }
-  #top-bar { padding: 10px; background: #333; font-size: 1.2em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
-  #instruction-text { color: #f1c40f; }
+  #game-screen { display: none; flex-direction: column; min-height: 95vh; width: 100%; max-width: 1400px; margin: auto; }
+  #top-bar { padding: 10px; background: #333; font-size: 1.1em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; margin-bottom: 10px; }
+  #instruction-text { color: #f1c40f; font-size: 0.95em; }
   
   /* Golden Podium */
-  #golden-area { display: flex; flex-direction: column; align-items: center; margin: 15px 0; }
-  #golden-podium { width: 140px; height: 110px; border: 4px solid gold; border-radius: 10px; background: rgba(255, 215, 0, 0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+  #golden-area { display: flex; flex-direction: column; align-items: center; margin: 5px 0 10px 0; }
+  #golden-podium { width: 110px; height: 80px; border: 3px solid gold; border-radius: 8px; background: rgba(255, 215, 0, 0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
   
-  #main-area { display: flex; flex: 1; gap: 10px; }
+  #main-area { display: flex; flex: 1; gap: 10px; justify-content: center; align-items: flex-start; }
   
   /* Prize Boards */
-  .prize-board { width: 20%; display: flex; flex-direction: column; gap: 5px; }
-  .prize-item { background: #d4af37; color: black; padding: 5px; font-weight: bold; border-radius: 3px; font-size: 0.85em; display: flex; justify-content: space-between; }
+  .prize-board { width: 22%; display: flex; flex-direction: column; gap: 4px; }
+  .prize-item { background: #d4af37; color: black; padding: 4px 6px; font-weight: bold; border-radius: 3px; font-size: 0.75em; display: flex; justify-content: space-between; }
   .prize-eliminated { background: #444; color: #777; text-decoration: line-through; }
   
   /* Briefcases */
-  #cases-area { width: 60%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-content: start; justify-items: center; }
-  .briefcase { width: 70px; height: 50px; background: #8b9dc3; border: 3px solid #3b5998; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; color: black; cursor: pointer; transition: transform 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); background-image: linear-gradient(to bottom, #a2b2d4, #7388b5); }
-  .briefcase:hover { transform: scale(1.1); }
+  #cases-area { width: 52%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; align-content: start; justify-items: center; }
+  .briefcase { width: 100%; aspect-ratio: 4 / 3; max-width: 75px; background: #8b9dc3; border: 2px solid #3b5998; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: black; cursor: pointer; transition: transform 0.2s; box-shadow: 2px 2px 4px rgba(0,0,0,0.5); background-image: linear-gradient(to bottom, #a2b2d4, #7388b5); }
+  .briefcase:hover { transform: scale(1.08); }
   .briefcase.opened { visibility: hidden; }
-  .briefcase.keeper { margin: 0; transform: scale(1.3); cursor: default; }
-  .briefcase.keeper:hover { transform: scale(1.3); }
+  .briefcase.keeper { margin: 0; transform: scale(1.15); cursor: default; width: 85px; height: 60px; }
+  .briefcase.keeper:hover { transform: scale(1.15); }
 
-  /* Full Screen Animation */
-  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1000px; }
-  .fs-title { color: white; font-size: 2em; margin-bottom: 50px; font-weight: bold; }
-  .fs-case-container { width: 300px; height: 200px; position: relative; }
-  .fs-case-body { position: absolute; width: 100%; height: 100%; background: #5a73a3; border: 5px solid #2e4370; border-radius: 10px; box-shadow: inset 0 -30px rgba(0,0,0,0.3); z-index: 1; }
-  .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #6b86bd; border: 5px solid #2e4370; border-radius: 10px; transform-origin: top; transition: transform 1s ease-in-out; z-index: 3; }
-  .open-anim .fs-lid { transform: rotateX(110deg); }
-  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.1); width: 120%; text-align: center; color: #ffd700; font-size: 2.5em; font-weight: bold; text-shadow: 3px 3px 6px #000; opacity: 0; z-index: 4; transition: all 0.8s ease-out 0.6s; }
-  .open-anim .fs-prize-text { transform: translate(-50%, -150%) scale(1); opacity: 1; }
-  #fs-continue { margin-top: 60px; font-size: 1.5em; padding: 15px 30px; display: none; z-index: 10; }
+  /* Robust Robust Full Screen Animation Overlays */
+  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; }
+  .fs-title { color: white; font-size: 2em; margin-bottom: 25px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+  
+  .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
+  
+  /* Suspense Shake Effect for Last Briefcases */
+  .shake { animation: suspenseShake 0.4s infinite alternate; }
+  @keyframes suspenseShake {
+    0% { transform: translateX(-8px) rotate(-2deg); }
+    100% { transform: translateX(8px) rotate(2deg); }
+  }
 
-  /* Modal & Larger Buttons */
-  #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 100; }
-  #modal-content { background: #222; padding: 40px; border: 2px solid #d4af37; border-radius: 10px; max-width: 550px; text-align: center; }
-  .modal-buttons { margin-top: 25px; display: flex; justify-content: center; gap: 30px; }
-  .deal-btn { background: #27ae60; color: white; font-size: 20px; padding: 15px 35px; border-radius: 8px; }
-  .nodeal-btn { background: #c0392b; color: white; font-size: 20px; padding: 15px 35px; border-radius: 8px; }
+  .fs-case-body { position: absolute; width: 100%; height: 100%; background: #48639c; border: 6px solid #203154; border-radius: 12px; box-shadow: inset 0 -40px rgba(0,0,0,0.4), 0 10px 25px rgba(0,0,0,0.8); z-index: 1; }
+  .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #5d7cb8; border: 6px solid #203154; border-radius: 12px; transform-origin: top; transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); z-index: 3; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+  
+  .open-anim .fs-lid { transform: rotateX(120deg); }
+  
+  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.2); width: 140%; text-align: center; color: #ffd700; font-size: 2.5em; font-weight: bold; text-shadow: 3px 3px 8px #000; opacity: 0; z-index: 4; transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s; }
+  .open-anim .fs-prize-text { transform: translate(-50%, -140%) scale(1); opacity: 1; }
+
+  #fs-timer { margin-top: 35px; color: #aaa; font-size: 1.2em; font-weight: bold; letter-spacing: 1px; }
+
+  /* Modal */
+  #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 15px; }
+  #modal-content { background: #222; padding: 30px 20px; border: 2px solid #d4af37; border-radius: 10px; max-width: 450px; width: 100%; text-align: center; }
+  .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
+  .deal-btn { background: #27ae60; color: white; }
+  .nodeal-btn { background: #c0392b; color: white; }
+
+  @media (max-width: 768px) {
+    #main-area { flex-direction: column; align-items: center; }
+    .prize-board { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; margin-bottom: 10px; }
+    .prize-item { width: 18%; font-size: 0.65em; padding: 3px; }
+    #cases-area { width: 100%; max-width: 400px; }
+    #top-bar { font-size: 0.95em; flex-direction: column; gap: 5px; text-align: center; }
+  }
 </style>
 </head>
 <body>
 
-<!-- SETUP SCREEN -->
 <div id="setup-screen">
   <h1>Game Setup</h1>
-  <p class="setup-help">Tap the numeric box to enter the Banker value.</p>
+  <p class="setup-help">Enter your 25 prizes and values.</p>
   <div id="setup-rows"></div>
-  <button onclick="startGame()" style="margin-top: 20px; font-size: 1.2em;">Start Game</button>
+  <button onclick="startGame()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Start Game</button>
 </div>
 
-<!-- GAME SCREEN -->
-<div id="game-screen">
+<div id="game-screen" style="display:none;">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
     <div id="round-info">Cases to open: <span id="cases-left">-</span></div>
   </div>
   
   <div id="golden-area">
-    <div style="color: gold; margin-bottom: 5px; font-weight: bold; letter-spacing: 2px;">YOUR KEEPER</div>
+    <div style="color: gold; margin-bottom: 3px; font-weight: bold; font-size: 0.85em; letter-spacing: 1px;">KEEPER</div>
     <div id="golden-podium"></div>
   </div>
   
@@ -93,7 +113,6 @@
   </div>
 </div>
 
-<!-- FULL SCREEN ANIMATION OVERLAY -->
 <div id="fs-overlay">
   <div class="fs-title" id="fs-title">Opening Case...</div>
   <div class="fs-case-container" id="fs-case">
@@ -101,73 +120,14 @@
     <div class="fs-lid"></div>
     <div class="fs-prize-text" id="fs-prize-text"></div>
   </div>
-  <button id="fs-continue" onclick="closeFullscreen()">Continue</button>
+  <div id="fs-timer">Continuing in 5s...</div>
 </div>
 
-<!-- BANKER MODAL WITH EMOTIONS -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
-    
-    <!-- Banker Container -->
-    <div id="banker-container" style="display: none; width: 140px; height: 150px; margin: 10px auto; position: relative;">
-      
-      <!-- 1. LAUGHING BANKER (Low Offer) -->
-      <svg id="banker-laughing" class="banker-face" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="display:none; width:140px; height:140px;">
-        <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
-        <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
-        <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
-        <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
-        <!-- Laughing Eyes (Closed Arcs) -->
-        <path d="M 55 60 Q 64 50 73 60" stroke="#111" stroke-width="3" fill="none"/>
-        <path d="M 77 60 Q 86 50 95 60" stroke="#111" stroke-width="3" fill="none"/>
-        <!-- Open Laughing Mouth -->
-        <path d="M 60 80 Q 75 105 90 80 Z" fill="#78281f"/>
-        <!-- Top Hat -->
-        <rect x="40" y="32" width="70" height="6" fill="#111"/>
-        <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
-      </svg>
-
-      <!-- 2. NEUTRAL BANKER (Average Offer) -->
-      <svg id="banker-neutral" class="banker-face" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="display:none; width:140px; height:140px;">
-        <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
-        <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
-        <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
-        <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
-        <rect x="50" y="60" width="18" height="10" rx="2" fill="#111"/>
-        <rect x="82" y="60" width="18" height="10" rx="2" fill="#111"/>
-        <line x1="68" y1="65" x2="82" y2="65" stroke="#111" stroke-width="2"/>
-        <path d="M 55 85 Q 75 75 95 85 Q 75 95 55 85" fill="#111"/>
-        <rect x="40" y="32" width="70" height="6" fill="#111"/>
-        <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
-      </svg>
-
-      <!-- 3. WORRIED BANKER (High Offer - Desperate) -->
-      <svg id="banker-worried" class="banker-face" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="display:none; width:140px; height:140px;">
-        <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
-        <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
-        <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
-        <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
-        <!-- Worried Eyebrows -->
-        <line x1="50" y1="52" x2="68" y2="58" stroke="#111" stroke-width="3"/>
-        <line x1="100" y1="52" x2="82" y2="58" stroke="#111" stroke-width="3"/>
-        <!-- Sweat Drop -->
-        <path d="M 98 45 Q 103 55 98 60 Q 93 55 98 45 Z" fill="#3498db"/>
-        <!-- Wide Panicked Mouth -->
-        <ellipse cx="75" cy="85" rx="8" ry="12" fill="#111"/>
-        <!-- Top Hat -->
-        <rect x="40" y="32" width="70" height="6" fill="#111"/>
-        <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
-      </svg>
-
-    </div>
-
-    <!-- TAKE IT SIGN -->
-    <div id="take-it-sign" style="display: none; background: #c0392b; color: white; font-weight: bold; font-size: 1.1em; padding: 5px 12px; border-radius: 5px; margin: 5px auto; width: fit-content; border: 2px dashed #ffeaa7; text-transform: uppercase; animation: pulse 0.8s infinite alternate;">
-      🚨 PLEASE TAKE THE OFFER! 🚨
-    </div>
-
-    <p id="modal-text" style="font-size: 28px; font-weight: bold; color: #27ae60; margin: 15px 0;"></p>
+    <img id="banker-img" src="banker.png" style="display: none; width: 130px; height: 130px; object-fit: cover; border-radius: 50%; margin: 10px auto; border: 4px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.8);">
+    <p id="modal-text" style="font-size: 24px; font-weight: bold; color: #27ae60; margin: 15px 0;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
   </div>
 </div>
@@ -183,7 +143,9 @@
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
+  let timerInterval = null;
 
+  // 1. GENERATE SETUP ROWS
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
     let defaultVal = i * 10;
@@ -198,6 +160,7 @@
     `;
   }
 
+  // 2. START GAME & SHUFFLE
   function startGame() {
     prizes = [];
     for (let i = 1; i <= 25; i++) {
@@ -226,6 +189,7 @@
     document.getElementById('game-screen').style.display = 'flex';
   }
 
+  // 3. RENDER UI
   function renderPrizeBoards() {
     const left = document.getElementById('left-board');
     const right = document.getElementById('right-board');
@@ -254,6 +218,7 @@
     });
   }
 
+  // 4. CORE GAME LOGIC & STATE MACHINE
   function handleCaseClick(index, btnElem) {
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
@@ -314,12 +279,17 @@
     }
   }
 
+  // 5. ROBUST FULL SCREEN ANIMATION HANDLER WITH SUSPENSE SHAKE & TIMER
   function openFullscreenCase(index, callback, isFinal = false) {
     pendingCaseIndex = index;
     pendingCallback = callback;
     const caseData = cases[index];
 
-    document.getElementById('fs-title').innerText = isFinal ? "The Final Reveal..." : `Opening Case ${index + 1}...`;
+    // Check how many cases are active to trigger suspense anxiety on the final ones
+    const activeCasesCount = cases.filter(c => c.active).length;
+    const isSuspense = activeCasesCount <= 5; // Adds intensity when 5 or fewer cases remain
+
+    document.getElementById('fs-title').innerText = isFinal ? "The Final Reveal..." : (isSuspense ? "⚠️ TENSE MOMENT... ⚠️" : `Opening Case ${index + 1}...`);
     document.getElementById('fs-prize-text').innerHTML = `$${caseData.val}<br><span style="font-size:0.4em; color:white;">${caseData.desc}</span>`;
     
     const overlay = document.getElementById('fs-overlay');
@@ -327,15 +297,41 @@
     
     overlay.style.display = 'flex';
     caseAnim.classList.remove('open-anim');
-    document.getElementById('fs-continue').style.display = 'none';
+    caseAnim.classList.remove('shake');
+
+    if (isSuspense) {
+      caseAnim.classList.add('shake');
+    }
 
     void caseAnim.offsetWidth;
 
-    setTimeout(() => { caseAnim.classList.add('open-anim'); }, 100);
-    setTimeout(() => { document.getElementById('fs-continue').style.display = 'block'; }, 1800);
+    // Delay the opening slightly if under high suspense to build tension
+    let openDelay = isSuspense ? 1200: 200;
+
+    setTimeout(() => { 
+      caseAnim.classList.remove('shake');
+      caseAnim.classList.add('open-anim'); 
+    }, openDelay);
+
+    // 5-Second Timer Countdown
+    let timeLeft = 5;
+    const timerElem = document.getElementById('fs-timer');
+    timerElem.innerText = `Continuing in ${timeLeft}s...`;
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        timerElem.innerText = `Continuing in ${timeLeft}s...`;
+      } else {
+        clearInterval(timerInterval);
+        closeFullscreen();
+      }
+    }, 1000);
   }
 
   function closeFullscreen() {
+    clearInterval(timerInterval);
     document.getElementById('fs-overlay').style.display = 'none';
     
     const index = pendingCaseIndex;
@@ -354,6 +350,7 @@
     }
   }
 
+  // 6. PROGRESS AND BANKER
   function updateInstructions(override = null) {
     if (override) {
       document.getElementById('instruction-text').innerText = override;
@@ -376,24 +373,13 @@
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    
-    const modifier = (Math.random() * 0.30) + 0.25; // 0.25 to 0.55
+    const modifier = (Math.random() * 0.30) + 0.25; 
     const offerValue = Math.round(ev * modifier);
-
-    // Determine mood based on modifier scale
-    let mood = 'neutral';
-    if (modifier < 0.35) {
-      mood = 'laughing'; // Low offer -> Laughing
-    } else if (modifier > 0.45) {
-      mood = 'worried';  // High offer -> Worried / Desperate
-    } else {
-      mood = 'neutral';  // Average offer -> Straight face
-    }
 
     showModal("The Banker is Calling...", `$${offerValue}`, [
       { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
       { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
-    ], true, mood);
+    ], true);
   }
 
   function acceptDeal(offer) {
@@ -415,27 +401,14 @@
     }
   }
 
-  function showModal(title, text, buttons, showBanker = false, mood = 'neutral') {
+  function showModal(title, text, buttons, showBanker = false) {
     document.getElementById('modal-title').innerText = title;
     
-    const bankerContainer = document.getElementById('banker-container');
-    const takeItSign = document.getElementById('take-it-sign');
-    
-    // Hide all faces first
-    document.querySelectorAll('.banker-face').forEach(el => el.style.display = 'none');
-
+    const bankerImg = document.getElementById('banker-img');
     if (showBanker) {
-      bankerContainer.style.display = 'block';
-      document.getElementById(`banker-${mood}`).style.display = 'block';
-      
-      if (mood === 'worried') {
-        takeItSign.style.display = 'block';
-      } else {
-        takeItSign.style.display = 'none';
-      }
+      bankerImg.style.display = 'block';
     } else {
-      bankerContainer.style.display = 'none';
-      takeItSign.style.display = 'none';
+      bankerImg.style.display = 'none';
     }
 
     document.getElementById('modal-text').innerText = text;
