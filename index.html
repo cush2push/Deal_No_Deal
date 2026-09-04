@@ -654,12 +654,12 @@
       const safePrize = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
       
       showModal(
-        "LAST CHANCE OFFER!", 
-        `${playerName}, your prize was below the board average!\n\nWould you like to Play it Safe for a guaranteed moderate upgrade, or Risk it for the Biscuit for an equal chance at ANY prize?`,
+        "Hey foo!", 
+        `${playerName}, alaaa your prize came up short!\n\n Don't be a baby cry,eeee that prize is alll chafa, but you can roll the dice for a rando hook up or you wanna go for broke and get the enchiladas or what?`,
         [
-          { text: "PLAY IT SAFE", class: "deal-btn", action: () => executeLastChanceDeal(safePrize) },
-          { text: "RISK IT FOR THE BISCUIT", class: "gamble-btn", action: () => executeGamblersPass() },
-          { text: "KEEP MY CASE", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
+          { text: "HOOK ME UP FOO", class: "deal-btn", action: () => executeLastChanceDeal(safePrize) },
+          { text: "GO FOR BROKE", class: "gamble-btn", action: () => executeGamblersPass() },
+          { text: "I'M GOOD HOMIE", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
         ],
         true
       );
