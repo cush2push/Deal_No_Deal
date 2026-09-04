@@ -163,7 +163,7 @@
 
 <!-- FULL SCREEN VIDEO AD OVERLAY -->
 <div id="ad-overlay">
-  <video id="ad-video" playsinline></video>
+  <video id="ad-video" playsinline webkit-playsinline></video>
 </div>
 
 <!-- BANKER MODAL -->
@@ -198,12 +198,19 @@
     const inputVal = document.getElementById('player-input').value.trim();
     if (inputVal !== "") playerName = inputVal;
     
-    // Capture local gallery/photos video files and turn them into runtime URLs
     const ad1File = document.getElementById('ad1-file').files[0];
     const ad2File = document.getElementById('ad2-file').files[0];
 
     if (ad1File) ad1ObjectUrl = URL.createObjectURL(ad1File);
     if (ad2File) ad2ObjectUrl = URL.createObjectURL(ad2File);
+
+    // UNLOCK AUDIO/VIDEO FOR MOBILE SAFARI/CHROME
+    const dummyVideo = document.getElementById('ad-video');
+    dummyVideo.load();
+    dummyVideo.play().then(() => {
+      dummyVideo.pause();
+      dummyVideo.currentTime = 0;
+    }).catch(e => console.log("Unlock token initialized"));
 
     document.getElementById('setup-title').innerText = `${playerName}'s Game Setup`;
     document.getElementById('player-display').innerText = playerName;
@@ -468,7 +475,8 @@
     adVideo.oncanplay = () => {
       adOverlay.style.display = 'flex';
       adVideo.currentTime = 0;
-      adVideo.play().catch(() => {
+      adVideo.play().catch((err) => {
+        console.log("Play error:", err);
         adOverlay.style.display = 'none';
         if (callback) callback();
       });
@@ -544,6 +552,7 @@
 </script>
 </body>
 </html>
+
 
 
 
