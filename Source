@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Custom Deal or No Deal</title>
+<style>
+  body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 20px; text-align: center; }
+  h1, h2, h3 { margin: 10px 0; }
+  button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
+  button:hover { background: #f1c40f; }
+  
+  /* Setup Screen */
+  #setup-screen { max-width: 600px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
+  .setup-row { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
+  .setup-row input[type="text"] { flex: 1; margin: 0 10px; padding: 5px; }
+  
+  /* Game Screen */
+  #game-screen { display: none; display: flex; flex-direction: column; height: 95vh; }
+  #top-bar { display: flex; justify-content: space-around; padding: 10px; background: #333; font-size: 1.2em; font-weight: bold; }
+  #main-area { display: flex; flex: 1; margin-top: 20px; }
+  
+  /* Prize Boards */
+  .prize-board { width: 20%; display: flex; flex-direction: column; gap: 5px; }
+  .prize-item { background: #d4af37; color: black; padding: 5px; font-weight: bold; border-radius: 3px; font-size: 0.9em; }
+  .prize-eliminated { background: #444; color: #777; text-decoration: line-through; }
+  
+  /* Briefcases */
+  #cases-area { width: 60%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 0 20px; align-content: start; }
+  .briefcase { background: #8b9dc3; border: 2px solid #3b5998; border-radius: 5px; padding: 20px 0; font-size: 24px; font-weight: bold; color: black; cursor: pointer; transition: transform 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+  .briefcase:hover { transform: scale(1.05); }
+  .briefcase.opened { visibility: hidden; }
+  .briefcase.keeper { border: 4px solid #d4af37; background: #f1c40f; }
+  
+  /* Modal Overlay */
+  #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 100; }
+  #modal-content { background: #222; padding: 40px; border: 2px solid #d4af37; border-radius: 10px; max-width: 500px; text-align: center; }
+  .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 20px; }
+  .deal-btn { background: #27ae60; color: white; }
+  .nodeal-btn { background: #c0392b; color: white; }
+</style>
+</head>
+<body>
+
+<!-- SETUP SCREEN -->
+<div id="setup-screen">
+  <h1>Game Setup</h1>
+  <p>Enter 25 prizes. Use the slider to assign a hidden Banker value.</p>
+  <div id="setup-rows"></div>
+  <button onclick="startGame()">Start Game</button>
+</div>
+
+<!-- GAME SCREEN -->
+<div id="game-screen" style="display:none;">
+  <div id="top-bar">
+    <div id="instruction-text">Select your Keeper Briefcase</div>
+    <div id="round-info">Cases to open: <span id="cases-left">-</span></div>
+  </div>
+  
+  <div id="main-area">
+    <div class="prize-board" id="left-board"></div>
+    <div id="cases-area"></div>
+    <div class="prize-board" id="right-board"></div>
+  </div>
+</div>
+
+<!-- MODAL FOR OFFERS & MESSAGES -->
+<div id="modal">
+  <div id="modal-content">
+    <h2 id="modal-title">Banker's Offer</h2>
+    <p id="modal-text" style="font-size: 24px; font-weight: bold;"></p>
+    <div class="modal-buttons" id="modal-actions"></div>
+  </div>
+</div>
+
+<script>
+  let prizes = [];
+  let cases = [];
+  let keeperCase = null;
+  let gameState = 'PICK_KEEPER'; // PICK_KEEPER, OPEN_CASES, SWAP_DECISION
+  let roundSchedule = [6, 5, 4, 3, 2, 1, 1]; // 22 cases opened total
+  let currentRound = 0;
+  let casesOpenedThisRound = 0;
+
+  // 1. GENERATE SETUP ROWS
+  const setupContainer = document.getElementById('setup-rows');
+  for (let i = 1; i <= 25; i++) {
+    setupContainer.innerHTML += `
+      <div class="setup-row">
+        <span>#${i}</span>
+        <input type="text" id="desc-${i}" value="Prize ${i}" />
+        $<span id="valDisp-${i}">50</span>
+        <input type="range" id="val-${i}" min="1" max="1000" value="${i*10}" oninput="document.getElementById('valDisp-${i}').innerText = this.value">
+      </div>
+    `;
+  }
+
+  // 2. START GAME & SHUFFLE
+  function startGame() {
+    prizes = [];
+    for (let i = 1; i <= 25; i++) {
+      prizes.push({
+        id: i,
+        desc: document.getElementById(`desc-${i}`).value,
+        val: parseFloat(document.getElementById(`val-${i}`).value),
+        active: true
+      });
+    }
+    
+    // Sort visually for the boards (lowest to highest hidden value)
+    prizes.sort((a, b) => a.val - b.val);
+    renderPrizeBoards();
+
+    // Create and shuffle cases
+    cases = [...prizes];
+    for (let i = cases.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [cases[i], cases[j]] = [cases[j], cases[i]];
+    }
+
+    renderCases();
+    document.getElementById('setup-screen').style.display = 'none';
+    document.getElementById('game-screen').style.display = 'flex';
+  }
+
+  // 3. RENDER UI
+  function renderPrizeBoards() {
+    const left = document.getElementById('left-board');
+    const right = document.getElementById('right-board');
+    left.innerHTML = ''; right.innerHTML = '';
+    
+    prizes.forEach((p, index) => {
+      const div = document.createElement('div');
+      div.className = `prize-item ${p.active ? '' : 'prize-eliminated'}`;
+      div.innerText = p.desc;
+      div.id = `board-prize-${p.id}`;
+      if (index < 13) left.appendChild(div);
+      else right.appendChild(div);
+    });
+  }
+
+  function renderCases() {
+    const area = document.getElementById('cases-area');
+    area.innerHTML = '';
+    cases.forEach((c, index) => {
+      const btn = document.createElement('div');
+      btn.className = 'briefcase';
+      btn.innerText = index + 1;
+      btn.id = `case-${index}`;
+      btn.onclick = () => handleCaseClick(index, btn);
+      area.appendChild(btn);
+    });
+  }
+
+  // 4. CORE GAME LOGIC
+  function handleCaseClick(index, btnElem) {
+    if (gameState === 'PICK_KEEPER') {
+      keeperCase = { caseIndex: index, data: cases[index] };
+      btnElem.classList.add('keeper');
+      btnElem.onclick = null; // Disable clicking it again
+      gameState = 'OPEN_CASES';
+      updateInstructions();
+      return;
+    }
+
+    if (gameState === 'OPEN_CASES') {
+      if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
+      
+      // Reveal & Eliminate
+      btnElem.classList.add('opened');
+      const revealedPrize = cases[index];
+      revealedPrize.active = false;
+      document.getElementById(`board-prize-${revealedPrize.id}`).classList.add('prize-eliminated');
+      
+      casesOpenedThisRound++;
+      updateInstructions();
+
+      // Show what was in the case
+      showModal("Case Opened!", `It contained: ${revealedPrize.desc}`, [{text: "Continue", action: checkRoundProgress}]);
+    }
+
+    if (gameState === 'SWAP_DECISION') {
+      if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
+      // User clicked one of the remaining board cases to swap WITH
+      finishGame(index); 
+    }
+  }
+
+  function updateInstructions() {
+    const target = roundSchedule[currentRound];
+    const left = target - casesOpenedThisRound;
+    document.getElementById('cases-left').innerText = left > 0 ? left : 0;
+    document.getElementById('instruction-text').innerText = "Open Briefcases";
+  }
+
+  function checkRoundProgress() {
+    closeModal();
+    const target = roundSchedule[currentRound];
+    
+    if (casesOpenedThisRound >= target) {
+      triggerBanker();
+    }
+  }
+
+  // 5. THE BANKER'S ALGORITHM
+  function triggerBanker() {
+    const activePrizes = prizes.filter(p => p.active);
+    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
+    const ev = sum / activePrizes.length;
+    
+    // Random modifier between 25% and 55%
+    const modifier = (Math.random() * 0.30) + 0.25; 
+    const offerValue = Math.round(ev * modifier);
+
+    showModal(
+      "The Banker is Calling...", 
+      `The Banker offers you a buyout value of:\n\n$${offerValue}`, 
+      [
+        { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
+        { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
+      ]
+    );
+  }
+
+  function acceptDeal(offer) {
+    showModal("Game Over", `You took the deal for $${offer}!\n\nYour keeper case actually had: ${keeperCase.data.desc}`, []);
+  }
+
+  function rejectDeal() {
+    closeModal();
+    casesOpenedThisRound = 0;
+    currentRound++;
+    
+    // Check if we have exhausted the rounds (3 cases left total)
+    if (currentRound >= roundSchedule.length) {
+      gameState = 'SWAP_DECISION';
+      document.getElementById('instruction-text').innerText = "FINAL ROUND: Click a case on the board to SWAP, or click your Keeper to KEEP.";
+      document.getElementById('cases-left').innerText = "FINAL";
+      
+      // Make keeper clickable again for the final choice
+      const keeperBtn = document.getElementById(`case-${keeperCase.caseIndex}`);
+      keeperBtn.onclick = () => finishGame(keeperCase.caseIndex);
+    } else {
+      updateInstructions();
+    }
+  }
+
+  // 6. THE FINALE
+  function finishGame(selectedFinalCaseIndex) {
+    const finalPrize = cases[selectedFinalCaseIndex];
+    showModal("Congratulations!", `You are going home with:\n\n${finalPrize.desc}`, []);
+  }
+
+  // Utility: Modal Control
+  function showModal(title, text, buttons) {
+    document.getElementById('modal-title').innerText = title;
+    document.getElementById('modal-text').innerText = text;
+    
+    const actions = document.getElementById('modal-actions');
+    actions.innerHTML = '';
+    
+    buttons.forEach(btn => {
+      const b = document.createElement('button');
+      b.innerText = btn.text;
+      if (btn.class) b.className = btn.class;
+      b.onclick = btn.action;
+      actions.appendChild(b);
+    });
+    
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+  }
+</script>
+</body>
+</html>
