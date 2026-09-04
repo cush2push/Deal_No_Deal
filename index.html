@@ -75,14 +75,14 @@
   
   .open-anim .fs-lid { transform: rotateX(120deg); }
   
-  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.2); width: 140%; text-align: center; color: #ffd700; font-size: 2.5em; font-weight: bold; text-shadow: 3px 3px 8px #000; opacity: 0; z-index: 4; transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s; }
+  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.2); width: 140%; text-align: center; color: #ffd700; font-size: 2.2em; font-weight: bold; text-shadow: 3px 3px 8px #000; opacity: 0; z-index: 4; transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s; }
   .open-anim .fs-prize-text { transform: translate(-50%, -140%) scale(1); opacity: 1; }
 
   #fs-timer { margin-top: 35px; color: #aaa; font-size: 1.2em; font-weight: bold; letter-spacing: 1px; }
 
   /* Fancy Last Chance Reveal Overlay */
   #last-chance-reveal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
-  .vault-box { width: 350px; height: 250px; background: radial-gradient(circle, #d4af37, #8b6508); border: 8px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px gold; font-size: 2em; font-weight: bold; color: black; text-align: center; padding: 20px; animation: pulseVault 1.5s infinite alternate; }
+  .vault-box { width: 350px; height: 250px; background: radial-gradient(circle, #d4af37, #8b6508); border: 8px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px gold; font-size: 1.8em; font-weight: bold; color: black; text-align: center; padding: 20px; animation: pulseVault 1.5s infinite alternate; }
   @keyframes pulseVault { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
   /* Full Screen Video Ad Overlay */
@@ -204,6 +204,7 @@
   let currentRound = 0;
   let casesOpenedThisRound = 0;
   let totalCasesOpenedGlobal = 0;
+  let ad2HasPlayed = false; // Flag to ensure Ad #2 plays strictly once on the 22nd case
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
@@ -276,7 +277,6 @@
     document.getElementById('player-screen').style.display = 'none';
     document.getElementById('game-screen').style.display = 'flex';
 
-    // Unlock audio/video context for mobile browsers
     const dummyVideo = document.getElementById('ad-video');
     dummyVideo.load();
     dummyVideo.play().then(() => {
@@ -294,7 +294,8 @@
       const div = document.createElement('div');
       div.className = `prize-item ${p.active ? '' : 'prize-eliminated'}`;
       div.id = `board-prize-${p.id}`;
-      div.innerHTML = `<span>${p.desc}</span> <span>$${p.val}</span>`;
+      // Updated to display only the prize description name, omitting numerical values
+      div.innerHTML = `<span>${p.desc}</span>`;
       if (index < 13) left.appendChild(div);
       else right.appendChild(div);
     });
@@ -406,7 +407,7 @@
       overlay.classList.add('flash-happy');
     }
 
-    document.getElementById('fs-prize-text').innerHTML = `$${caseData.val}<br><span style="font-size:0.4em; color:white;">${caseData.desc}</span>`;
+    document.getElementById('fs-prize-text').innerHTML = `${caseData.desc}`;
     
     overlay.style.display = 'flex';
 
@@ -460,7 +461,8 @@
     if (totalCasesOpenedGlobal === 8 && ad1ObjectUrl) {
       playVideoAd(ad1ObjectUrl, finishOpeningFlow);
       return;
-    } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl) {
+    } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl && !ad2HasPlayed) {
+      ad2HasPlayed = true; // Locks it so it will never trigger again on subsequent opens
       playVideoAd(ad2ObjectUrl, finishOpeningFlow);
       return;
     }
@@ -513,18 +515,18 @@
     vaultText.innerText = "UNLOCKING VAULT...";
 
     setTimeout(() => {
-      vaultText.innerHTML = `🌟 JACKPOT UPGRADE! 🌟<br><br>$${newItem.val}<br><span style="font-size:0.6em;">${newItem.desc}</span>`;
+      vaultText.innerHTML = `🌟 JACKPOT UPGRADE! 🌟<br><br>${newItem.desc}`;
     }, 1500);
 
     setTimeout(() => {
       revealContainer.style.display = 'none';
-      showModal("Game Over", `${playerName}, you took the Last Chance Deal and upgraded to:\n\n$${newItem.val} - ${newItem.desc}`, [], false);
+      showModal("Game Over", `${playerName}, you took the Last Chance Deal and upgraded to:\n\n${newItem.desc}`, [], false);
     }, 4500);
   }
 
   function finalizeGameOver(prize) {
     closeModal();
-    showModal("Game Over", `${playerName}, you are going home with:\n\n$${prize.val} - ${prize.desc}`, [], false);
+    showModal("Game Over", `${playerName}, you are going home with:\n\n${prize.desc}`, [], false);
   }
 
   function updateInstructions(override = null) {
@@ -582,11 +584,12 @@
     };
   }
 
+  // Updated Banker logic: 45% to 65% modifier applied to remaining average
   function triggerBanker() {
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    const modifier = (Math.random() * 0.30) + 0.25; 
+    const modifier = (Math.random() * 0.20) + 0.45; // Generates random float between 0.45 and 0.65
     const offerValue = Math.round(ev * modifier);
 
     showModal("The Banker is Calling...", `$${offerValue}`, [
@@ -596,7 +599,7 @@
   }
 
   function acceptDeal(offer) {
-    showModal("Game Over", `${playerName} took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, [], false);
+    showModal("Game Over", `${playerName} took the deal for $${offer}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}`, [], false);
   }
 
   function rejectDeal() {
