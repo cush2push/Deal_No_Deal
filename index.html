@@ -56,12 +56,12 @@
   .open-anim .fs-prize-text { transform: translate(-50%, -150%) scale(1); opacity: 1; }
   #fs-continue { margin-top: 60px; font-size: 1.5em; padding: 15px 30px; display: none; z-index: 10; }
 
-  /* Modal */
+  /* Modal & Larger Buttons */
   #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 100; }
-  #modal-content { background: #222; padding: 40px; border: 2px solid #d4af37; border-radius: 10px; max-width: 500px; text-align: center; }
-  .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 20px; }
-  .deal-btn { background: #27ae60; color: white; }
-  .nodeal-btn { background: #c0392b; color: white; }
+  #modal-content { background: #222; padding: 40px; border: 2px solid #d4af37; border-radius: 10px; max-width: 550px; text-align: center; }
+  .modal-buttons { margin-top: 25px; display: flex; justify-content: center; gap: 30px; }
+  .deal-btn { background: #27ae60; color: white; font-size: 20px; padding: 15px 35px; border-radius: 8px; }
+  .nodeal-btn { background: #c0392b; color: white; font-size: 20px; padding: 15px 35px; border-radius: 8px; }
 </style>
 </head>
 <body>
@@ -104,34 +104,70 @@
   <button id="fs-continue" onclick="closeFullscreen()">Continue</button>
 </div>
 
-<!-- BANKER MODAL WITH BUILT-IN SVG CARTOON -->
+<!-- BANKER MODAL WITH EMOTIONS -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
     
-    <div id="banker-img" style="display: none; width: 140px; height: 140px; margin: 15px auto; border-radius: 50%; border: 4px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.8); overflow: hidden; background: #2c3e50;">
-      <svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
-        <!-- Shoulders / Suit -->
+    <!-- Banker Container -->
+    <div id="banker-container" style="display: none; width: 140px; height: 150px; margin: 10px auto; position: relative;">
+      
+      <!-- 1. LAUGHING BANKER (Low Offer) -->
+      <svg id="banker-laughing" class="banker-face" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="display:none; width:140px; height:140px;">
         <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
-        <!-- Shirt -->
         <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
-        <!-- Tie -->
         <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
-        <!-- Head -->
         <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
-        <!-- Glasses -->
-        <rect x="50" y="60" width="18" height="10" rx="2" fill="#111"/>
-        <rect x="82" y="60" width="18" height="10" rx="2" fill="#111"/>
-        <line x1="68" y1="65" x2="82" y2="65" stroke="#111" stroke-width="2"/>
-        <!-- Mustache -->
-        <path d="M 55 85 Q 75 75 95 85 Q 75 95 55 85" fill="#111"/>
+        <!-- Laughing Eyes (Closed Arcs) -->
+        <path d="M 55 60 Q 64 50 73 60" stroke="#111" stroke-width="3" fill="none"/>
+        <path d="M 77 60 Q 86 50 95 60" stroke="#111" stroke-width="3" fill="none"/>
+        <!-- Open Laughing Mouth -->
+        <path d="M 60 80 Q 75 105 90 80 Z" fill="#78281f"/>
         <!-- Top Hat -->
         <rect x="40" y="32" width="70" height="6" fill="#111"/>
         <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
       </svg>
+
+      <!-- 2. NEUTRAL BANKER (Average Offer) -->
+      <svg id="banker-neutral" class="banker-face" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="display:none; width:140px; height:140px;">
+        <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
+        <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
+        <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
+        <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
+        <rect x="50" y="60" width="18" height="10" rx="2" fill="#111"/>
+        <rect x="82" y="60" width="18" height="10" rx="2" fill="#111"/>
+        <line x1="68" y1="65" x2="82" y2="65" stroke="#111" stroke-width="2"/>
+        <path d="M 55 85 Q 75 75 95 85 Q 75 95 55 85" fill="#111"/>
+        <rect x="40" y="32" width="70" height="6" fill="#111"/>
+        <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
+      </svg>
+
+      <!-- 3. WORRIED BANKER (High Offer - Desperate) -->
+      <svg id="banker-worried" class="banker-face" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" style="display:none; width:140px; height:140px;">
+        <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
+        <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
+        <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
+        <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
+        <!-- Worried Eyebrows -->
+        <line x1="50" y1="52" x2="68" y2="58" stroke="#111" stroke-width="3"/>
+        <line x1="100" y1="52" x2="82" y2="58" stroke="#111" stroke-width="3"/>
+        <!-- Sweat Drop -->
+        <path d="M 98 45 Q 103 55 98 60 Q 93 55 98 45 Z" fill="#3498db"/>
+        <!-- Wide Panicked Mouth -->
+        <ellipse cx="75" cy="85" rx="8" ry="12" fill="#111"/>
+        <!-- Top Hat -->
+        <rect x="40" y="32" width="70" height="6" fill="#111"/>
+        <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
+      </svg>
+
     </div>
 
-    <p id="modal-text" style="font-size: 28px; font-weight: bold; color: #27ae60;"></p>
+    <!-- TAKE IT SIGN -->
+    <div id="take-it-sign" style="display: none; background: #c0392b; color: white; font-weight: bold; font-size: 1.1em; padding: 5px 12px; border-radius: 5px; margin: 5px auto; width: fit-content; border: 2px dashed #ffeaa7; text-transform: uppercase; animation: pulse 0.8s infinite alternate;">
+      🚨 PLEASE TAKE THE OFFER! 🚨
+    </div>
+
+    <p id="modal-text" style="font-size: 28px; font-weight: bold; color: #27ae60; margin: 15px 0;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
   </div>
 </div>
@@ -145,11 +181,9 @@
   let currentRound = 0;
   let casesOpenedThisRound = 0;
 
-  // Full Screen State
   let pendingCaseIndex = null;
   let pendingCallback = null;
 
-  // 1. GENERATE SETUP ROWS 
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
     let defaultVal = i * 10;
@@ -164,7 +198,6 @@
     `;
   }
 
-  // 2. START GAME & SHUFFLE
   function startGame() {
     prizes = [];
     for (let i = 1; i <= 25; i++) {
@@ -193,7 +226,6 @@
     document.getElementById('game-screen').style.display = 'flex';
   }
 
-  // 3. RENDER UI
   function renderPrizeBoards() {
     const left = document.getElementById('left-board');
     const right = document.getElementById('right-board');
@@ -222,7 +254,6 @@
     });
   }
 
-  // 4. CORE GAME LOGIC
   function handleCaseClick(index, btnElem) {
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
@@ -283,7 +314,6 @@
     }
   }
 
-  // 5. FULL SCREEN ANIMATION 
   function openFullscreenCase(index, callback, isFinal = false) {
     pendingCaseIndex = index;
     pendingCallback = callback;
@@ -324,7 +354,6 @@
     }
   }
 
-  // 6. PROGRESS AND BANKER
   function updateInstructions(override = null) {
     if (override) {
       document.getElementById('instruction-text').innerText = override;
@@ -347,13 +376,24 @@
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    const modifier = (Math.random() * 0.30) + 0.25; 
+    
+    const modifier = (Math.random() * 0.30) + 0.25; // 0.25 to 0.55
     const offerValue = Math.round(ev * modifier);
+
+    // Determine mood based on modifier scale
+    let mood = 'neutral';
+    if (modifier < 0.35) {
+      mood = 'laughing'; // Low offer -> Laughing
+    } else if (modifier > 0.45) {
+      mood = 'worried';  // High offer -> Worried / Desperate
+    } else {
+      mood = 'neutral';  // Average offer -> Straight face
+    }
 
     showModal("The Banker is Calling...", `$${offerValue}`, [
       { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
       { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
-    ], true); // The 'true' here shows the cartoon banker
+    ], true, mood);
   }
 
   function acceptDeal(offer) {
@@ -375,15 +415,27 @@
     }
   }
 
-  function showModal(title, text, buttons, showBanker = false) {
+  function showModal(title, text, buttons, showBanker = false, mood = 'neutral') {
     document.getElementById('modal-title').innerText = title;
     
-    // This turns the cartoon banker on or off depending on the situation
-    const bankerImg = document.getElementById('banker-img');
+    const bankerContainer = document.getElementById('banker-container');
+    const takeItSign = document.getElementById('take-it-sign');
+    
+    // Hide all faces first
+    document.querySelectorAll('.banker-face').forEach(el => el.style.display = 'none');
+
     if (showBanker) {
-      bankerImg.style.display = 'block';
+      bankerContainer.style.display = 'block';
+      document.getElementById(`banker-${mood}`).style.display = 'block';
+      
+      if (mood === 'worried') {
+        takeItSign.style.display = 'block';
+      } else {
+        takeItSign.style.display = 'none';
+      }
     } else {
-      bankerImg.style.display = 'none';
+      bankerContainer.style.display = 'none';
+      takeItSign.style.display = 'none';
     }
 
     document.getElementById('modal-text').innerText = text;
@@ -403,4 +455,5 @@
 </script>
 </body>
 </html>
+
 
