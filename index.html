@@ -11,9 +11,13 @@
   button:hover { background: #f1c40f; }
   
   /* Player Name Screen */
-  #player-screen { max-width: 450px; width: 100%; margin: 80px auto; background: #222; padding: 30px; border-radius: 10px; border: 2px solid #d4af37; }
-  #player-screen h1 { color: #ffd700; margin-bottom: 10px; }
-  #player-input { width: 100%; padding: 12px; font-size: 18px; background: #333; border: 1px solid #666; color: white; border-radius: 5px; text-align: center; margin: 20px 0; }
+  #player-screen { max-width: 450px; width: 100%; margin: 60px auto; background: #222; padding: 30px; border-radius: 10px; border: 2px solid #d4af37; text-align: left; }
+  #player-screen h1 { color: #ffd700; margin-bottom: 5px; text-align: center; }
+  #player-input { width: 100%; padding: 12px; font-size: 18px; background: #333; border: 1px solid #666; color: white; border-radius: 5px; text-align: center; margin: 15px 0; }
+  
+  .media-upload-group { margin-bottom: 15px; background: #333; padding: 10px; border-radius: 5px; }
+  .media-upload-group label { display: block; font-size: 0.9em; margin-bottom: 5px; color: #f1c40f; }
+  .media-upload-group input[type="file"] { width: 100%; color: #ccc; font-size: 0.85em; }
 
   /* Setup Screen & Inputs */
   #setup-screen { max-width: 600px; width: 100%; margin: auto; background: #222; padding: 15px; border-radius: 10px; display: none; }
@@ -76,6 +80,10 @@
 
   #fs-timer { margin-top: 35px; color: #aaa; font-size: 1.2em; font-weight: bold; letter-spacing: 1px; }
 
+  /* Video Ad Overlay */
+  #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; align-items: center; justify-content: center; }
+  #ad-video { width: 100%; height: 100%; object-fit: contain; }
+
   /* Modal */
   #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 15px; }
   #modal-content { background: #222; padding: 30px 20px; border: 2px solid #d4af37; border-radius: 10px; max-width: 450px; width: 100%; text-align: center; }
@@ -94,12 +102,25 @@
 </head>
 <body>
 
-<!-- PLAYER NAME SCREEN -->
+<!-- PLAYER NAME & MEDIA UPLOAD SCREEN -->
 <div id="player-screen">
   <h1>Deal or No Deal</h1>
-  <p style="color: #aaa;">Enter the contestant's name to begin</p>
+  <p style="color: #aaa; text-align: center; margin-bottom: 20px;">Configure player & commercial breaks</p>
+  
+  <label style="color: #f1c40f; font-size: 0.9em; display: block;">Contestant Name</label>
   <input type="text" id="player-input" placeholder="Player Name" value="Contestant" />
-  <button onclick="goToSetup()" style="width: 100%; font-size: 1.2em;">Continue to Setup</button>
+  
+  <div class="media-upload-group">
+    <label>Select Ad #1 Video (Plays after 8th case)</label>
+    <input type="file" id="ad1-file" accept="video/*" />
+  </div>
+
+  <div class="media-upload-group">
+    <label>Select Ad #2 Video (Plays before 22nd case)</label>
+    <input type="file" id="ad2-file" accept="video/*" />
+  </div>
+
+  <button onclick="goToSetup()" style="width: 100%; font-size: 1.2em; margin-top: 10px;">Continue to Setup</button>
 </div>
 
 <!-- SETUP SCREEN -->
@@ -140,6 +161,11 @@
   <div id="fs-timer">Continuing in 5s...</div>
 </div>
 
+<!-- FULL SCREEN VIDEO AD OVERLAY -->
+<div id="ad-overlay">
+  <video id="ad-video" playsinline></video>
+</div>
+
 <!-- BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
@@ -152,6 +178,9 @@
 
 <script>
   let playerName = "Contestant";
+  let ad1ObjectUrl = null;
+  let ad2ObjectUrl = null;
+
   let prizes = [];
   let cases = [];
   let keeperCase = null;
@@ -159,16 +188,23 @@
   let roundSchedule = [6, 5, 4, 3, 2, 1, 1]; 
   let currentRound = 0;
   let casesOpenedThisRound = 0;
+  let totalCasesOpenedGlobal = 0;
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
   let timerInterval = null;
 
-  // 1. TRANSITION FROM PLAYER SCREEN TO SETUP
   function goToSetup() {
     const inputVal = document.getElementById('player-input').value.trim();
     if (inputVal !== "") playerName = inputVal;
     
+    // Capture local gallery/photos video files and turn them into runtime URLs
+    const ad1File = document.getElementById('ad1-file').files[0];
+    const ad2File = document.getElementById('ad2-file').files[0];
+
+    if (ad1File) ad1ObjectUrl = URL.createObjectURL(ad1File);
+    if (ad2File) ad2ObjectUrl = URL.createObjectURL(ad2File);
+
     document.getElementById('setup-title').innerText = `${playerName}'s Game Setup`;
     document.getElementById('player-display').innerText = playerName;
 
@@ -176,7 +212,6 @@
     document.getElementById('setup-screen').style.display = 'block';
   }
 
-  // 2. GENERATE SETUP ROWS
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
     let defaultVal = i * 10;
@@ -191,7 +226,6 @@
     `;
   }
 
-  // 3. START GAME & SHUFFLE
   function startGame() {
     prizes = [];
     for (let i = 1; i <= 25; i++) {
@@ -220,7 +254,6 @@
     document.getElementById('game-screen').style.display = 'flex';
   }
 
-  // 4. RENDER UI
   function renderPrizeBoards() {
     const left = document.getElementById('left-board');
     const right = document.getElementById('right-board');
@@ -249,7 +282,6 @@
     });
   }
 
-  // 5. CORE GAME LOGIC & STATE MACHINE
   function handleCaseClick(index, btnElem) {
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
@@ -310,7 +342,6 @@
     }
   }
 
-  // 6. FULL SCREEN ANIMATION WITH HAPPY/SAD EMOTIONAL REACTIONS
   function openFullscreenCase(index, callback, isFinal = false) {
     pendingCaseIndex = index;
     pendingCallback = callback;
@@ -386,6 +417,20 @@
     document.getElementById(`case-${index}`).classList.add('opened');
     document.getElementById(`board-prize-${caseData.id}`).classList.add('prize-eliminated');
 
+    totalCasesOpenedGlobal++;
+
+    if (totalCasesOpenedGlobal === 8 && ad1ObjectUrl) {
+      playVideoAd(ad1ObjectUrl, finishOpeningFlow);
+      return;
+    } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl) {
+      playVideoAd(ad2ObjectUrl, finishOpeningFlow);
+      return;
+    }
+
+    finishOpeningFlow();
+  }
+
+  function finishOpeningFlow() {
     if (pendingCallback) {
       pendingCallback();
     } else {
@@ -395,7 +440,6 @@
     }
   }
 
-  // 7. PROGRESS AND BANKER
   function updateInstructions(override = null) {
     if (override) {
       document.getElementById('instruction-text').innerText = override;
@@ -412,6 +456,33 @@
     if (casesOpenedThisRound >= target) {
       triggerBanker();
     }
+  }
+
+  function playVideoAd(videoUrl, callback) {
+    const adOverlay = document.getElementById('ad-overlay');
+    const adVideo = document.getElementById('ad-video');
+    
+    adVideo.src = videoUrl;
+    adVideo.load();
+
+    adVideo.oncanplay = () => {
+      adOverlay.style.display = 'flex';
+      adVideo.currentTime = 0;
+      adVideo.play().catch(() => {
+        adOverlay.style.display = 'none';
+        if (callback) callback();
+      });
+    };
+
+    adVideo.onerror = () => {
+      adOverlay.style.display = 'none';
+      if (callback) callback();
+    };
+
+    adVideo.onended = () => {
+      adOverlay.style.display = 'none';
+      if (callback) callback();
+    };
   }
 
   function triggerBanker() {
@@ -473,6 +544,7 @@
 </script>
 </body>
 </html>
+
 
 
 
