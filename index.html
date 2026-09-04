@@ -3,36 +3,58 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Deal or No Deal</title>
+<title>Custom Deal or No Deal - Deluxe</title>
 <style>
   body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 20px; text-align: center; }
-  h1, h2, h3 { margin: 10px 0; }
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
   button:hover { background: #f1c40f; }
   
-  /* Setup Screen */
+  /* Setup Screen & Dials */
   #setup-screen { max-width: 600px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
-  .setup-row { display: flex; justify-content: space-between; margin-bottom: 10px; align-items: center; }
-  .setup-row input[type="text"] { flex: 1; margin: 0 10px; padding: 5px; }
-  
+  .dial-help { color: #aaa; margin-bottom: 20px; font-size: 0.9em; }
+  .setup-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; background: #333; padding: 10px; border-radius: 5px; }
+  .setup-row input[type="text"] { flex: 1; padding: 8px; background: #444; border: 1px solid #666; color: white; border-radius: 4px; }
+  .dial-container { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 20px; border: 1px solid #444; }
+  .dial { width: 36px; height: 36px; border-radius: 50%; background: conic-gradient(from 180deg, #666, #222, #666); border: 2px solid #aaa; position: relative; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.5); touch-action: none; }
+  .dial-marker { position: absolute; top: 2px; left: 15px; width: 4px; height: 12px; background: #e74c3c; border-radius: 2px; }
+  .dial-val { width: 50px; font-weight: bold; text-align: right; color: gold; font-size: 1.1em; }
+
   /* Game Screen */
   #game-screen { display: none; display: flex; flex-direction: column; height: 95vh; }
-  #top-bar { display: flex; justify-content: space-around; padding: 10px; background: #333; font-size: 1.2em; font-weight: bold; }
-  #main-area { display: flex; flex: 1; margin-top: 20px; }
+  #top-bar { padding: 10px; background: #333; font-size: 1.2em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+  #instruction-text { color: #f1c40f; }
+  
+  /* Golden Podium */
+  #golden-area { display: flex; flex-direction: column; align-items: center; margin: 15px 0; }
+  #golden-podium { width: 140px; height: 110px; border: 4px solid gold; border-radius: 10px; background: rgba(255, 215, 0, 0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(255,215,0,0.5); }
+  
+  #main-area { display: flex; flex: 1; gap: 10px; }
   
   /* Prize Boards */
   .prize-board { width: 20%; display: flex; flex-direction: column; gap: 5px; }
-  .prize-item { background: #d4af37; color: black; padding: 5px; font-weight: bold; border-radius: 3px; font-size: 0.9em; }
+  .prize-item { background: #d4af37; color: black; padding: 5px; font-weight: bold; border-radius: 3px; font-size: 0.85em; display: flex; justify-content: space-between; }
   .prize-eliminated { background: #444; color: #777; text-decoration: line-through; }
   
   /* Briefcases */
-  #cases-area { width: 60%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 0 20px; align-content: start; }
-  .briefcase { background: #8b9dc3; border: 2px solid #3b5998; border-radius: 5px; padding: 20px 0; font-size: 24px; font-weight: bold; color: black; cursor: pointer; transition: transform 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
-  .briefcase:hover { transform: scale(1.05); }
+  #cases-area { width: 60%; display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; align-content: start; justify-items: center; }
+  .briefcase { width: 70px; height: 50px; background: #8b9dc3; border: 3px solid #3b5998; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: bold; color: black; cursor: pointer; transition: transform 0.2s; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); background-image: linear-gradient(to bottom, #a2b2d4, #7388b5); }
+  .briefcase:hover { transform: scale(1.1); }
   .briefcase.opened { visibility: hidden; }
-  .briefcase.keeper { border: 4px solid #d4af37; background: #f1c40f; }
-  
-  /* Modal Overlay */
+  .briefcase.keeper { margin: 0; transform: scale(1.3); cursor: default; }
+  .briefcase.keeper:hover { transform: scale(1.3); }
+
+  /* Full Screen Animation */
+  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1000px; }
+  .fs-title { color: white; font-size: 2em; margin-bottom: 50px; font-weight: bold; }
+  .fs-case-container { width: 300px; height: 200px; position: relative; }
+  .fs-case-body { position: absolute; width: 100%; height: 100%; background: #5a73a3; border: 5px solid #2e4370; border-radius: 10px; box-shadow: inset 0 -30px rgba(0,0,0,0.3); z-index: 1; }
+  .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #6b86bd; border: 5px solid #2e4370; border-radius: 10px; transform-origin: top; transition: transform 1s ease-in-out; z-index: 3; }
+  .open-anim .fs-lid { transform: rotateX(110deg); }
+  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.1); width: 120%; text-align: center; color: #ffd700; font-size: 2.5em; font-weight: bold; text-shadow: 3px 3px 6px #000; opacity: 0; z-index: 4; transition: all 0.8s ease-out 0.6s; }
+  .open-anim .fs-prize-text { transform: translate(-50%, -150%) scale(1); opacity: 1; }
+  #fs-continue { margin-top: 60px; font-size: 1.5em; padding: 15px 30px; display: none; z-index: 10; }
+
+  /* Modal */
   #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; z-index: 100; }
   #modal-content { background: #222; padding: 40px; border: 2px solid #d4af37; border-radius: 10px; max-width: 500px; text-align: center; }
   .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 20px; }
@@ -45,16 +67,21 @@
 <!-- SETUP SCREEN -->
 <div id="setup-screen">
   <h1>Game Setup</h1>
-  <p>Enter 25 prizes. Use the slider to assign a hidden Banker value.</p>
+  <p class="dial-help">Touch and drag the circular dials up or down to set the Banker values.</p>
   <div id="setup-rows"></div>
-  <button onclick="startGame()">Start Game</button>
+  <button onclick="startGame()" style="margin-top: 20px; font-size: 1.2em;">Start Game</button>
 </div>
 
 <!-- GAME SCREEN -->
-<div id="game-screen" style="display:none;">
+<div id="game-screen">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
     <div id="round-info">Cases to open: <span id="cases-left">-</span></div>
+  </div>
+  
+  <div id="golden-area">
+    <div style="color: gold; margin-bottom: 5px; font-weight: bold; letter-spacing: 2px;">YOUR KEEPER</div>
+    <div id="golden-podium"></div>
   </div>
   
   <div id="main-area">
@@ -64,11 +91,22 @@
   </div>
 </div>
 
-<!-- MODAL FOR OFFERS & MESSAGES -->
+<!-- FULL SCREEN ANIMATION OVERLAY -->
+<div id="fs-overlay">
+  <div class="fs-title" id="fs-title">Opening Case...</div>
+  <div class="fs-case-container" id="fs-case">
+    <div class="fs-case-body"></div>
+    <div class="fs-lid"></div>
+    <div class="fs-prize-text" id="fs-prize-text"></div>
+  </div>
+  <button id="fs-continue" onclick="closeFullscreen()">Continue</button>
+</div>
+
+<!-- BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
-    <p id="modal-text" style="font-size: 24px; font-weight: bold;"></p>
+    <p id="modal-text" style="font-size: 28px; font-weight: bold; color: #27ae60;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
   </div>
 </div>
@@ -77,22 +115,54 @@
   let prizes = [];
   let cases = [];
   let keeperCase = null;
-  let gameState = 'PICK_KEEPER'; // PICK_KEEPER, OPEN_CASES, SWAP_DECISION
-  let roundSchedule = [6, 5, 4, 3, 2, 1, 1]; // 22 cases opened total
+  let gameState = 'PICK_KEEPER'; 
+  let roundSchedule = [6, 5, 4, 3, 2, 1, 1]; 
   let currentRound = 0;
   let casesOpenedThisRound = 0;
 
-  // 1. GENERATE SETUP ROWS
+  // Full Screen State
+  let pendingCaseIndex = null;
+  let pendingCallback = null;
+
+  // 1. GENERATE SETUP ROWS & BIND DIALS
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
+    let defaultVal = i * 10;
     setupContainer.innerHTML += `
       <div class="setup-row">
         <span>#${i}</span>
         <input type="text" id="desc-${i}" value="Prize ${i}" />
-        $<span id="valDisp-${i}">50</span>
-        <input type="range" id="val-${i}" min="1" max="1000" value="${i*10}" oninput="document.getElementById('valDisp-${i}').innerText = this.value">
+        <div class="dial-container">
+          <div class="dial" id="dial-${i}"><div class="dial-marker"></div></div>
+          $<span class="dial-val" id="valDisp-${i}">${defaultVal}</span>
+        </div>
       </div>
     `;
+  }
+
+  // Pointer events for Rotary Dials
+  for (let i = 1; i <= 25; i++) {
+    const dial = document.getElementById(`dial-${i}`);
+    const disp = document.getElementById(`valDisp-${i}`);
+    let active = false;
+    let startY, startVal;
+
+    dial.addEventListener('pointerdown', (e) => {
+      active = true;
+      startY = e.clientY;
+      startVal = parseInt(disp.innerText);
+      dial.setPointerCapture(e.pointerId);
+      e.preventDefault();
+    });
+    dial.addEventListener('pointermove', (e) => {
+      if(!active) return;
+      let delta = startY - e.clientY; // Drag up increases
+      let scale = startVal >= 500 ? 25 : (startVal >= 100 ? 5 : 1);
+      let newVal = Math.max(1, startVal + (delta * scale));
+      disp.innerText = Math.floor(newVal);
+      dial.style.transform = `rotate(${Math.floor(newVal)}deg)`;
+    });
+    dial.addEventListener('pointerup', () => active = false);
   }
 
   // 2. START GAME & SHUFFLE
@@ -102,16 +172,14 @@
       prizes.push({
         id: i,
         desc: document.getElementById(`desc-${i}`).value,
-        val: parseFloat(document.getElementById(`val-${i}`).value),
+        val: parseFloat(document.getElementById(`valDisp-${i}`).innerText),
         active: true
       });
     }
     
-    // Sort visually for the boards (lowest to highest hidden value)
     prizes.sort((a, b) => a.val - b.val);
     renderPrizeBoards();
 
-    // Create and shuffle cases
     cases = [...prizes];
     for (let i = cases.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -132,8 +200,8 @@
     prizes.forEach((p, index) => {
       const div = document.createElement('div');
       div.className = `prize-item ${p.active ? '' : 'prize-eliminated'}`;
-      div.innerText = p.desc;
       div.id = `board-prize-${p.id}`;
+      div.innerHTML = `<span>${p.desc}</span> <span>$${p.val}</span>`;
       if (index < 13) left.appendChild(div);
       else right.appendChild(div);
     });
@@ -152,12 +220,13 @@
     });
   }
 
-  // 4. CORE GAME LOGIC
+  // 4. CORE GAME LOGIC & STATE MACHINE
   function handleCaseClick(index, btnElem) {
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
       btnElem.classList.add('keeper');
-      btnElem.onclick = null; // Disable clicking it again
+      // Move to golden podium
+      document.getElementById('golden-podium').appendChild(btnElem);
       gameState = 'OPEN_CASES';
       updateInstructions();
       return;
@@ -165,28 +234,111 @@
 
     if (gameState === 'OPEN_CASES') {
       if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
-      
-      // Reveal & Eliminate
-      btnElem.classList.add('opened');
-      const revealedPrize = cases[index];
-      revealedPrize.active = false;
-      document.getElementById(`board-prize-${revealedPrize.id}`).classList.add('prize-eliminated');
-      
-      casesOpenedThisRound++;
-      updateInstructions();
-
-      // Show what was in the case
-      showModal("Case Opened!", `It contained: ${revealedPrize.desc}`, [{text: "Continue", action: checkRoundProgress}]);
+      openFullscreenCase(index, null, false);
     }
 
-    if (gameState === 'SWAP_DECISION') {
-      if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
-      // User clicked one of the remaining board cases to swap WITH
-      finishGame(index); 
+    // THE FINALE LOGIC
+    if (gameState === 'FINALE_CHOICE') {
+      if (btnElem.classList.contains('keeper')) {
+        // User chose to KEEP
+        gameState = 'FINALE_KEEP_ELIMINATE';
+        updateInstructions("You KEPT your case! Now click ONE case on the board to eliminate.");
+      } else if (!btnElem.classList.contains('opened')) {
+        // User chose to SWAP
+        let oldKeeperIndex = keeperCase.caseIndex;
+        let newKeeperIndex = index;
+
+        // Visual Swap to Golden Podium
+        let newBtn = document.getElementById(`case-${newKeeperIndex}`);
+        let oldBtn = document.getElementById(`case-${oldKeeperIndex}`);
+        newBtn.classList.add('keeper');
+        oldBtn.classList.remove('keeper');
+        document.getElementById('golden-podium').appendChild(newBtn);
+        document.getElementById('cases-area').appendChild(oldBtn);
+
+        keeperCase = { caseIndex: newKeeperIndex, data: cases[newKeeperIndex] };
+        gameState = 'FINAL_REVEAL';
+        updateInstructions("You SWAPPED! The unselected case is now eliminated automatically.");
+
+        // Automatically open the remaining 3rd case
+        let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
+        
+        setTimeout(() => {
+          openFullscreenCase(thirdCaseIndex, () => {
+            updateInstructions("Only 2 cases remain! Click your Keeper for the final reveal!");
+          }, false);
+        }, 1200);
+      }
+    } 
+    else if (gameState === 'FINALE_KEEP_ELIMINATE') {
+      if (!btnElem.classList.contains('keeper') && !btnElem.classList.contains('opened')) {
+        gameState = 'FINAL_REVEAL';
+        openFullscreenCase(index, () => {
+          updateInstructions("Only 2 cases remain! Click your Keeper for the final reveal!");
+        }, false);
+      }
+    } 
+    else if (gameState === 'FINAL_REVEAL') {
+      if (btnElem.classList.contains('keeper')) {
+        openFullscreenCase(index, () => {
+          showModal("Congratulations!", `You won:\n\n$${cases[index].val} - ${cases[index].desc}`, []);
+        }, true);
+      }
     }
   }
 
-  function updateInstructions() {
+  // 5. FULL SCREEN ANIMATION HANDLER
+  function openFullscreenCase(index, callback, isFinal = false) {
+    pendingCaseIndex = index;
+    pendingCallback = callback;
+    const caseData = cases[index];
+
+    document.getElementById('fs-title').innerText = isFinal ? "The Final Reveal..." : `Opening Case ${index + 1}...`;
+    document.getElementById('fs-prize-text').innerHTML = `$${caseData.val}<br><span style="font-size:0.4em; color:white;">${caseData.desc}</span>`;
+    
+    const overlay = document.getElementById('fs-overlay');
+    const caseAnim = document.getElementById('fs-case');
+    
+    overlay.style.display = 'flex';
+    caseAnim.classList.remove('open-anim');
+    document.getElementById('fs-continue').style.display = 'none';
+
+    // Force CSS reflow to restart animation
+    void caseAnim.offsetWidth;
+
+    // Trigger open
+    setTimeout(() => { caseAnim.classList.add('open-anim'); }, 100);
+    
+    // Show continue button after animation completes
+    setTimeout(() => { document.getElementById('fs-continue').style.display = 'block'; }, 1800);
+  }
+
+  function closeFullscreen() {
+    document.getElementById('fs-overlay').style.display = 'none';
+    
+    const index = pendingCaseIndex;
+    const caseData = cases[index];
+    caseData.active = false;
+
+    // Strike from board and grid
+    document.getElementById(`case-${index}`).classList.add('opened');
+    document.getElementById(`board-prize-${caseData.id}`).classList.add('prize-eliminated');
+
+    if (pendingCallback) {
+      pendingCallback();
+    } else {
+      casesOpenedThisRound++;
+      updateInstructions();
+      checkRoundProgress();
+    }
+  }
+
+  // 6. PROGRESS AND BANKER
+  function updateInstructions(override = null) {
+    if (override) {
+      document.getElementById('instruction-text').innerText = override;
+      return;
+    }
     const target = roundSchedule[currentRound];
     const left = target - casesOpenedThisRound;
     document.getElementById('cases-left').innerText = left > 0 ? left : 0;
@@ -194,36 +346,27 @@
   }
 
   function checkRoundProgress() {
-    closeModal();
     const target = roundSchedule[currentRound];
-    
     if (casesOpenedThisRound >= target) {
       triggerBanker();
     }
   }
 
-  // 5. THE BANKER'S ALGORITHM
   function triggerBanker() {
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    
-    // Random modifier between 25% and 55%
     const modifier = (Math.random() * 0.30) + 0.25; 
     const offerValue = Math.round(ev * modifier);
 
-    showModal(
-      "The Banker is Calling...", 
-      `The Banker offers you a buyout value of:\n\n$${offerValue}`, 
-      [
-        { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
-        { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
-      ]
-    );
+    showModal("The Banker is Calling...", `$${offerValue}`, [
+      { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
+      { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
+    ]);
   }
 
   function acceptDeal(offer) {
-    showModal("Game Over", `You took the deal for $${offer}!\n\nYour keeper case actually had: ${keeperCase.data.desc}`, []);
+    showModal("Game Over", `You took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, []);
   }
 
   function rejectDeal() {
@@ -231,34 +374,22 @@
     casesOpenedThisRound = 0;
     currentRound++;
     
-    // Check if we have exhausted the rounds (3 cases left total)
+    // 22 cases opened means 3 are left (Keeper + 2 on board)
     if (currentRound >= roundSchedule.length) {
-      gameState = 'SWAP_DECISION';
-      document.getElementById('instruction-text').innerText = "FINAL ROUND: Click a case on the board to SWAP, or click your Keeper to KEEP.";
+      gameState = 'FINALE_CHOICE';
+      updateInstructions("3 Cases Left! Click your Keeper to KEEP, or click a board case to SWAP.");
       document.getElementById('cases-left').innerText = "FINAL";
-      
-      // Make keeper clickable again for the final choice
-      const keeperBtn = document.getElementById(`case-${keeperCase.caseIndex}`);
-      keeperBtn.onclick = () => finishGame(keeperCase.caseIndex);
+      document.getElementById(`case-${keeperCase.caseIndex}`).onclick = () => handleCaseClick(keeperCase.caseIndex, document.getElementById(`case-${keeperCase.caseIndex}`));
     } else {
       updateInstructions();
     }
   }
 
-  // 6. THE FINALE
-  function finishGame(selectedFinalCaseIndex) {
-    const finalPrize = cases[selectedFinalCaseIndex];
-    showModal("Congratulations!", `You are going home with:\n\n${finalPrize.desc}`, []);
-  }
-
-  // Utility: Modal Control
   function showModal(title, text, buttons) {
     document.getElementById('modal-title').innerText = title;
     document.getElementById('modal-text').innerText = text;
-    
     const actions = document.getElementById('modal-actions');
     actions.innerHTML = '';
-    
     buttons.forEach(btn => {
       const b = document.createElement('button');
       b.innerText = btn.text;
@@ -266,13 +397,10 @@
       b.onclick = btn.action;
       actions.appendChild(b);
     });
-    
     document.getElementById('modal').style.display = 'flex';
   }
 
-  function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-  }
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
 </script>
 </body>
 </html>
