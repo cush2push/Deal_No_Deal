@@ -6,8 +6,8 @@
 <title>Custom Deal or No Deal - Deluxe</title>
 <style>
   * { box-sizing: border-box; }
-  body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 10px; text-align: center; }
-  button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
+  body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
+  button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; transition: background 0.2s; }
   button:hover { background: #f1c40f; }
   
   /* Generic Container Card */
@@ -55,30 +55,66 @@
   .briefcase.keeper { margin: 0; transform: scale(1.15); cursor: default; width: 85px; height: 60px; }
   .briefcase.keeper:hover { transform: scale(1.15); }
 
-  /* Full Screen Animation Overlay */
-  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; transition: background-color 0.5s ease; }
-  .fs-title { color: white; font-size: 2em; margin-bottom: 25px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+  /* --- MASSIVE DYNAMIC CUTSCENE ENGINE --- */
+  #cutscene-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1500; display: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
+  #cutscene-text { font-size: 1.6em; letter-spacing: 2px; font-weight: bold; margin-bottom: 20px; animation: flashText 0.5s infinite alternate; text-transform: uppercase; text-align: center; padding: 0 20px; z-index: 10; }
+  @keyframes flashText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
+
+  /* Specific Animations for the 13 Scenes */
+  .scan-line-container { width: 80%; max-width: 300px; height: 4px; background: #222; position: relative; overflow: hidden; border-radius: 2px; margin: 0 auto; }
+  .scan-line { position: absolute; top: 0; left: -50px; width: 100px; height: 100%; background: #f1c40f; box-shadow: 0 0 15px #f1c40f; animation: scanAnim 1s infinite linear; }
+  .spike-container { position: relative; width: 300px; height: 200px; margin: 0 auto; overflow: hidden; }
+  .volleyball-case { font-size: 4.5rem; position: absolute; bottom: 0; left: -50px; animation: spikeIt 1.5s cubic-bezier(.25,.8,.25,1) forwards; }
+  .wilson-container { position: relative; width: 100%; max-width: 400px; height: 150px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
+  .wilson-ball { font-size: 5rem; position: relative; animation: driftBob 2.5s ease-in-out infinite; line-height: 1; }
+  .blood-hand { position: absolute; color: #cc0000; font-size: 2.5rem; top: 12px; left: 18px; text-shadow: none; opacity: 0.9; transform: rotate(-15deg); }
+  
+  .spotlight { position: absolute; width: 200vw; height: 200vh; top: -50vh; left: -50vw; background: radial-gradient(circle at 50% 50%, transparent 5%, rgba(0,0,0,0.98) 15%); animation: spotMove 2s infinite alternate ease-in-out; z-index: 5; pointer-events: none; }
+
+  @keyframes scanAnim { 0% { left: -100px; } 100% { left: 100%; } }
+  @keyframes spikeIt { 0% { bottom: 0; left: -50px; transform: rotate(0deg) scale(0.5); } 40% { bottom: 150px; left: 120px; transform: rotate(180deg) scale(1.2); animation-timing-function: cubic-bezier(.55,.085,.68,.53); } 100% { bottom: -100px; left: 250px; transform: rotate(360deg) scale(0.8); } }
+  @keyframes driftBob { 0% { transform: translateY(0px) translateX(-80px) rotate(-15deg); } 50% { transform: translateY(-30px) translateX(0px) rotate(10deg); } 100% { transform: translateY(0px) translateX(80px) rotate(-15deg); } }
+  @keyframes swing { 0% { transform: rotate(-20deg); } 100% { transform: rotate(45deg); } }
+  @keyframes drop { 0% { transform: translateY(-120px) rotate(0deg); } 100% { transform: translateY(10px) rotate(45deg); } }
+  @keyframes breakTable { 0%, 80% { transform: rotate(0deg); } 100% { transform: rotate(15deg) translateY(10px); } }
+  @keyframes dolphinJump { 0% { transform: translate(-80px, 40px) rotate(-20deg); } 50% { transform: translate(0px, -40px) rotate(0deg); } 100% { transform: translate(80px, 40px) rotate(20deg); } }
+  @keyframes deflate { 0% { transform: scale(1); } 100% { transform: scale(1, 0.4); opacity: 0.8; } }
+  @keyframes wandFlick { 0% { transform: rotate(0deg); } 100% { transform: rotate(-30deg); } }
+  @keyframes spark { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.5); } }
+  @keyframes snitchFly { 0% { transform: translate(-80px, 20px); } 25% { transform: translate(0, -30px); } 50% { transform: translate(80px, 20px); } 75% { transform: translate(0, 30px); } 100% { transform: translate(-80px, 20px); } }
+  @keyframes slideLeft { 0% { width: 50%; } 100% { width: 0%; } }
+  @keyframes slideRight { 0% { width: 50%; } 100% { width: 0%; } }
+  @keyframes spotMove { 0% { transform: translate(-20%, -10%); } 100% { transform: translate(20%, 10%); } }
+  @keyframes hatWiggle { 0% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-10deg); } }
+  @keyframes refSignal { 0% { transform: translateY(0); } 100% { transform: translateY(-20px); } }
+
+  /* Full Screen Animation Overlay with Progressive Tension Backgrounds */
+  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; transition: background 1s ease; }
+  
+  .bg-calm { background: radial-gradient(circle, #1a2a40, #0a111a) !important; }
+  .bg-tense { animation: pulseTense 2s infinite alternate !important; }
+  @keyframes pulseTense { 0% { background: radial-gradient(circle, #2a0033, #000); } 100% { background: radial-gradient(circle, #4d004d, #111); } }
+  .bg-critical { animation: strobeCritical 0.6s infinite alternate !important; }
+  @keyframes strobeCritical { 0% { background: radial-gradient(circle, #4a0000, #000); } 100% { background: radial-gradient(circle, #8b0000, #220000); } }
+
+  .fs-title { color: white; font-size: 2em; margin-bottom: 35px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
   
   .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
   
-  .shake { animation: suspenseShake 0.4s infinite alternate; }
-  @keyframes suspenseShake {
-    0% { transform: translateX(-8px) rotate(-2deg); }
-    100% { transform: translateX(8px) rotate(2deg); }
-  }
+  .shake-light { animation: suspenseShake 0.4s infinite alternate; }
+  .shake-heavy { animation: suspenseShakeHeavy 0.15s infinite alternate; }
+  @keyframes suspenseShake { 0% { transform: translateX(-4px) rotate(-1deg); } 100% { transform: translateX(4px) rotate(1deg); } }
+  @keyframes suspenseShakeHeavy { 0% { transform: translateX(-10px) translateY(-5px) rotate(-3deg); } 100% { transform: translateX(10px) translateY(5px) rotate(3deg); } }
 
-  .flash-happy { background: rgba(39, 174, 96, 0.85) !important; }
-  .flash-sad { background: rgba(192, 57, 43, 0.85) !important; }
-
-  .fs-case-body { position: absolute; width: 100%; height: 100%; background: #48639c; border: 6px solid #203154; border-radius: 12px; box-shadow: inset 0 -40px rgba(0,0,0,0.4), 0 10px 25px rgba(0,0,0,0.8); z-index: 1; }
-  .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #5d7cb8; border: 6px solid #203154; border-radius: 12px; transform-origin: top; transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); z-index: 3; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+  .fs-case-body { position: absolute; width: 100%; height: 100%; background: #48639c; border: 6px solid #203154; border-radius: 12px; box-shadow: inset 0 -40px rgba(0,0,0,0.4), 0 15px 35px rgba(0,0,0,0.9); z-index: 1; }
+  .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #5d7cb8; border: 6px solid #203154; border-radius: 12px; transform-origin: top; transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); z-index: 3; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
   
   .open-anim .fs-lid { transform: rotateX(120deg); }
   
-  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.2); width: 140%; text-align: center; color: #ffd700; font-size: 2.2em; font-weight: bold; text-shadow: 3px 3px 8px #000; opacity: 0; z-index: 4; transition: all 0.9s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s; }
+  .fs-prize-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.2); width: 140%; text-align: center; color: #ffd700; font-size: 2.2em; font-weight: bold; text-shadow: 3px 3px 8px #000, 0 0 20px gold; opacity: 0; z-index: 4; transition: all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.6s; }
   .open-anim .fs-prize-text { transform: translate(-50%, -140%) scale(1); opacity: 1; }
 
-  #fs-timer { margin-top: 35px; color: #aaa; font-size: 1.2em; font-weight: bold; letter-spacing: 1px; }
+  #fs-timer { margin-top: 45px; color: #aaa; font-size: 1.2em; font-weight: bold; letter-spacing: 1px; }
 
   /* Fancy Last Chance Reveal Overlay */
   #last-chance-reveal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 3000; display: none; flex-direction: column; align-items: center; justify-content: center; }
@@ -105,6 +141,7 @@
     .prize-item { width: 18%; font-size: 0.65em; padding: 3px; }
     #cases-area { width: 100%; max-width: 400px; }
     #top-bar { font-size: 0.95em; flex-direction: column; gap: 5px; text-align: center; }
+    #cutscene-text { font-size: 1.2em; }
   }
 </style>
 </head>
@@ -185,9 +222,14 @@
   </div>
 </div>
 
+<!-- DYNAMIC CUTSCENE OVERLAY -->
+<div id="cutscene-overlay">
+  <!-- Content injected via JS -->
+</div>
+
 <!-- ROBUST FULL SCREEN ANIMATION OVERLAY -->
-<div id="fs-overlay">
-  <div class="fs-title" id="fs-title">Opening Case...</div>
+<div id="fs-overlay" class="bg-calm">
+  <div class="fs-title" id="fs-title">LOCKING IN...</div>
   <div class="fs-case-container" id="fs-case">
     <div class="fs-case-body"></div>
     <div class="fs-lid"></div>
@@ -362,7 +404,7 @@
 
     if (gameState === 'OPEN_CASES') {
       if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
-      openFullscreenCase(index, null, false);
+      triggerOpeningSequence(index, null, false);
     }
 
     if (gameState === 'FINALE_CHOICE') {
@@ -387,7 +429,7 @@
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
         
         setTimeout(() => {
-          openFullscreenCase(thirdCaseIndex, () => {
+          triggerOpeningSequence(thirdCaseIndex, () => {
             updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
           }, false);
         }, 1200);
@@ -396,21 +438,19 @@
     else if (gameState === 'FINALE_KEEP_ELIMINATE') {
       if (!btnElem.classList.contains('keeper') && !btnElem.classList.contains('opened')) {
         gameState = 'FINAL_REVEAL';
-        openFullscreenCase(index, () => {
+        triggerOpeningSequence(index, () => {
           updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
         }, false);
       }
     } 
     else if (gameState === 'FINAL_REVEAL') {
       if (btnElem.classList.contains('keeper')) {
-        openFullscreenCase(index, () => {
+        triggerOpeningSequence(index, () => {
           finalWinningPrize = cases[index];
           
-          // Calculate overall average of ALL prizes (active or inactive)
           const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
           const overallAvg = totalSum / prizes.length;
 
-          // Only show Ad #3 and run last chance logic if winning prize is LESS than overall average
           if (finalWinningPrize.val < overallAvg) {
             if (ad3ObjectUrl) {
               playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
@@ -426,68 +466,118 @@
     }
   }
 
-  function openFullscreenCase(index, callback, isFinal = false) {
+  // --- 13 DYNAMIC RANDOM CUTSCENES ---
+  function triggerOpeningSequence(index, callback, isFinal) {
+    const activeCasesCount = prizes.filter(p => p.active).length;
+    
+    let cutsceneTime = 1800;
+    let shakeTime = 1000;
+    let shakeClass = 'shake-light';
+    let bgClass = 'bg-calm';
+    
+    if (activeCasesCount <= 12 && activeCasesCount > 5) {
+      cutsceneTime = 2200;
+      shakeTime = 2000;
+      shakeClass = 'shake-light';
+      bgClass = 'bg-tense';
+    } 
+    else if (activeCasesCount <= 5 || isFinal) {
+      cutsceneTime = 2800;
+      shakeTime = 3500;
+      shakeClass = 'shake-heavy';
+      bgClass = 'bg-critical';
+    }
+
+    const cutscene = document.getElementById('cutscene-overlay');
+    let cutsceneHTML = "";
+
+    if (isFinal) {
+      cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    } else {
+      const rand = Math.floor(Math.random() * 13);
+      const caseNumStr = (index + 1).toString();
+      
+      if (rand === 0) {
+        cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      } else if (rand === 1) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #e74c3c;">SPIKING CASE ${caseNumStr} TO ${playerName.toUpperCase()}...</div><div class="spike-container"><div class="volleyball-case">💼</div></div>`;
+      } else if (rand === 2) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">WILSON RECOVERED CASE ${caseNumStr}...</div><div class="wilson-container"><div class="wilson-ball">🏐<span class="blood-hand">🖐️</span></div></div>`;
+      } else if (rand === 3) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #AA0000; text-shadow: 2px 2px #B3995D;">49ERS MINING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="display:inline-block; animation: swing 0.5s infinite alternate;">⛏️</span><span style="display:inline-block;">🟡</span></div>`;
+      } else if (rand === 4) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #00338D; text-shadow: 2px 2px #C60C30;">BILLS MAFIA SMASHING CASE ${caseNumStr}...</div><div style="font-size: 5rem; position: relative; height: 120px; width: 120px; margin: 0 auto;"><span style="position:absolute; top:-80px; left:20px; animation: drop 1s forwards cubic-bezier(.25,.8,.25,1);">🏃‍♂️</span><span style="position:absolute; bottom:0; left:20px; animation: breakTable 1s forwards ease-in;">🪑</span></div>`;
+      } else if (rand === 5) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #008E97; text-shadow: 2px 2px #FC4C02;">DOLPHINS DIVING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: dolphinJump 1.5s ease-in-out infinite;">🐬💼🌊</div>`;
+      } else if (rand === 6) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #002244; text-shadow: 2px 2px #C60C30;">PATRIOTS CHECKING PSI ON CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: deflate 1.5s forwards ease-out;">🏈💨</div>`;
+      } else if (rand === 7) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #740001; text-shadow: 2px 2px #D3A625;">REVELIO CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="animation: wandFlick 0.8s infinite alternate; display:inline-block;">🪄</span><span style="animation: spark 0.8s infinite alternate; display:inline-block;">✨</span></div>`;
+      } else if (rand === 8) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">CATCHING CASE ${caseNumStr}...</div><div style="font-size: 4rem; animation: snitchFly 2s linear infinite;">🪽🟡🪽</div>`;
+      } else if (rand === 9) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10;">RAISING CURTAIN ON CASE ${caseNumStr}...</div><div style="position:absolute; top:0; left:0; width:50%; height:100%; background:darkred; border-right:5px solid gold; animation: slideLeft 2s forwards;"></div><div style="position:absolute; top:0; right:0; width:50%; height:100%; background:darkred; border-left:5px solid gold; animation: slideRight 2s forwards;"></div>`;
+      } else if (rand === 10) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10; text-shadow: 2px 2px 5px #000;">SPOTLIGHT ON CASE ${caseNumStr}...</div><div class="spotlight"></div>`;
+      } else if (rand === 11) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">SORTING CASE ${caseNumStr}...</div><div style="font-size: 6rem; animation: hatWiggle 0.5s infinite;">🎩🤔</div>`;
+      } else if (rand === 12) {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">TOUCHDOWN CASE ${caseNumStr}!</div><div style="font-size: 5rem; display:flex; justify-content:center; align-items:center;"><span style="animation: refSignal 0.8s infinite alternate;">🙌</span><span style="margin-left:10px;">🏈</span></div>`;
+      }
+    }
+    
+    cutscene.innerHTML = cutsceneHTML;
+    cutscene.style.display = 'flex';
+
+    setTimeout(() => {
+      cutscene.style.display = 'none';
+      openFullscreenCaseDramatic(index, callback, isFinal, shakeTime, shakeClass, bgClass);
+    }, cutsceneTime);
+  }
+
+  function openFullscreenCaseDramatic(index, callback, isFinal, shakeTime, shakeClass, bgClass) {
     pendingCaseIndex = index;
     pendingCallback = callback;
     const caseData = cases[index];
-
-    const activePrizes = prizes.filter(p => p.active);
-    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
-    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
 
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
 
-    overlay.className = '';
-    caseAnim.classList.remove('open-anim', 'shake');
-
-    let isHighValue = caseData.val > averageVal && !isFinal;
-
-    if (isFinal) {
-      titleElem.innerText = `${playerName}'s Final Reveal...`;
-    } else if (isHighValue) {
-      titleElem.innerText = `💥 OUCH, ${playerName.toUpperCase()}! 💥`;
-      overlay.classList.add('flash-sad');
-    } else {
-      titleElem.innerText = `🎉 AMAZING, ${playerName.toUpperCase()}! 🎉`;
-      overlay.classList.add('flash-happy');
-    }
-
+    overlay.className = bgClass;
+    caseAnim.classList.remove('open-anim', 'shake-light', 'shake-heavy');
+    
+    titleElem.innerText = isFinal ? "THE FINAL REVEAL" : "LOCKING IN...";
     document.getElementById('fs-prize-text').innerHTML = `${caseData.desc}`;
     
     overlay.style.display = 'flex';
-
-    const activeCasesCount = activePrizes.length;
-    const isSuspense = activeCasesCount <= 5 && !isFinal;
-
-    if (isSuspense) {
-      caseAnim.classList.add('shake');
-    }
-
-    void caseAnim.offsetWidth;
-
-    let openDelay = isSuspense ? 1200 : 200;
+    
+    caseAnim.classList.add(shakeClass);
+    void caseAnim.offsetWidth; 
 
     setTimeout(() => { 
-      caseAnim.classList.remove('shake');
+      caseAnim.classList.remove(shakeClass);
       caseAnim.classList.add('open-anim'); 
-    }, openDelay);
+      titleElem.innerText = isFinal ? "CONGRATULATIONS!" : "REVEALED!";
+    }, shakeTime);
 
     let timeLeft = 5;
     const timerElem = document.getElementById('fs-timer');
     timerElem.innerText = `Continuing in ${timeLeft}s...`;
 
     clearInterval(timerInterval);
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      if (timeLeft > 0) {
-        timerElem.innerText = `Continuing in ${timeLeft}s...`;
-      } else {
-        clearInterval(timerInterval);
-        closeFullscreen();
-      }
-    }, 1000);
+    
+    setTimeout(() => {
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft > 0) {
+          timerElem.innerText = `Continuing in ${timeLeft}s...`;
+        } else {
+          clearInterval(timerInterval);
+          closeFullscreen();
+        }
+      }, 1000);
+    }, shakeTime);
   }
 
   function closeFullscreen() {
@@ -528,8 +618,6 @@
   }
 
   function checkLastChanceOffer() {
-    // The conditional check for < average is already handled in final reveal before ad trigger
-    // So we just find the 130% to 175% range items here
     const minVal = finalWinningPrize.val * 1.30;
     const maxVal = finalWinningPrize.val * 1.75;
     const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
@@ -651,11 +739,9 @@
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    const modifier = (Math.random() * 0.20) + 0.45; // 45% to 65%
+    const modifier = (Math.random() * 0.20) + 0.45; 
     const targetVal = ev * modifier;
 
-    // The Banker can offer ANY case (active or eliminated) that falls in the value range.
-    // We search the entire `prizes` array (all 25 items) to find the closest match to our calculated target value.
     let closestPrize = prizes.reduce((prev, curr) => {
       return (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev);
     });
