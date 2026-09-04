@@ -481,9 +481,7 @@
   }
 
   function checkLastChanceOffer() {
-    // Only pop up if winning case value is strictly lower than 12
     if (finalWinningPrize.val < 12) {
-      // Find range: 130% to 175% of the winning case value
       const minVal = finalWinningPrize.val * 1.30;
       const maxVal = finalWinningPrize.val * 1.75;
       const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
@@ -601,21 +599,27 @@
     };
   }
 
+  // Updated Banker Logic: Maps the numeric calculated value to the closest matching prize name on the board
   function triggerBanker() {
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    const modifier = (Math.random() * 0.20) + 0.45; 
-    const offerValue = Math.round(ev * modifier);
+    const modifier = (Math.random() * 0.20) + 0.45; // 45% to 65%
+    const targetVal = ev * modifier;
 
-    showModal("The Banker is Calling...", `$${offerValue}`, [
-      { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
+    // Find the active prize on the board closest in numeric value to targetVal
+    let closestPrize = activePrizes.reduce((prev, curr) => {
+      return (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev);
+    });
+
+    showModal("The Banker is Calling...", `The Banker offers you:\n\n${closestPrize.desc}`, [
+      { text: "DEAL", class: "deal-btn", action: () => acceptDeal(closestPrize) },
       { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
     ], true);
   }
 
-  function acceptDeal(offer) {
-    showModal("Game Over", `${playerName} took the deal for $${offer}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}`, [], false);
+  function acceptDeal(offeredPrize) {
+    showModal("Game Over", `${playerName} took the deal for:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}`, [], false);
   }
 
   function rejectDeal() {
