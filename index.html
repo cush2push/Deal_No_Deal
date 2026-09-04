@@ -95,6 +95,7 @@
   .modal-buttons { margin-top: 20px; display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; }
   .deal-btn { background: #27ae60; color: white; }
   .nodeal-btn { background: #c0392b; color: white; }
+  .gamble-btn { background: #8e44ad; color: white; }
 
   @media (max-width: 768px) {
     #main-area { flex-direction: column; align-items: center; }
@@ -204,7 +205,7 @@
   let currentRound = 0;
   let casesOpenedThisRound = 0;
   let totalCasesOpenedGlobal = 0;
-  let ad2HasPlayed = false; // Flag to ensure Ad #2 plays strictly once on the 22nd case
+  let ad2HasPlayed = false;
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
@@ -294,7 +295,6 @@
       const div = document.createElement('div');
       div.className = `prize-item ${p.active ? '' : 'prize-eliminated'}`;
       div.id = `board-prize-${p.id}`;
-      // Updated to display only the prize description name, omitting numerical values
       div.innerHTML = `<span>${p.desc}</span>`;
       if (index < 13) left.appendChild(div);
       else right.appendChild(div);
@@ -462,7 +462,7 @@
       playVideoAd(ad1ObjectUrl, finishOpeningFlow);
       return;
     } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl && !ad2HasPlayed) {
-      ad2HasPlayed = true; // Locks it so it will never trigger again on subsequent opens
+      ad2HasPlayed = true; 
       playVideoAd(ad2ObjectUrl, finishOpeningFlow);
       return;
     }
@@ -486,18 +486,20 @@
     const threshold = overallAvg * 0.80;
 
     if (finalWinningPrize.val <= threshold) {
-      const minVal = finalWinningPrize.val * 0.75;
-      const maxVal = finalWinningPrize.val * 1.50;
+      // 130% to 175% range
+      const minVal = finalWinningPrize.val * 1.30;
+      const maxVal = finalWinningPrize.val * 1.75;
       const eligibleItems = prizes.filter(p => !p.active && p.val >= minVal && p.val <= maxVal && p.id !== finalWinningPrize.id);
 
       if (eligibleItems.length > 0) {
         const replacementItem = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
         showModal(
           "LAST CHANCE OFFER!", 
-          `Your winning case value ($${finalWinningPrize.val}) was significantly below average!\n\nWould you like to trade it for a Last Chance mystery prize?`,
+          `${playerName}, your winning prize was below average!\n\nWould you like to swap for a Last Chance mystery prize, or take a Gambler's Pass to gamble for a chance at ANY other prize?`,
           [
-            { text: "DEAL", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
-            { text: "NO DEAL", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
+            { text: "DEAL (TAKE OFFER)", class: "deal-btn", action: () => executeLastChanceDeal(replacementItem) },
+            { text: "GAMBLER'S PASS", class: "gamble-btn", action: () => executeGamblersPass() },
+            { text: "NO DEAL (KEEP)", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
           ],
           true
         );
@@ -522,6 +524,25 @@
       revealContainer.style.display = 'none';
       showModal("Game Over", `${playerName}, you took the Last Chance Deal and upgraded to:\n\n${newItem.desc}`, [], false);
     }, 4500);
+  }
+
+  function executeGamblersPass() {
+    closeModal();
+    const revealContainer = document.getElementById('last-chance-reveal');
+    const vaultText = document.getElementById('vault-text');
+    revealContainer.style.display = 'flex';
+    vaultText.innerText = "🎲 ROLLING GAMBLER'S PASS... 🎲";
+
+    setTimeout(() => {
+      // Equal % chance at any other item in the entire game pool
+      const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
+      vaultText.innerHTML = `🎲 GAMBLER'S PASS RESULT! 🎲<br><br>${randomPrize.desc}`;
+
+      setTimeout(() => {
+        revealContainer.style.display = 'none';
+        showModal("Game Over", `${playerName}, your Gambler's Pass landed on:\n\n${randomPrize.desc}`, [], false);
+      }, 4000);
+    }, 2000);
   }
 
   function finalizeGameOver(prize) {
@@ -584,12 +605,11 @@
     };
   }
 
-  // Updated Banker logic: 45% to 65% modifier applied to remaining average
   function triggerBanker() {
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    const modifier = (Math.random() * 0.20) + 0.45; // Generates random float between 0.45 and 0.65
+    const modifier = (Math.random() * 0.20) + 0.45; 
     const offerValue = Math.round(ev * modifier);
 
     showModal("The Banker is Calling...", `$${offerValue}`, [
