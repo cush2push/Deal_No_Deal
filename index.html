@@ -9,15 +9,17 @@
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
   button:hover { background: #f1c40f; }
   
-  /* Setup Screen & Dials */
+  /* Setup Screen & Inputs */
   #setup-screen { max-width: 600px; margin: auto; background: #222; padding: 20px; border-radius: 10px; }
-  .dial-help { color: #aaa; margin-bottom: 20px; font-size: 0.9em; }
+  .setup-help { color: #aaa; margin-bottom: 20px; font-size: 0.9em; }
   .setup-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; background: #333; padding: 10px; border-radius: 5px; }
-  .setup-row input[type="text"] { flex: 1; padding: 8px; background: #444; border: 1px solid #666; color: white; border-radius: 4px; }
-  .dial-container { display: flex; align-items: center; gap: 10px; background: #222; padding: 5px 15px; border-radius: 20px; border: 1px solid #444; }
-  .dial { width: 36px; height: 36px; border-radius: 50%; background: conic-gradient(from 180deg, #666, #222, #666); border: 2px solid #aaa; position: relative; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.5); touch-action: none; }
-  .dial-marker { position: absolute; top: 2px; left: 15px; width: 4px; height: 12px; background: #e74c3c; border-radius: 2px; }
-  .dial-val { width: 50px; font-weight: bold; text-align: right; color: gold; font-size: 1.1em; }
+  .setup-row input[type="text"] { flex: 1; padding: 10px; background: #444; border: 1px solid #666; color: white; border-radius: 4px; font-size: 16px; }
+  
+  /* Number Input Styling */
+  .val-container { display: flex; align-items: center; gap: 5px; background: #222; padding: 5px 10px; border-radius: 5px; border: 1px solid #444; color: gold; font-weight: bold; font-size: 1.1em; }
+  .num-input { width: 70px; padding: 8px; background: #444; border: 1px solid #666; color: gold; border-radius: 4px; font-weight: bold; font-size: 16px; text-align: center; }
+  .num-input::-webkit-outer-spin-button, .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .num-input[type=number] { -moz-appearance: textfield; }
 
   /* Game Screen */
   #game-screen { display: none; display: flex; flex-direction: column; height: 95vh; }
@@ -67,7 +69,7 @@
 <!-- SETUP SCREEN -->
 <div id="setup-screen">
   <h1>Game Setup</h1>
-  <p class="dial-help">Touch and drag the circular dials up or down to set the Banker values.</p>
+  <p class="setup-help">Tap the numeric box to enter the Banker value.</p>
   <div id="setup-rows"></div>
   <button onclick="startGame()" style="margin-top: 20px; font-size: 1.2em;">Start Game</button>
 </div>
@@ -102,10 +104,33 @@
   <button id="fs-continue" onclick="closeFullscreen()">Continue</button>
 </div>
 
-<!-- BANKER MODAL -->
+<!-- BANKER MODAL WITH BUILT-IN SVG CARTOON -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
+    
+    <div id="banker-img" style="display: none; width: 140px; height: 140px; margin: 15px auto; border-radius: 50%; border: 4px solid #d4af37; box-shadow: 0 4px 10px rgba(0,0,0,0.8); overflow: hidden; background: #2c3e50;">
+      <svg viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg">
+        <!-- Shoulders / Suit -->
+        <path d="M 20 150 C 20 100, 130 100, 130 150" fill="#1a252f"/>
+        <!-- Shirt -->
+        <polygon points="50,100 100,100 75,130" fill="#ecf0f1"/>
+        <!-- Tie -->
+        <polygon points="70,100 80,100 75,150" fill="#c0392b"/>
+        <!-- Head -->
+        <ellipse cx="75" cy="70" rx="30" ry="35" fill="#f39c12"/>
+        <!-- Glasses -->
+        <rect x="50" y="60" width="18" height="10" rx="2" fill="#111"/>
+        <rect x="82" y="60" width="18" height="10" rx="2" fill="#111"/>
+        <line x1="68" y1="65" x2="82" y2="65" stroke="#111" stroke-width="2"/>
+        <!-- Mustache -->
+        <path d="M 55 85 Q 75 75 95 85 Q 75 95 55 85" fill="#111"/>
+        <!-- Top Hat -->
+        <rect x="40" y="32" width="70" height="6" fill="#111"/>
+        <path d="M 48 32 L 53 5 L 97 5 L 102 32 Z" fill="#222"/>
+      </svg>
+    </div>
+
     <p id="modal-text" style="font-size: 28px; font-weight: bold; color: #27ae60;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
   </div>
@@ -124,7 +149,7 @@
   let pendingCaseIndex = null;
   let pendingCallback = null;
 
-  // 1. GENERATE SETUP ROWS & BIND DIALS
+  // 1. GENERATE SETUP ROWS 
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
     let defaultVal = i * 10;
@@ -132,47 +157,24 @@
       <div class="setup-row">
         <span>#${i}</span>
         <input type="text" id="desc-${i}" value="Prize ${i}" />
-        <div class="dial-container">
-          <div class="dial" id="dial-${i}"><div class="dial-marker"></div></div>
-          $<span class="dial-val" id="valDisp-${i}">${defaultVal}</span>
+        <div class="val-container">
+          $ <input type="number" id="val-${i}" class="num-input" value="${defaultVal}" min="1" step="1" />
         </div>
       </div>
     `;
-  }
-
-  // Pointer events for Rotary Dials
-  for (let i = 1; i <= 25; i++) {
-    const dial = document.getElementById(`dial-${i}`);
-    const disp = document.getElementById(`valDisp-${i}`);
-    let active = false;
-    let startY, startVal;
-
-    dial.addEventListener('pointerdown', (e) => {
-      active = true;
-      startY = e.clientY;
-      startVal = parseInt(disp.innerText);
-      dial.setPointerCapture(e.pointerId);
-      e.preventDefault();
-    });
-    dial.addEventListener('pointermove', (e) => {
-      if(!active) return;
-      let delta = startY - e.clientY; // Drag up increases
-      let scale = startVal >= 500 ? 25 : (startVal >= 100 ? 5 : 1);
-      let newVal = Math.max(1, startVal + (delta * scale));
-      disp.innerText = Math.floor(newVal);
-      dial.style.transform = `rotate(${Math.floor(newVal)}deg)`;
-    });
-    dial.addEventListener('pointerup', () => active = false);
   }
 
   // 2. START GAME & SHUFFLE
   function startGame() {
     prizes = [];
     for (let i = 1; i <= 25; i++) {
+      let numericValue = parseFloat(document.getElementById(`val-${i}`).value);
+      if (isNaN(numericValue) || numericValue <= 0) numericValue = 1;
+      
       prizes.push({
         id: i,
         desc: document.getElementById(`desc-${i}`).value,
-        val: parseFloat(document.getElementById(`valDisp-${i}`).innerText),
+        val: numericValue,
         active: true
       });
     }
@@ -220,12 +222,11 @@
     });
   }
 
-  // 4. CORE GAME LOGIC & STATE MACHINE
+  // 4. CORE GAME LOGIC
   function handleCaseClick(index, btnElem) {
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
       btnElem.classList.add('keeper');
-      // Move to golden podium
       document.getElementById('golden-podium').appendChild(btnElem);
       gameState = 'OPEN_CASES';
       updateInstructions();
@@ -237,18 +238,14 @@
       openFullscreenCase(index, null, false);
     }
 
-    // THE FINALE LOGIC
     if (gameState === 'FINALE_CHOICE') {
       if (btnElem.classList.contains('keeper')) {
-        // User chose to KEEP
         gameState = 'FINALE_KEEP_ELIMINATE';
         updateInstructions("You KEPT your case! Now click ONE case on the board to eliminate.");
       } else if (!btnElem.classList.contains('opened')) {
-        // User chose to SWAP
         let oldKeeperIndex = keeperCase.caseIndex;
         let newKeeperIndex = index;
 
-        // Visual Swap to Golden Podium
         let newBtn = document.getElementById(`case-${newKeeperIndex}`);
         let oldBtn = document.getElementById(`case-${oldKeeperIndex}`);
         newBtn.classList.add('keeper');
@@ -260,7 +257,6 @@
         gameState = 'FINAL_REVEAL';
         updateInstructions("You SWAPPED! The unselected case is now eliminated automatically.");
 
-        // Automatically open the remaining 3rd case
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
         
         setTimeout(() => {
@@ -281,13 +277,13 @@
     else if (gameState === 'FINAL_REVEAL') {
       if (btnElem.classList.contains('keeper')) {
         openFullscreenCase(index, () => {
-          showModal("Congratulations!", `You won:\n\n$${cases[index].val} - ${cases[index].desc}`, []);
+          showModal("Congratulations!", `You won:\n\n$${cases[index].val} - ${cases[index].desc}`, [], false);
         }, true);
       }
     }
   }
 
-  // 5. FULL SCREEN ANIMATION HANDLER
+  // 5. FULL SCREEN ANIMATION 
   function openFullscreenCase(index, callback, isFinal = false) {
     pendingCaseIndex = index;
     pendingCallback = callback;
@@ -303,13 +299,9 @@
     caseAnim.classList.remove('open-anim');
     document.getElementById('fs-continue').style.display = 'none';
 
-    // Force CSS reflow to restart animation
     void caseAnim.offsetWidth;
 
-    // Trigger open
     setTimeout(() => { caseAnim.classList.add('open-anim'); }, 100);
-    
-    // Show continue button after animation completes
     setTimeout(() => { document.getElementById('fs-continue').style.display = 'block'; }, 1800);
   }
 
@@ -320,7 +312,6 @@
     const caseData = cases[index];
     caseData.active = false;
 
-    // Strike from board and grid
     document.getElementById(`case-${index}`).classList.add('opened');
     document.getElementById(`board-prize-${caseData.id}`).classList.add('prize-eliminated');
 
@@ -362,11 +353,11 @@
     showModal("The Banker is Calling...", `$${offerValue}`, [
       { text: "DEAL", class: "deal-btn", action: () => acceptDeal(offerValue) },
       { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
-    ]);
+    ], true); // The 'true' here shows the cartoon banker
   }
 
   function acceptDeal(offer) {
-    showModal("Game Over", `You took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, []);
+    showModal("Game Over", `You took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, [], false);
   }
 
   function rejectDeal() {
@@ -374,7 +365,6 @@
     casesOpenedThisRound = 0;
     currentRound++;
     
-    // 22 cases opened means 3 are left (Keeper + 2 on board)
     if (currentRound >= roundSchedule.length) {
       gameState = 'FINALE_CHOICE';
       updateInstructions("3 Cases Left! Click your Keeper to KEEP, or click a board case to SWAP.");
@@ -385,8 +375,17 @@
     }
   }
 
-  function showModal(title, text, buttons) {
+  function showModal(title, text, buttons, showBanker = false) {
     document.getElementById('modal-title').innerText = title;
+    
+    // This turns the cartoon banker on or off depending on the situation
+    const bankerImg = document.getElementById('banker-img');
+    if (showBanker) {
+      bankerImg.style.display = 'block';
+    } else {
+      bankerImg.style.display = 'none';
+    }
+
     document.getElementById('modal-text').innerText = text;
     const actions = document.getElementById('modal-actions');
     actions.innerHTML = '';
@@ -404,3 +403,4 @@
 </script>
 </body>
 </html>
+
