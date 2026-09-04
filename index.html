@@ -10,8 +10,13 @@
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; }
   button:hover { background: #f1c40f; }
   
+  /* Player Name Screen */
+  #player-screen { max-width: 450px; width: 100%; margin: 80px auto; background: #222; padding: 30px; border-radius: 10px; border: 2px solid #d4af37; }
+  #player-screen h1 { color: #ffd700; margin-bottom: 10px; }
+  #player-input { width: 100%; padding: 12px; font-size: 18px; background: #333; border: 1px solid #666; color: white; border-radius: 5px; text-align: center; margin: 20px 0; }
+
   /* Setup Screen & Inputs */
-  #setup-screen { max-width: 600px; width: 100%; margin: auto; background: #222; padding: 15px; border-radius: 10px; }
+  #setup-screen { max-width: 600px; width: 100%; margin: auto; background: #222; padding: 15px; border-radius: 10px; display: none; }
   .setup-help { color: #aaa; margin-bottom: 15px; font-size: 0.9em; }
   .setup-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; background: #333; padding: 8px; border-radius: 5px; flex-wrap: wrap; }
   .setup-row span { font-weight: bold; min-width: 25px; }
@@ -52,14 +57,12 @@
   
   .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
   
-  /* Suspense Shake Effect */
   .shake { animation: suspenseShake 0.4s infinite alternate; }
   @keyframes suspenseShake {
     0% { transform: translateX(-8px) rotate(-2deg); }
     100% { transform: translateX(8px) rotate(2deg); }
   }
 
-  /* Happy / Sad Flash Backgrounds */
   .flash-happy { background: rgba(39, 174, 96, 0.85) !important; }
   .flash-sad { background: rgba(192, 57, 43, 0.85) !important; }
 
@@ -91,9 +94,17 @@
 </head>
 <body>
 
+<!-- PLAYER NAME SCREEN -->
+<div id="player-screen">
+  <h1>Deal or No Deal</h1>
+  <p style="color: #aaa;">Enter the contestant's name to begin</p>
+  <input type="text" id="player-input" placeholder="Player Name" value="Contestant" />
+  <button onclick="goToSetup()" style="width: 100%; font-size: 1.2em;">Continue to Setup</button>
+</div>
+
 <!-- SETUP SCREEN -->
 <div id="setup-screen">
-  <h1>Game Setup</h1>
+  <h1 id="setup-title">Game Setup</h1>
   <p class="setup-help">Enter your 25 prizes and values.</p>
   <div id="setup-rows"></div>
   <button onclick="startGame()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Start Game</button>
@@ -103,7 +114,7 @@
 <div id="game-screen" style="display:none;">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
-    <div id="round-info">Cases to open: <span id="cases-left">-</span></div>
+    <div id="round-info"><span id="player-display">Player</span> | Cases left: <span id="cases-left">-</span></div>
   </div>
   
   <div id="golden-area">
@@ -140,6 +151,7 @@
 </div>
 
 <script>
+  let playerName = "Contestant";
   let prizes = [];
   let cases = [];
   let keeperCase = null;
@@ -152,7 +164,19 @@
   let pendingCallback = null;
   let timerInterval = null;
 
-  // 1. GENERATE SETUP ROWS
+  // 1. TRANSITION FROM PLAYER SCREEN TO SETUP
+  function goToSetup() {
+    const inputVal = document.getElementById('player-input').value.trim();
+    if (inputVal !== "") playerName = inputVal;
+    
+    document.getElementById('setup-title').innerText = `${playerName}'s Game Setup`;
+    document.getElementById('player-display').innerText = playerName;
+
+    document.getElementById('player-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'block';
+  }
+
+  // 2. GENERATE SETUP ROWS
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
     let defaultVal = i * 10;
@@ -167,7 +191,7 @@
     `;
   }
 
-  // 2. START GAME & SHUFFLE
+  // 3. START GAME & SHUFFLE
   function startGame() {
     prizes = [];
     for (let i = 1; i <= 25; i++) {
@@ -196,7 +220,7 @@
     document.getElementById('game-screen').style.display = 'flex';
   }
 
-  // 3. RENDER UI
+  // 4. RENDER UI
   function renderPrizeBoards() {
     const left = document.getElementById('left-board');
     const right = document.getElementById('right-board');
@@ -225,7 +249,7 @@
     });
   }
 
-  // 4. CORE GAME LOGIC & STATE MACHINE
+  // 5. CORE GAME LOGIC & STATE MACHINE
   function handleCaseClick(index, btnElem) {
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
@@ -244,7 +268,7 @@
     if (gameState === 'FINALE_CHOICE') {
       if (btnElem.classList.contains('keeper')) {
         gameState = 'FINALE_KEEP_ELIMINATE';
-        updateInstructions("You KEPT your case! Now click ONE case on the board to eliminate.");
+        updateInstructions(`${playerName}, you KEPT your case! Click ONE board case to eliminate.`);
       } else if (!btnElem.classList.contains('opened')) {
         let oldKeeperIndex = keeperCase.caseIndex;
         let newKeeperIndex = index;
@@ -258,13 +282,13 @@
 
         keeperCase = { caseIndex: newKeeperIndex, data: cases[newKeeperIndex] };
         gameState = 'FINAL_REVEAL';
-        updateInstructions("You SWAPPED! The unselected case is now eliminated automatically.");
+        updateInstructions(`${playerName} SWAPPED! The unselected case is eliminated automatically.`);
 
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
         
         setTimeout(() => {
           openFullscreenCase(thirdCaseIndex, () => {
-            updateInstructions("Only 2 cases remain! Click your Keeper for the final reveal!");
+            updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
           }, false);
         }, 1200);
       }
@@ -273,26 +297,25 @@
       if (!btnElem.classList.contains('keeper') && !btnElem.classList.contains('opened')) {
         gameState = 'FINAL_REVEAL';
         openFullscreenCase(index, () => {
-          updateInstructions("Only 2 cases remain! Click your Keeper for the final reveal!");
+          updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
         }, false);
       }
     } 
     else if (gameState === 'FINAL_REVEAL') {
       if (btnElem.classList.contains('keeper')) {
         openFullscreenCase(index, () => {
-          showModal("Congratulations!", `You won:\n\n$${cases[index].val} - ${cases[index].desc}`, [], false);
+          showModal("Congratulations!", `${playerName}, you won:\n\n$${cases[index].val} - ${cases[index].desc}`, [], false);
         }, true);
       }
     }
   }
 
-  // 5. FULL SCREEN ANIMATION WITH HAPPY/SAD EMOTIONAL REACTIONS
+  // 6. FULL SCREEN ANIMATION WITH HAPPY/SAD EMOTIONAL REACTIONS
   function openFullscreenCase(index, callback, isFinal = false) {
     pendingCaseIndex = index;
     pendingCallback = callback;
     const caseData = cases[index];
 
-    // Calculate average value of remaining active prizes to determine if this opening is "high" (bad) or "low" (good)
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
@@ -301,14 +324,13 @@
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
 
-    // Reset styles
     overlay.className = '';
     caseAnim.classList.remove('open-anim', 'shake');
 
     let isHighValue = caseData.val > averageVal && !isFinal;
 
     if (isFinal) {
-      titleElem.innerText = "The Final Reveal...";
+      titleElem.innerText = `${playerName}'s Final Reveal...`;
     } else if (isHighValue) {
       titleElem.innerText = "💥 OUCH! BAD NEWS! 💥";
       overlay.classList.add('flash-sad');
@@ -337,7 +359,6 @@
       caseAnim.classList.add('open-anim'); 
     }, openDelay);
 
-    // 5-Second Timer Countdown
     let timeLeft = 5;
     const timerElem = document.getElementById('fs-timer');
     timerElem.innerText = `Continuing in ${timeLeft}s...`;
@@ -374,7 +395,7 @@
     }
   }
 
-  // 6. PROGRESS AND BANKER
+  // 7. PROGRESS AND BANKER
   function updateInstructions(override = null) {
     if (override) {
       document.getElementById('instruction-text').innerText = override;
@@ -383,7 +404,7 @@
     const target = roundSchedule[currentRound];
     const left = target - casesOpenedThisRound;
     document.getElementById('cases-left').innerText = left > 0 ? left : 0;
-    document.getElementById('instruction-text').innerText = "Open Briefcases";
+    document.getElementById('instruction-text').innerText = `${playerName}, select briefcases to open`;
   }
 
   function checkRoundProgress() {
@@ -407,7 +428,7 @@
   }
 
   function acceptDeal(offer) {
-    showModal("Game Over", `You took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, [], false);
+    showModal("Game Over", `${playerName} took the deal for $${offer}!\n\nYour keeper case actually had:\n$${keeperCase.data.val} - ${keeperCase.data.desc}`, [], false);
   }
 
   function rejectDeal() {
@@ -417,7 +438,7 @@
     
     if (currentRound >= roundSchedule.length) {
       gameState = 'FINALE_CHOICE';
-      updateInstructions("3 Cases Left! Click your Keeper to KEEP, or click a board case to SWAP.");
+      updateInstructions(`3 Cases Left, ${playerName}! Click your Keeper to KEEP, or click a board case to SWAP.`);
       document.getElementById('cases-left').innerText = "FINAL";
       document.getElementById(`case-${keeperCase.caseIndex}`).onclick = () => handleCaseClick(keeperCase.caseIndex, document.getElementById(`case-${keeperCase.caseIndex}`));
     } else {
@@ -452,6 +473,7 @@
 </script>
 </body>
 </html>
+
 
 
 
