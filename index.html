@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -47,18 +46,22 @@
   .briefcase.keeper { margin: 0; transform: scale(1.15); cursor: default; width: 85px; height: 60px; }
   .briefcase.keeper:hover { transform: scale(1.15); }
 
-  /* Robust Robust Full Screen Animation Overlays */
-  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; }
+  /* Full Screen Animation Overlay */
+  #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; background: rgba(0,0,0,0.96); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; transition: background-color 0.5s ease; }
   .fs-title { color: white; font-size: 2em; margin-bottom: 25px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
   
   .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
   
-  /* Suspense Shake Effect for Last Briefcases */
+  /* Suspense Shake Effect */
   .shake { animation: suspenseShake 0.4s infinite alternate; }
   @keyframes suspenseShake {
     0% { transform: translateX(-8px) rotate(-2deg); }
     100% { transform: translateX(8px) rotate(2deg); }
   }
+
+  /* Happy / Sad Flash Backgrounds */
+  .flash-happy { background: rgba(39, 174, 96, 0.85) !important; }
+  .flash-sad { background: rgba(192, 57, 43, 0.85) !important; }
 
   .fs-case-body { position: absolute; width: 100%; height: 100%; background: #48639c; border: 6px solid #203154; border-radius: 12px; box-shadow: inset 0 -40px rgba(0,0,0,0.4), 0 10px 25px rgba(0,0,0,0.8); z-index: 1; }
   .fs-lid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #5d7cb8; border: 6px solid #203154; border-radius: 12px; transform-origin: top; transition: transform 1.2s cubic-bezier(0.25, 1, 0.5, 1); z-index: 3; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
@@ -88,6 +91,7 @@
 </head>
 <body>
 
+<!-- SETUP SCREEN -->
 <div id="setup-screen">
   <h1>Game Setup</h1>
   <p class="setup-help">Enter your 25 prizes and values.</p>
@@ -95,6 +99,7 @@
   <button onclick="startGame()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Start Game</button>
 </div>
 
+<!-- GAME SCREEN -->
 <div id="game-screen" style="display:none;">
   <div id="top-bar">
     <div id="instruction-text">Select your Keeper Briefcase</div>
@@ -113,6 +118,7 @@
   </div>
 </div>
 
+<!-- ROBUST FULL SCREEN ANIMATION OVERLAY -->
 <div id="fs-overlay">
   <div class="fs-title" id="fs-title">Opening Case...</div>
   <div class="fs-case-container" id="fs-case">
@@ -123,6 +129,7 @@
   <div id="fs-timer">Continuing in 5s...</div>
 </div>
 
+<!-- BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
     <h2 id="modal-title">Banker's Offer</h2>
@@ -279,25 +286,43 @@
     }
   }
 
-  // 5. ROBUST FULL SCREEN ANIMATION HANDLER WITH SUSPENSE SHAKE & TIMER
+  // 5. FULL SCREEN ANIMATION WITH HAPPY/SAD EMOTIONAL REACTIONS
   function openFullscreenCase(index, callback, isFinal = false) {
     pendingCaseIndex = index;
     pendingCallback = callback;
     const caseData = cases[index];
 
-    // Check how many cases are active to trigger suspense anxiety on the final ones
-    const activeCasesCount = cases.filter(c => c.active).length;
-    const isSuspense = activeCasesCount <= 5; // Adds intensity when 5 or fewer cases remain
+    // Calculate average value of remaining active prizes to determine if this opening is "high" (bad) or "low" (good)
+    const activePrizes = prizes.filter(p => p.active);
+    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
+    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
 
-    document.getElementById('fs-title').innerText = isFinal ? "The Final Reveal..." : (isSuspense ? "⚠️ TENSE MOMENT... ⚠️" : `Opening Case ${index + 1}...`);
-    document.getElementById('fs-prize-text').innerHTML = `$${caseData.val}<br><span style="font-size:0.4em; color:white;">${caseData.desc}</span>`;
-    
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
+    const titleElem = document.getElementById('fs-title');
+
+    // Reset styles
+    overlay.className = '';
+    caseAnim.classList.remove('open-anim', 'shake');
+
+    let isHighValue = caseData.val > averageVal && !isFinal;
+
+    if (isFinal) {
+      titleElem.innerText = "The Final Reveal...";
+    } else if (isHighValue) {
+      titleElem.innerText = "💥 OUCH! BAD NEWS! 💥";
+      overlay.classList.add('flash-sad');
+    } else {
+      titleElem.innerText = "🎉 GREAT NEWS! SAFE! 🎉";
+      overlay.classList.add('flash-happy');
+    }
+
+    document.getElementById('fs-prize-text').innerHTML = `$${caseData.val}<br><span style="font-size:0.4em; color:white;">${caseData.desc}</span>`;
     
     overlay.style.display = 'flex';
-    caseAnim.classList.remove('open-anim');
-    caseAnim.classList.remove('shake');
+
+    const activeCasesCount = activePrizes.length;
+    const isSuspense = activeCasesCount <= 5 && !isFinal;
 
     if (isSuspense) {
       caseAnim.classList.add('shake');
@@ -305,8 +330,7 @@
 
     void caseAnim.offsetWidth;
 
-    // Delay the opening slightly if under high suspense to build tension
-    let openDelay = isSuspense ? 1200: 200;
+    let openDelay = isSuspense ? 1200 : 200;
 
     setTimeout(() => { 
       caseAnim.classList.remove('shake');
@@ -428,5 +452,6 @@
 </script>
 </body>
 </html>
+
 
 
