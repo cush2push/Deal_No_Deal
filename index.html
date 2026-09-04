@@ -417,8 +417,26 @@
 
     if (gameState === 'FINALE_CHOICE') {
       if (btnElem.classList.contains('keeper')) {
-        gameState = 'FINALE_KEEP_ELIMINATE';
-        updateInstructions(`${playerName}, you KEPT your case! Click ONE board case to eliminate.`);
+        gameState = 'AUTO_FINALE';
+        updateInstructions(`${playerName}, you KEPT your case! Auto-eliminating a remaining case...`);
+        
+        let remainingCases = cases.map((c, i) => ({c, i})).filter(item => item.c.active && item.i !== keeperCase.caseIndex);
+        let caseToEliminateIndex = remainingCases[Math.floor(Math.random() * remainingCases.length)].i;
+        
+        isAnimating = true;
+        setTimeout(() => {
+          triggerOpeningSequence(caseToEliminateIndex, () => {
+            isAnimating = true;
+            setTimeout(() => {
+              updateInstructions(`The Final Reveal for ${playerName}!`);
+              triggerOpeningSequence(keeperCase.caseIndex, () => {
+                finalWinningPrize = cases[keeperCase.caseIndex];
+                processFinalWin(finalWinningPrize);
+              }, true);
+            }, 1000);
+          }, false);
+        }, 1200);
+
       } else if (!btnElem.classList.contains('opened')) {
         let oldKeeperIndex = keeperCase.caseIndex;
         let newKeeperIndex = index;
@@ -431,7 +449,7 @@
         document.getElementById('cases-area').appendChild(oldBtn);
 
         keeperCase = { caseIndex: newKeeperIndex, data: cases[newKeeperIndex] };
-        gameState = 'FINAL_REVEAL';
+        gameState = 'AUTO_FINALE';
         updateInstructions(`${playerName} SWAPPED! The unselected case is eliminated automatically.`);
 
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
@@ -439,42 +457,33 @@
         isAnimating = true;
         setTimeout(() => {
           triggerOpeningSequence(thirdCaseIndex, () => {
-            updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
+            isAnimating = true;
+            setTimeout(() => {
+              updateInstructions(`The Final Reveal for ${playerName}!`);
+              triggerOpeningSequence(newKeeperIndex, () => {
+                finalWinningPrize = cases[newKeeperIndex];
+                processFinalWin(finalWinningPrize);
+              }, true);
+            }, 1000);
           }, false);
         }, 1200);
       }
     } 
-    else if (gameState === 'FINALE_KEEP_ELIMINATE') {
-      if (!btnElem.classList.contains('keeper') && !btnElem.classList.contains('opened')) {
-        gameState = 'FINAL_REVEAL';
-        isAnimating = true;
-        triggerOpeningSequence(index, () => {
-          updateInstructions(`Only 2 cases remain, ${playerName}! Click your Keeper for the final reveal!`);
-        }, false);
-      }
-    } 
-    else if (gameState === 'FINAL_REVEAL') {
-      if (btnElem.classList.contains('keeper')) {
-        isAnimating = true;
-        triggerOpeningSequence(index, () => {
-          finalWinningPrize = cases[index];
-          
-          const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
-          const overallAvg = totalSum / prizes.length;
+  }
 
-          // Ad 3 + Last Chance ONLY if winning prize < average
-          if (finalWinningPrize.val < overallAvg) {
-            if (ad3ObjectUrl) {
-              playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
-            } else {
-              checkLastChanceOffer();
-            }
-          } else {
-            finalizeGameOver(finalWinningPrize);
-          }
+  function processFinalWin(winningPrize) {
+    const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
+    const overallAvg = totalSum / prizes.length;
 
-        }, true);
+    // Ad 3 + Last Chance ONLY if winning prize < average
+    if (winningPrize.val < overallAvg) {
+      if (ad3ObjectUrl) {
+        playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
+      } else {
+        checkLastChanceOffer();
       }
+    } else {
+      finalizeGameOver(winningPrize);
     }
   }
 
@@ -603,7 +612,7 @@
     document.getElementById(`case-${index}`).classList.add('opened');
     document.getElementById(`board-prize-${caseData.id}`).classList.add('prize-eliminated');
 
-    if (gameState !== 'FINAL_REVEAL') {
+    if (gameState !== 'FINAL_REVEAL' && gameState !== 'AUTO_FINALE') {
       totalCasesOpenedGlobal++;
     }
 
@@ -638,8 +647,7 @@
     const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
     const overallAvg = totalSum / prizes.length;
     
-    // We only reach this function if winningPrize < overallAvg. 
-    // "offer a prize between winning value and 20% over average"
+    // offer a prize between the winning value and 20% over average
     let eligibleItems = prizes.filter(p => p.val > finalWinningPrize.val && p.val <= (overallAvg * 1.20));
 
     // Fallback: If no prizes fit perfectly in that math gap, pick from the next 1-4 better prizes
