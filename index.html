@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Custom Deal or No Deal - Deluxe</title>
+<title>Deal or No Deal - Burque Edition</title>
 <style>
   * { box-sizing: border-box; }
   body { font-family: Arial, sans-serif; background-color: #111; color: white; margin: 0; padding: 10px; text-align: center; overflow-x: hidden; }
@@ -149,22 +149,22 @@
 <!-- STEP 1: WELCOME SCREEN -->
 <div id="welcome-screen" class="flow-screen" style="display: block;">
   <h1>Deal or No Deal</h1>
-  <p style="color: #aaa; text-align: center; margin-bottom: 25px;">Welcome to the ultimate game of chance.</p>
+  <p style="color: #aaa; text-align: center; margin-bottom: 25px;">Eeeee, welcome to the sickest game of chance, foo.</p>
   
   <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
     <label style="font-size: 1.1em; color: #f1c40f; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
       <input type="checkbox" id="enable-ads" style="transform: scale(1.5);" />
-      Enable Commercial Breaks
+      Enable Commercial Breaks, a la ve
     </label>
   </div>
 
-  <button onclick="handleWelcomeNext()" style="width: 100%; font-size: 1.2em;">Next</button>
+  <button onclick="handleWelcomeNext()" style="width: 100%; font-size: 1.2em;">Get Down (Next)</button>
 </div>
 
 <!-- STEP 2: VIDEO AD SELECTION SCREEN (OPTIONAL) -->
 <div id="media-screen" class="flow-screen">
   <h1>Commercial Breaks</h1>
-  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Upload videos or skip</p>
+  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Upload videos or skip it, homie</p>
   
   <div class="media-upload-group">
     <label>Ad #1 Video (After 8th case)</label>
@@ -186,8 +186,8 @@
 
 <!-- STEP 3: PRIZE SETUP SCREEN -->
 <div id="setup-screen" style="max-width:600px; width:100%; margin:auto; background:#222; padding:15px; border-radius:10px; display:none;">
-  <h1 id="setup-title">Game Setup</h1>
-  <p class="setup-help">Enter your 25 prizes and values.</p>
+  <h1 id="setup-title">Game Setup, Orale</h1>
+  <p class="setup-help">Put down your 25 prizes, don't make them all chafa.</p>
   <div id="setup-rows"></div>
   <button onclick="goToPlayerName()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Continue to Player Name</button>
 </div>
@@ -195,7 +195,7 @@
 <!-- STEP 4: CONTESTANT NAME SCREEN -->
 <div id="player-screen" class="flow-screen">
   <h1>Contestant</h1>
-  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Who is playing today?</p>
+  <p style="color: #aaa; text-align: center; margin-bottom: 15px;">Who's getting down today, homie?</p>
   
   <input type="text" id="player-input" class="flow-input" placeholder="Player Name" value="Contestant" />
   
@@ -205,7 +205,7 @@
 <!-- GAME SCREEN -->
 <div id="game-screen">
   <div id="top-bar">
-    <div id="instruction-text">Select your Keeper Briefcase</div>
+    <div id="instruction-text">Pick your Keeper Briefcase, foo</div>
     <div id="round-info"><span id="player-display">Player</span> | Cases left: <span id="cases-left">-</span></div>
   </div>
   
@@ -245,13 +245,13 @@
 <!-- FULL SCREEN VIDEO AD OVERLAY -->
 <div id="ad-overlay">
   <video id="ad-video" playsinline webkit-playsinline></video>
-  <div id="tap-to-play-msg">▶ TAP TO PLAY COMMERCIAL</div>
+  <div id="tap-to-play-msg">▶ TAP TO PLAY THE AD, FOO</div>
 </div>
 
 <!-- BIGGER BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
-    <h2 id="modal-title">Banker's Offer</h2>
+    <h2 id="modal-title">El Banker's Offer</h2>
     <img id="banker-img" src="banker.png" style="display: none; width: 180px; height: 180px; object-fit: cover; border-radius: 50%; margin: 10px auto; border: 5px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.8);">
     <p id="modal-text" style="font-size: 32px; font-weight: bold; color: #27ae60; margin: 25px 0;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
@@ -450,7 +450,7 @@
 
         keeperCase = { caseIndex: newKeeperIndex, data: cases[newKeeperIndex] };
         gameState = 'AUTO_FINALE';
-        updateInstructions(`${playerName} SWAPPED! The unselected case is eliminated automatically.`);
+        updateInstructions(`Eeeee ${playerName} SWAPPED! The unselected case is eliminated automatically.`);
 
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
         
@@ -513,27 +513,27 @@
     let cutsceneHTML = "";
 
     if (isFinal) {
-      cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL, EEEE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
     } else {
       const rand = Math.floor(Math.random() * 13);
       const caseNumStr = (index + 1).toString();
       
       if (rand === 0) {
-        cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+        cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr} LIKE WE AT SANDIA LABS...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
       } else if (rand === 1) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #e74c3c;">SPIKING CASE ${caseNumStr} TO ${playerName.toUpperCase()}...</div><div class="spike-container"><div class="volleyball-case">💼</div></div>`;
+        cutsceneHTML = `<div id="cutscene-text" style="color: #e74c3c;">SPIKING CASE ${caseNumStr} TO ${playerName.toUpperCase()} LIKE A BOSS...</div><div class="spike-container"><div class="volleyball-case">💼</div></div>`;
       } else if (rand === 2) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">WILSON RECOVERED CASE ${caseNumStr}...</div><div class="wilson-container"><div class="wilson-ball">🏐<span class="blood-hand">🖐️</span></div></div>`;
+        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">WILSON RECOVERED CASE ${caseNumStr} FROM THE RIO GRANDE...</div><div class="wilson-container"><div class="wilson-ball">🏐<span class="blood-hand">🖐️</span></div></div>`;
       } else if (rand === 3) {
         cutsceneHTML = `<div id="cutscene-text" style="color: #AA0000; text-shadow: 2px 2px #B3995D;">49ERS MINING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="display:inline-block; animation: swing 0.5s infinite alternate;">⛏️</span><span style="display:inline-block;">🟡</span></div>`;
       } else if (rand === 4) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #00338D; text-shadow: 2px 2px #C60C30;">BILLS MAFIA SMASHING CASE ${caseNumStr}...</div><div style="font-size: 5rem; position: relative; height: 120px; width: 120px; margin: 0 auto;"><span style="position:absolute; top:-80px; left:20px; animation: drop 1s forwards cubic-bezier(.25,.8,.25,1);">🏃‍♂️</span><span style="position:absolute; bottom:0; left:20px; animation: breakTable 1s forwards ease-in;">🪑</span></div>`;
+        cutsceneHTML = `<div id="cutscene-text" style="color: #00338D; text-shadow: 2px 2px #C60C30;">BILLS MAFIA SMASHING CASE ${caseNumStr} LIKE A LOBOS TAILGATE...</div><div style="font-size: 5rem; position: relative; height: 120px; width: 120px; margin: 0 auto;"><span style="position:absolute; top:-80px; left:20px; animation: drop 1s forwards cubic-bezier(.25,.8,.25,1);">🏃‍♂️</span><span style="position:absolute; bottom:0; left:20px; animation: breakTable 1s forwards ease-in;">🪑</span></div>`;
       } else if (rand === 5) {
         cutsceneHTML = `<div id="cutscene-text" style="color: #008E97; text-shadow: 2px 2px #FC4C02;">DOLPHINS DIVING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: dolphinJump 1.5s ease-in-out infinite;">🐬💼🌊</div>`;
       } else if (rand === 6) {
         cutsceneHTML = `<div id="cutscene-text" style="color: #002244; text-shadow: 2px 2px #C60C30;">PATRIOTS CHECKING PSI ON CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: deflate 1.5s forwards ease-out;">🏈💨</div>`;
       } else if (rand === 7) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #740001; text-shadow: 2px 2px #D3A625;">REVELIO CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="animation: wandFlick 0.8s infinite alternate; display:inline-block;">🪄</span><span style="animation: spark 0.8s infinite alternate; display:inline-block;">✨</span></div>`;
+        cutsceneHTML = `<div id="cutscene-text" style="color: #740001; text-shadow: 2px 2px #D3A625;">REVELIO CASE ${caseNumStr}, A LA VE...</div><div style="font-size: 5rem;"><span style="animation: wandFlick 0.8s infinite alternate; display:inline-block;">🪄</span><span style="animation: spark 0.8s infinite alternate; display:inline-block;">✨</span></div>`;
       } else if (rand === 8) {
         cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">CATCHING CASE ${caseNumStr}...</div><div style="font-size: 4rem; animation: snitchFly 2s linear infinite;">🪽🟡🪽</div>`;
       } else if (rand === 9) {
@@ -543,7 +543,7 @@
       } else if (rand === 11) {
         cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">SORTING CASE ${caseNumStr}...</div><div style="font-size: 6rem; animation: hatWiggle 0.5s infinite;">🎩🤔</div>`;
       } else if (rand === 12) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">TOUCHDOWN CASE ${caseNumStr}!</div><div style="font-size: 5rem; display:flex; justify-content:center; align-items:center;"><span style="animation: refSignal 0.8s infinite alternate;">🙌</span><span style="margin-left:10px;">🏈</span></div>`;
+        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">TOUCHDOWN CASE ${caseNumStr}, ORALE!</div><div style="font-size: 5rem; display:flex; justify-content:center; align-items:center;"><span style="animation: refSignal 0.8s infinite alternate;">🙌</span><span style="margin-left:10px;">🏈</span></div>`;
       }
     }
     
@@ -561,6 +561,10 @@
     pendingCallback = callback;
     const caseData = cases[index];
 
+    const activePrizes = prizes.filter(p => p.active);
+    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
+    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
+
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
@@ -568,7 +572,18 @@
     overlay.className = bgClass;
     caseAnim.classList.remove('open-anim', 'shake-light', 'shake-heavy');
     
-    titleElem.innerText = isFinal ? "THE FINAL REVEAL" : "LOCKING IN...";
+    let isHighValue = caseData.val > averageVal && !isFinal;
+
+    if (isFinal) {
+      titleElem.innerText = `THE FINAL REVEAL, EEEE...`;
+    } else if (isHighValue) {
+      titleElem.innerText = `💥 A LA VE, ALL BAD ${playerName.toUpperCase()}! 💥`;
+      overlay.classList.add('flash-sad');
+    } else {
+      titleElem.innerText = `🎉 ALL SICK, ${playerName.toUpperCase()}! 🎉`;
+      overlay.classList.add('flash-happy');
+    }
+
     document.getElementById('fs-prize-text').innerHTML = `${caseData.desc}`;
     
     overlay.style.display = 'flex';
@@ -579,7 +594,9 @@
     setTimeout(() => { 
       caseAnim.classList.remove(shakeClass);
       caseAnim.classList.add('open-anim'); 
-      titleElem.innerText = isFinal ? "CONGRATULATIONS!" : "REVEALED!";
+      if (!isFinal && !isHighValue) titleElem.innerText = `🎉 ALL SICK, ${playerName.toUpperCase()}! 🎉`;
+      else if (!isFinal && isHighValue) titleElem.innerText = `💥 A LA VE, ALL BAD ${playerName.toUpperCase()}! 💥`;
+      else titleElem.innerText = "BUENO BYE, HERE'S THE REVEAL!";
     }, shakeTime);
 
     let timeLeft = 5;
@@ -662,12 +679,12 @@
       const safePrize = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
       
       showModal(
-        "Hey foo!", 
-        `${playerName}, alaaa your prize came up short!\n\n Don't be a baby cry,eeee that prize is alll chafa, but you can roll the dice for a rando hook up or you wanna go for broke and get the enchiladas or what?`,
+        "A la makina!", 
+        `${playerName}, your prize came up short foo!\n\n Don't be a baby cry, eeee that prize is alll chafa, but you can play it safe for a guaranteed hook up, or you wanna go for broke and get the enchiladas or what?`,
         [
           { text: "HOOK ME UP FOO", class: "deal-btn", action: () => executeLastChanceDeal(safePrize) },
-          { text: "GO FOR BROKE", class: "gamble-btn", action: () => executeGamblersPass() },
-          { text: "I'M GOOD HOMIE", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
+          { text: "ALL OR NOTHING HOMIE", class: "gamble-btn", action: () => executeGamblersPass() },
+          { text: "CHALE, I'M GOOD", class: "nodeal-btn", action: () => finalizeGameOver(finalWinningPrize) }
         ],
         true
       );
@@ -682,15 +699,15 @@
     const revealContainer = document.getElementById('last-chance-reveal');
     const vaultText = document.getElementById('vault-text');
     revealContainer.style.display = 'flex';
-    vaultText.innerText = "UNLOCKING VAULT...";
+    vaultText.innerText = "UNLOCKING VAULT, A LA VE...";
 
     setTimeout(() => {
-      vaultText.innerHTML = `🌟 PLAY IT SAFE UPGRADE! 🌟<br><br>${newItem.desc}`;
+      vaultText.innerHTML = `🌟 ALL SICK UPGRADE! 🌟<br><br>${newItem.desc}`;
     }, 1500);
 
     setTimeout(() => {
       revealContainer.style.display = 'none';
-      showModal("Game Over", `${playerName}, you played it safe and upgraded to:\n\n${newItem.desc}`, [], false);
+      showModal("Game Over, Homie", `Eeee ${playerName}, you played it safe and upgraded to:\n\n${newItem.desc}. Bueno bye!`, [], false);
     }, 4500);
   }
 
@@ -699,7 +716,7 @@
     const revealContainer = document.getElementById('last-chance-reveal');
     const vaultText = document.getElementById('vault-text');
     revealContainer.style.display = 'flex';
-    vaultText.innerText = "🎲 ROLLING GAMBLER'S PASS... 🎲";
+    vaultText.innerText = "🎲 ROLLING FOR ALL THE ENCHILADAS... 🎲";
 
     setTimeout(() => {
       // Risk it for the biscuit: Equal chance at ALL original cases!
@@ -708,14 +725,14 @@
 
       setTimeout(() => {
         revealContainer.style.display = 'none';
-        showModal("Game Over", `${playerName}, your Gambler's Pass landed on:\n\n${randomPrize.desc}`, [], false);
+        showModal("Game Over, Homie", `Eeee ${playerName}, your Gambler's Pass landed on:\n\n${randomPrize.desc}. Bueno bye!`, [], false);
       }, 4000);
     }, 2000);
   }
 
   function finalizeGameOver(prize) {
     closeModal();
-    showModal("Game Over", `${playerName}, you are going home with:\n\n${prize.desc}`, [], false);
+    showModal("Game Over, Homie", `Bueno bye! ${playerName}, you are going home with:\n\n${prize.desc}`, [], false);
   }
 
   function updateInstructions(override = null) {
@@ -726,7 +743,7 @@
     const target = roundSchedule[currentRound];
     const left = target - casesOpenedThisRound;
     document.getElementById('cases-left').innerText = left > 0 ? left : 0;
-    document.getElementById('instruction-text').innerText = `${playerName}, select briefcases to open`;
+    document.getElementById('instruction-text').innerText = `Orale ${playerName}, pick the next case foo`;
   }
 
   function checkRoundProgress() {
@@ -791,14 +808,14 @@
       return (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev);
     });
 
-    showModal("The Banker is Calling...", `The Banker offers you:\n\n${closestPrize.desc}`, [
-      { text: "DEAL", class: "deal-btn", action: () => acceptDeal(closestPrize) },
-      { text: "NO DEAL", class: "nodeal-btn", action: rejectDeal }
+    showModal("El Banker is Calling...", `El Banker is offering you:\n\n${closestPrize.desc}`, [
+      { text: "ORALE (DEAL)", class: "deal-btn", action: () => acceptDeal(closestPrize) },
+      { text: "CHALE (NO DEAL)", class: "nodeal-btn", action: rejectDeal }
     ], true);
   }
 
   function acceptDeal(offeredPrize) {
-    showModal("Game Over", `${playerName} took the deal for:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}`, [], false);
+    showModal("Game Over, Homie", `Eeee ${playerName} took the deal for:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}. Bueno bye!`, [], false);
   }
 
   function rejectDeal() {
@@ -808,7 +825,7 @@
     
     if (currentRound >= roundSchedule.length) {
       gameState = 'FINALE_CHOICE';
-      updateInstructions(`3 Cases Left, ${playerName}! Click your Keeper to KEEP, or click a board case to SWAP.`);
+      updateInstructions(`Eeeee 3 Cases Left, ${playerName}! Click your Keeper to KEEP, or click a board case to SWAP.`);
       document.getElementById('cases-left').innerText = "FINAL";
       document.getElementById(`case-${keeperCase.caseIndex}`).onclick = () => handleCaseClick(keeperCase.caseIndex, document.getElementById(`case-${keeperCase.caseIndex}`));
     } else {
