@@ -149,7 +149,7 @@
 <!-- STEP 1: WELCOME SCREEN -->
 <div id="welcome-screen" class="flow-screen" style="display: block;">
   <h1>Deal or No Deal</h1>
-  <p style="color: #aaa; text-align: center; margin-bottom: 25px;">Eeeee, welcome to the sickest game of chance, foo.</p>
+  <p style="color: #aaa; text-align: center; margin-bottom: 25px;">Welcome to the ultimate game of chance.</p>
   
   <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
     <label style="font-size: 1.1em; color: #f1c40f; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
@@ -158,7 +158,7 @@
     </label>
   </div>
 
-  <button onclick="handleWelcomeNext()" style="width: 100%; font-size: 1.2em;">Get Down (Next)</button>
+  <button onclick="handleWelcomeNext()" style="width: 100%; font-size: 1.2em;">Get Down</button>
 </div>
 
 <!-- STEP 2: VIDEO AD SELECTION SCREEN (OPTIONAL) -->
@@ -561,10 +561,6 @@
     pendingCallback = callback;
     const caseData = cases[index];
 
-    const activePrizes = prizes.filter(p => p.active);
-    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
-    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
-
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
@@ -572,16 +568,10 @@
     overlay.className = bgClass;
     caseAnim.classList.remove('open-anim', 'shake-light', 'shake-heavy');
     
-    let isHighValue = caseData.val > averageVal && !isFinal;
-
     if (isFinal) {
       titleElem.innerText = `THE FINAL REVEAL, EEEE...`;
-    } else if (isHighValue) {
-      titleElem.innerText = `💥 A LA VE, ALL BAD ${playerName.toUpperCase()}! 💥`;
-      overlay.classList.add('flash-sad');
     } else {
-      titleElem.innerText = `🎉 ALL SICK, ${playerName.toUpperCase()}! 🎉`;
-      overlay.classList.add('flash-happy');
+      titleElem.innerText = `LOCKING IN, FOO...`;
     }
 
     document.getElementById('fs-prize-text').innerHTML = `${caseData.desc}`;
@@ -594,9 +584,7 @@
     setTimeout(() => { 
       caseAnim.classList.remove(shakeClass);
       caseAnim.classList.add('open-anim'); 
-      if (!isFinal && !isHighValue) titleElem.innerText = `🎉 ALL SICK, ${playerName.toUpperCase()}! 🎉`;
-      else if (!isFinal && isHighValue) titleElem.innerText = `💥 A LA VE, ALL BAD ${playerName.toUpperCase()}! 💥`;
-      else titleElem.innerText = "BUENO BYE, HERE'S THE REVEAL!";
+      titleElem.innerText = isFinal ? "BUENO BYE, HERE'S THE REVEAL!" : "REVEALED, HOMIE!";
     }, shakeTime);
 
     let timeLeft = 5;
@@ -809,8 +797,8 @@
     });
 
     showModal("El Banker is Calling...", `El Banker is offering you:\n\n${closestPrize.desc}`, [
-      { text: "ORALE (DEAL)", class: "deal-btn", action: () => acceptDeal(closestPrize) },
-      { text: "CHALE (NO DEAL)", class: "nodeal-btn", action: rejectDeal }
+      { text: "ORALE", class: "deal-btn", action: () => acceptDeal(closestPrize) },
+      { text: "CHALE", class: "nodeal-btn", action: rejectDeal }
     ], true);
   }
 
