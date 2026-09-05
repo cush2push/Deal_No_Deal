@@ -95,6 +95,9 @@
   .bg-critical { animation: strobeCritical 0.6s infinite alternate !important; }
   @keyframes strobeCritical { 0% { background: radial-gradient(circle, #4a0000, #000); } 100% { background: radial-gradient(circle, #8b0000, #220000); } }
 
+  .flash-happy { background: rgba(39, 174, 96, 0.85) !important; }
+  .flash-sad { background: rgba(192, 57, 43, 0.85) !important; }
+
   .fs-title { color: white; font-size: 2em; margin-bottom: 35px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
   .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
   
@@ -154,7 +157,7 @@
   <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
     <label style="font-size: 1.1em; color: #f1c40f; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
       <input type="checkbox" id="enable-ads" style="transform: scale(1.5);" />
-      Enable Commercial Breaks
+      Enable Commercial Breaks, a la ve
     </label>
   </div>
 
@@ -186,8 +189,18 @@
 
 <!-- STEP 3: PRIZE SETUP SCREEN -->
 <div id="setup-screen" style="max-width:600px; width:100%; margin:auto; background:#222; padding:15px; border-radius:10px; display:none;">
-  <h1 id="setup-title">Game Setup</h1>
-  <p class="setup-help">Put down your 25 prizes, don't make them all chafa.</p>
+  <h1 id="setup-title">Game Setup, Orale</h1>
+  <p class="setup-help">Put down your 25 prizes, or use a quick preset foo.</p>
+  
+  <div style="margin-bottom: 15px; background: #333; padding: 10px; border-radius: 5px;">
+    <label style="color: #f1c40f; display: block; margin-bottom: 5px; font-weight: bold;">Quick Load a Preset:</label>
+    <select id="preset-select" onchange="applyPreset()" style="width: 100%; padding: 8px; background: #444; color: white; border: 1px solid #666; border-radius: 5px; font-size: 1em;">
+      <option value="">Custom (Manual Entry)</option>
+      <option value="tablet">Tablet Time (15 mins to All Day)</option>
+      <option value="toy">Toy Run ($5 to $100)</option>
+    </select>
+  </div>
+
   <div id="setup-rows"></div>
   <button onclick="goToPlayerName()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Continue to Player Name</button>
 </div>
@@ -282,6 +295,64 @@
   let finalWinningPrize = null;
   let currentAdCallback = null;
 
+  // Preset Engine Data
+  const gamePresets = {
+    tablet: [
+      { d: "15 Minutes", v: 15 },
+      { d: "20 Minutes", v: 20 },
+      { d: "25 Minutes", v: 25 },
+      { d: "30 Minutes", v: 30 },
+      { d: "35 Minutes", v: 35 },
+      { d: "40 Minutes", v: 40 },
+      { d: "45 Minutes", v: 45 },
+      { d: "50 Minutes", v: 50 },
+      { d: "1 Hour", v: 60 },
+      { d: "1 Hr 15 Mins", v: 75 },
+      { d: "1.5 Hours", v: 90 },
+      { d: "1 Hr 45 Mins", v: 105 },
+      { d: "2 Hours", v: 120 },
+      { d: "2.5 Hours", v: 150 },
+      { d: "3 Hours", v: 180 },
+      { d: "3.5 Hours", v: 210 },
+      { d: "4 Hours", v: 240 },
+      { d: "4.5 Hours", v: 270 },
+      { d: "5 Hours", v: 300 },
+      { d: "6 Hours", v: 360 },
+      { d: "7 Hours", v: 420 },
+      { d: "8 Hours", v: 480 },
+      { d: "10 Hours", v: 600 },
+      { d: "12 Hours", v: 720 },
+      { d: "All Day", v: 1440 }
+    ],
+    toy: [
+      { d: "$5 Toy", v: 5 },
+      { d: "$6 Toy", v: 6 },
+      { d: "$7 Toy", v: 7 },
+      { d: "$8 Toy", v: 8 },
+      { d: "$10 Toy", v: 10 },
+      { d: "$12 Toy", v: 12 },
+      { d: "$14 Toy", v: 14 },
+      { d: "$15 Toy", v: 15 },
+      { d: "$18 Toy", v: 18 },
+      { d: "$20 Toy", v: 20 },
+      { d: "$25 Toy", v: 25 },
+      { d: "$30 Toy", v: 30 },
+      { d: "$35 Toy", v: 35 },
+      { d: "$40 Toy", v: 40 },
+      { d: "$45 Toy", v: 45 },
+      { d: "$50 Toy", v: 50 },
+      { d: "$55 Toy", v: 55 },
+      { d: "$60 Toy", v: 60 },
+      { d: "$65 Toy", v: 65 },
+      { d: "$70 Toy", v: 70 },
+      { d: "$75 Toy", v: 75 },
+      { d: "$80 Toy", v: 80 },
+      { d: "$85 Toy", v: 85 },
+      { d: "$90 Toy", v: 90 },
+      { d: "$100 Toy", v: 100 }
+    ]
+  };
+
   // Build Setup Rows on Load
   const setupContainer = document.getElementById('setup-rows');
   for (let i = 1; i <= 25; i++) {
@@ -295,6 +366,17 @@
         </div>
       </div>
     `;
+  }
+
+  function applyPreset() {
+    const sel = document.getElementById('preset-select').value;
+    if (!sel) return; 
+    
+    const data = gamePresets[sel];
+    for (let i = 1; i <= 25; i++) {
+      document.getElementById(`desc-${i}`).value = data[i-1].d;
+      document.getElementById(`val-${i}`).value = data[i-1].v;
+    }
   }
 
   function handleWelcomeNext() {
@@ -412,7 +494,7 @@
     if (gameState === 'OPEN_CASES') {
       if (btnElem.classList.contains('opened') || btnElem.classList.contains('keeper')) return;
       isAnimating = true;
-      triggerOpeningSequence(index, null, false);
+      triggerOpeningSequence(index, null, 'REGULAR');
     }
 
     if (gameState === 'FINALE_CHOICE') {
@@ -426,12 +508,10 @@
         // Sort remaining descending by value so [0] is the highest
         remainingCases.sort((a, b) => b.c.val - a.c.val);
         
-        // Find top 3 overall prize values (prizes array is sorted ascending, so top 3 are at the end)
+        // Find top 3 overall prize values
         let top3Vals = [prizes[24].val, prizes[23].val, prizes[22].val];
         
-        let caseToEliminateIndex = remainingCases[0].i; // Default to highest available
-        
-        // If the highest available case is one of the top 3 overall prizes, spare it and eliminate the next highest instead
+        let caseToEliminateIndex = remainingCases[0].i; 
         if (remainingCases.length > 1 && top3Vals.includes(remainingCases[0].c.val)) {
             caseToEliminateIndex = remainingCases[1].i;
         }
@@ -445,9 +525,9 @@
               triggerOpeningSequence(keeperCase.caseIndex, () => {
                 finalWinningPrize = cases[keeperCase.caseIndex];
                 processFinalWin(finalWinningPrize);
-              }, true);
+              }, 'FINAL');
             }, 1000);
-          }, false);
+          }, 'ELIMINATED'); // <--- Triggers the new custom cutscene
         }, 1200);
 
       } else if (!btnElem.classList.contains('opened')) {
@@ -476,9 +556,9 @@
               triggerOpeningSequence(newKeeperIndex, () => {
                 finalWinningPrize = cases[newKeeperIndex];
                 processFinalWin(finalWinningPrize);
-              }, true);
+              }, 'FINAL');
             }, 1000);
-          }, false);
+          }, 'ELIMINATED'); // <--- Triggers the new custom cutscene
         }, 1200);
       }
     } 
@@ -500,8 +580,8 @@
     }
   }
 
-  // --- 13 DYNAMIC RANDOM CUTSCENES ---
-  function triggerOpeningSequence(index, callback, isFinal) {
+  // --- PROGRESSIVE TENSION ENGINE & 13 CUTSCENES ---
+  function triggerOpeningSequence(index, callback, sequenceType = 'REGULAR') {
     const activeCasesCount = prizes.filter(p => p.active).length;
     
     let cutsceneTime = 1800;
@@ -515,7 +595,7 @@
       shakeClass = 'shake-light';
       bgClass = 'bg-tense';
     } 
-    else if (activeCasesCount <= 5 || isFinal) {
+    else if (activeCasesCount <= 5 || sequenceType === 'FINAL') {
       cutsceneTime = 2800;
       shakeTime = 3500;
       shakeClass = 'shake-heavy';
@@ -525,8 +605,10 @@
     const cutscene = document.getElementById('cutscene-overlay');
     let cutsceneHTML = "";
 
-    if (isFinal) {
+    if (sequenceType === 'FINAL') {
       cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL, EEEE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    } else if (sequenceType === 'ELIMINATED') {
+      cutsceneHTML = `<div id="cutscene-text" style="color: #ff3333; text-shadow: 2px 2px #000;">LET'S SEE WHAT YOU DIDN'T PICK, FOO... 👀</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
     } else {
       const rand = Math.floor(Math.random() * 13);
       const caseNumStr = (index + 1).toString();
@@ -565,11 +647,11 @@
 
     setTimeout(() => {
       cutscene.style.display = 'none';
-      openFullscreenCaseDramatic(index, callback, isFinal, shakeTime, shakeClass, bgClass);
+      openFullscreenCaseDramatic(index, callback, sequenceType, shakeTime, shakeClass, bgClass);
     }, cutsceneTime);
   }
 
-  function openFullscreenCaseDramatic(index, callback, isFinal, shakeTime, shakeClass, bgClass) {
+  function openFullscreenCaseDramatic(index, callback, sequenceType, shakeTime, shakeClass, bgClass) {
     pendingCaseIndex = index;
     pendingCallback = callback;
     const caseData = cases[index];
@@ -584,9 +666,14 @@
 
     overlay.className = bgClass;
     caseAnim.classList.remove('open-anim', 'shake-light', 'shake-heavy');
+    overlay.classList.remove('flash-sad', 'flash-happy');
     
-    if (isFinal) {
+    let isHighValue = caseData.val > averageVal && sequenceType !== 'FINAL';
+
+    if (sequenceType === 'FINAL') {
       titleElem.innerText = `THE FINAL REVEAL, EEEE...`;
+    } else if (sequenceType === 'ELIMINATED') {
+      titleElem.innerText = `LET'S SEE WHAT WAS LEFT BEHIND...`;
     } else {
       titleElem.innerText = `LOCKING IN, FOO...`;
     }
@@ -598,10 +685,30 @@
     caseAnim.classList.add(shakeClass);
     void caseAnim.offsetWidth; 
 
+    // ONLY flash colors and change text exactly when the case pops open
     setTimeout(() => { 
       caseAnim.classList.remove(shakeClass);
       caseAnim.classList.add('open-anim'); 
-      titleElem.innerText = isFinal ? "BUENO BYE, HERE'S THE REVEAL!" : "REVEALED, HOMIE!";
+      
+      if (sequenceType === 'FINAL') {
+          titleElem.innerText = "BUENO BYE, HERE'S THE REVEAL!";
+      } else if (sequenceType === 'ELIMINATED') {
+          if (isHighValue) {
+              titleElem.innerText = `💥 A LA VE, YOU JUST LOST THAT ONE! 💥`;
+              overlay.classList.add('flash-sad');
+          } else {
+              titleElem.innerText = `🎉 ALL SICK, GOOD THING YOU DIDN'T PICK IT! 🎉`;
+              overlay.classList.add('flash-happy');
+          }
+      } else {
+          if (!isHighValue) {
+              titleElem.innerText = `🎉 ALL SICK, ${playerName.toUpperCase()}! 🎉`;
+              overlay.classList.add('flash-happy');
+          } else {
+              titleElem.innerText = `💥 A LA VE, ALL BAD ${playerName.toUpperCase()}! 💥`;
+              overlay.classList.add('flash-sad');
+          }
+      }
     }, shakeTime);
 
     let timeLeft = 5;
@@ -652,8 +759,8 @@
 
   function finishOpeningFlow() {
     let cb = pendingCallback;
-    pendingCallback = null; // Clear to prevent multi-call
-    isAnimating = false; // Release the lock!
+    pendingCallback = null; 
+    isAnimating = false; 
     
     if (cb) {
       cb();
@@ -669,10 +776,8 @@
     const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
     const overallAvg = totalSum / prizes.length;
     
-    // offer a prize between the winning value and 20% over average
     let eligibleItems = prizes.filter(p => p.val > finalWinningPrize.val && p.val <= (overallAvg * 1.20));
 
-    // Fallback: If no prizes fit perfectly in that math gap, pick from the next 1-4 better prizes
     if (eligibleItems.length === 0) {
       const sorted = [...prizes].sort((a,b) => a.val - b.val);
       const winIdx = sorted.findIndex(p => p.id === finalWinningPrize.id);
@@ -724,7 +829,6 @@
     vaultText.innerText = "🎲 ROLLING FOR ALL THE ENCHILADAS... 🎲";
 
     setTimeout(() => {
-      // Risk it for the biscuit: Equal chance at ALL original cases!
       const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
       vaultText.innerHTML = `🎲 GAMBLER'S PASS RESULT! 🎲<br><br>${randomPrize.desc}`;
 
@@ -758,7 +862,6 @@
     }
   }
 
-  // Safely play video and avoid the stuttering/loop bug on mobile
   function playVideoAd(videoUrl, callback) {
     const adOverlay = document.getElementById('ad-overlay');
     const adVideo = document.getElementById('ad-video');
@@ -770,7 +873,6 @@
     adOverlay.style.display = 'flex';
     tapMsg.style.display = 'none';
 
-    // Clear old listeners so they don't fire multiple times
     adVideo.onended = null;
     adVideo.onerror = null;
     adOverlay.onclick = null;
