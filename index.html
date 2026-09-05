@@ -154,7 +154,7 @@
   <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 20px; text-align: center;">
     <label style="font-size: 1.1em; color: #f1c40f; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;">
       <input type="checkbox" id="enable-ads" style="transform: scale(1.5);" />
-      Enable Commercial Breaks, a la ve
+      Enable Commercial Breaks
     </label>
   </div>
 
@@ -186,7 +186,7 @@
 
 <!-- STEP 3: PRIZE SETUP SCREEN -->
 <div id="setup-screen" style="max-width:600px; width:100%; margin:auto; background:#222; padding:15px; border-radius:10px; display:none;">
-  <h1 id="setup-title">Game Setup, Orale</h1>
+  <h1 id="setup-title">Game Setup</h1>
   <p class="setup-help">Put down your 25 prizes, don't make them all chafa.</p>
   <div id="setup-rows"></div>
   <button onclick="goToPlayerName()" style="margin-top: 15px; font-size: 1.1em; width: 100%;">Continue to Player Name</button>
@@ -420,8 +420,21 @@
         gameState = 'AUTO_FINALE';
         updateInstructions(`${playerName}, you KEPT your case! Auto-eliminating a remaining case...`);
         
+        // Find all active cases on the board (excluding the keeper)
         let remainingCases = cases.map((c, i) => ({c, i})).filter(item => item.c.active && item.i !== keeperCase.caseIndex);
-        let caseToEliminateIndex = remainingCases[Math.floor(Math.random() * remainingCases.length)].i;
+        
+        // Sort remaining descending by value so [0] is the highest
+        remainingCases.sort((a, b) => b.c.val - a.c.val);
+        
+        // Find top 3 overall prize values (prizes array is sorted ascending, so top 3 are at the end)
+        let top3Vals = [prizes[24].val, prizes[23].val, prizes[22].val];
+        
+        let caseToEliminateIndex = remainingCases[0].i; // Default to highest available
+        
+        // If the highest available case is one of the top 3 overall prizes, spare it and eliminate the next highest instead
+        if (remainingCases.length > 1 && top3Vals.includes(remainingCases[0].c.val)) {
+            caseToEliminateIndex = remainingCases[1].i;
+        }
         
         isAnimating = true;
         setTimeout(() => {
@@ -561,6 +574,10 @@
     pendingCallback = callback;
     const caseData = cases[index];
 
+    const activePrizes = prizes.filter(p => p.active);
+    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
+    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
+
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
@@ -695,7 +712,7 @@
 
     setTimeout(() => {
       revealContainer.style.display = 'none';
-      showModal("Game Over, Homie", `Eeee ${playerName}, you played it safe and upgraded to:\n\n${newItem.desc}. Bueno bye!`, [], false);
+      showModal("Game Over, Homie", `Eeee ${playerName}, you played it safe and you're cruising back to the pad with:\n\n${newItem.desc}. Bueno bye!`, [], false);
     }, 4500);
   }
 
@@ -713,14 +730,14 @@
 
       setTimeout(() => {
         revealContainer.style.display = 'none';
-        showModal("Game Over, Homie", `Eeee ${playerName}, your Gambler's Pass landed on:\n\n${randomPrize.desc}. Bueno bye!`, [], false);
+        showModal("Game Over, Homie", `Eeee ${playerName}, your Gambler's Pass landed on:\n\n${randomPrize.desc}. You're cruising back to the pad with it! Bueno bye!`, [], false);
       }, 4000);
     }, 2000);
   }
 
   function finalizeGameOver(prize) {
     closeModal();
-    showModal("Game Over, Homie", `Bueno bye! ${playerName}, you are going home with:\n\n${prize.desc}`, [], false);
+    showModal("Game Over, Homie", `Bueno bye, foo! ${playerName}, you're cruising down Central with:\n\n${prize.desc}. All sick!`, [], false);
   }
 
   function updateInstructions(override = null) {
@@ -803,7 +820,7 @@
   }
 
   function acceptDeal(offeredPrize) {
-    showModal("Game Over, Homie", `Eeee ${playerName} took the deal for:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}. Bueno bye!`, [], false);
+    showModal("Game Over, Homie", `Eeee ${playerName} took the deal!\n\nYou're cruising down Central with:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}. Bueno bye!`, [], false);
   }
 
   function rejectDeal() {
