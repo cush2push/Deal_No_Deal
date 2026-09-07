@@ -34,8 +34,12 @@
   /* Game Screen */
   #game-screen { display: none; flex-direction: column; min-height: 95vh; width: 100%; max-width: 1400px; margin: auto; }
   #top-bar { padding: 10px; background: #333; font-size: 1.1em; font-weight: bold; display: flex; justify-content: space-between; align-items: center; border-radius: 5px; margin-bottom: 10px; }
-  #instruction-text { color: #f1c40f; font-size: 0.95em; }
+  #instruction-text { color: #f1c40f; font-size: 0.95em; flex: 1; }
   
+  /* Cast Button */
+  #cast-btn { background: #3498db; color: white; font-size: 0.85em; padding: 8px 15px; border-radius: 4px; margin-left: 10px; }
+  #cast-btn:hover { background: #2980b9; }
+
   /* Golden Podium */
   #golden-area { display: flex; flex-direction: column; align-items: center; margin: 5px 0 10px 0; }
   #golden-podium { width: 110px; height: 80px; border: 3px solid gold; border-radius: 8px; background: rgba(255, 215, 0, 0.1); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(255,215,0,0.4); }
@@ -95,9 +99,6 @@
   .bg-critical { animation: strobeCritical 0.6s infinite alternate !important; }
   @keyframes strobeCritical { 0% { background: radial-gradient(circle, #4a0000, #000); } 100% { background: radial-gradient(circle, #8b0000, #220000); } }
 
-  .flash-happy { background: rgba(39, 174, 96, 0.85) !important; }
-  .flash-sad { background: rgba(192, 57, 43, 0.85) !important; }
-
   .fs-title { color: white; font-size: 2em; margin-bottom: 35px; font-weight: bold; text-align: center; text-transform: uppercase; letter-spacing: 3px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
   .fs-case-container { width: 320px; height: 220px; position: relative; transition: transform 0.3s; }
   
@@ -120,13 +121,23 @@
   .vault-box { width: 350px; height: 250px; background: radial-gradient(circle, #d4af37, #8b6508); border: 8px solid #fff; border-radius: 15px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 50px gold; font-size: 1.8em; font-weight: bold; color: black; text-align: center; padding: 20px; animation: pulseVault 1.5s infinite alternate; }
   @keyframes pulseVault { 0% { transform: scale(1); } 100% { transform: scale(1.05); } }
 
+  /* PRE-COMMERCIAL ANIMATIONS */
+  #tv-cut-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2550; display: none; flex-direction: column; align-items: center; justify-content: center; background: repeating-linear-gradient(0deg, #111, #111 2px, #333 3px, #333 5px); animation: scrollStatic 1s infinite linear; }
+  @keyframes scrollStatic { 100% { background-position: 0 20px; } }
+  .tv-text { font-size: 3em; color: #fff; text-shadow: 3px 3px 0 #f00, -3px -3px 0 #00f; font-family: 'Courier New', monospace; font-weight: bold; text-align: center; }
+
+  #nineties-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2550; display: none; background: #008080; overflow: hidden; }
+  .win95-box { background: #c0c0c0; border: 2px solid; border-color: #fff #888 #888 #fff; padding: 2px; position: absolute; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); min-width: 250px; }
+  .win95-title { background: #000080; color: white; padding: 3px 5px; font-weight: bold; font-family: 'MS Sans Serif', sans-serif; font-size: 14px; display:flex; justify-content: space-between; }
+  .win95-content { padding: 15px; font-family: 'MS Sans Serif', sans-serif; font-size: 14px; color: black; background: #c0c0c0; text-align: center; }
+
   /* Full Screen Video Ad Overlay */
   #ad-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: black; z-index: 2500; display: none; flex-direction: column; align-items: center; justify-content: center; }
   #ad-video { width: 100%; height: 100%; object-fit: contain; }
   #tap-to-play-msg { display: none; position: absolute; color: #f1c40f; font-size: 1.8em; font-weight: bold; z-index: 2600; text-shadow: 2px 2px 10px #000; padding: 20px; background: rgba(0,0,0,0.5); border-radius: 10px; cursor: pointer; }
 
   /* Bigger Modal */
-  #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 100; padding: 15px; }
+  #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center; z-index: 10000; padding: 15px; }
   #modal-content { background: #222; padding: 40px; border: 3px solid #d4af37; border-radius: 15px; max-width: 650px; width: 95%; text-align: center; }
   #modal-title { font-size: 2.2em; margin-bottom: 20px; color: #ffd700; }
   .modal-buttons { margin-top: 30px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
@@ -140,10 +151,11 @@
     .prize-board { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; margin-bottom: 10px; }
     .prize-item { width: 18%; font-size: 0.65em; padding: 3px; }
     #cases-area { width: 100%; max-width: 400px; }
-    #top-bar { font-size: 0.95em; flex-direction: column; gap: 5px; text-align: center; }
+    #top-bar { font-size: 0.95em; flex-wrap: wrap; gap: 5px; text-align: center; justify-content: center; }
     #cutscene-text { font-size: 1.2em; }
     #modal-content { padding: 20px; }
     #modal-title { font-size: 1.8em; }
+    #cast-btn { margin-top: 5px; width: 100%; }
   }
 </style>
 </head>
@@ -233,6 +245,7 @@
   <div id="top-bar">
     <div id="instruction-text">Pick your Keeper Briefcase, foo</div>
     <div id="round-info"><span id="player-display">Player</span> | Cases left: <span id="cases-left">-</span></div>
+    <button id="cast-btn" onclick="castToTV()">📺 Cast to TV</button>
   </div>
   
   <div id="golden-area">
@@ -252,7 +265,7 @@
   <!-- Content injected via JS -->
 </div>
 
-<!-- ROBUST FULL SCREEN ANIMATION OVERLAY -->
+<!-- ROBUST FULL SCREEN ANIMATION OVERLAY (NEUTRAL REVEALS) -->
 <div id="fs-overlay" class="bg-calm">
   <div class="fs-title" id="fs-title">LOCKING IN...</div>
   <div class="fs-case-container" id="fs-case">
@@ -261,6 +274,16 @@
     <div class="fs-prize-text" id="fs-prize-text"></div>
   </div>
   <div id="fs-timer">Continuing in 5s...</div>
+</div>
+
+<!-- TV STATIC BUMPER OVERLAY -->
+<div id="tv-cut-overlay">
+  <div class="tv-text">WE'LL BE RIGHT BACK<br>HOMIE...</div>
+</div>
+
+<!-- 90s POPUP BUMPER OVERLAY -->
+<div id="nineties-overlay">
+  <!-- Popups injected via JS -->
 </div>
 
 <!-- FANCY LAST CHANCE REVEAL OVERLAY -->
@@ -300,7 +323,7 @@
   let totalCasesOpenedGlobal = 0;
   
   let ad2HasPlayed = false;
-  let isAnimating = false;
+  let isAnimating = false; // Lock to prevent multi-tap timer looping bug
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
@@ -425,10 +448,10 @@
     if (sel === 'restaurant') {
       restSub.style.display = 'block';
       document.getElementById('rest-preset-select').value = "";
-      toggleValuesDisplay(false); // Hide the values from the user
+      toggleValuesDisplay(false); 
     } else {
       restSub.style.display = 'none';
-      toggleValuesDisplay(true); // Show values
+      toggleValuesDisplay(true); 
       if (sel) {
         applyPresetData(gamePresets[sel]);
       }
@@ -465,7 +488,7 @@
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
-      const radius = 40000; // ~25 miles
+      const radius = 40000; 
 
       const query = `
         [out:json][timeout:15];
@@ -516,7 +539,7 @@
 
         for (let i = 1; i <= 25; i++) {
           document.getElementById(`desc-${i}`).value = chosenList[i-1] || `Mystery Spot ${i}`;
-          document.getElementById(`val-${i}`).value = i * 10; // Hidden value scaling
+          document.getElementById(`val-${i}`).value = i * 10; 
         }
 
         loadMsg.innerText = "All set foo! List loaded.";
@@ -617,7 +640,7 @@
       const div = document.createElement('div');
       div.className = `prize-item ${p.active ? '' : 'prize-eliminated'}`;
       div.id = `board-prize-${p.id}`;
-      // Display name ONLY, values remain hidden
+      // Display name ONLY
       div.innerHTML = `<span>${p.desc}</span>`;
       if (index < 13) left.appendChild(div);
       else right.appendChild(div);
@@ -637,8 +660,17 @@
     });
   }
 
+  // Cast functionality
+  function castToTV() {
+    let elem = document.documentElement;
+    if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+    }
+    showModal("Cast to TV", "Eeee homie! To get this game on the big screen, open your browser menu (the 3 dots in Chrome) and hit 'Cast...'. Select your Smart TV and get down!", [{text: "ORALE, I GOT IT", class: "deal-btn", action: closeModal}]);
+  }
+
   function handleCaseClick(index, btnElem) {
-    if (isAnimating) return;
+    if (isAnimating) return; 
 
     if (gameState === 'PICK_KEEPER') {
       keeperCase = { caseIndex: index, data: cases[index] };
@@ -724,7 +756,7 @@
 
     if (winningPrize.val < overallAvg) {
       if (ad3ObjectUrl) {
-        playVideoAd(ad3ObjectUrl, checkLastChanceOffer);
+        playVideoAd(ad3ObjectUrl, checkLastChanceOffer, '90s');
       } else {
         checkLastChanceOffer();
       }
@@ -733,6 +765,7 @@
     }
   }
 
+  // --- PROGRESSIVE TENSION ENGINE & 13 CUTSCENES ---
   function triggerOpeningSequence(index, callback, sequenceType = 'REGULAR') {
     const activeCasesCount = prizes.filter(p => p.active).length;
     
@@ -808,20 +841,14 @@
     pendingCallback = callback;
     const caseData = cases[index];
 
-    const activePrizes = prizes.filter(p => p.active);
-    const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
-    const averageVal = activePrizes.length > 0 ? sum / activePrizes.length : 0;
-
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
 
     overlay.className = bgClass;
     caseAnim.classList.remove('open-anim', 'shake-light', 'shake-heavy');
-    overlay.classList.remove('flash-sad', 'flash-happy');
     
-    let isHighValue = caseData.val > averageVal && sequenceType !== 'FINAL';
-
+    // Set NEUTRAL text during the shake
     if (sequenceType === 'FINAL') {
       titleElem.innerText = `THE FINAL REVEAL, EEEE...`;
     } else if (sequenceType === 'ELIMINATED') {
@@ -837,6 +864,7 @@
     caseAnim.classList.add(shakeClass);
     void caseAnim.offsetWidth; 
 
+    // Pure neutral reveals when the lid pops
     setTimeout(() => { 
       caseAnim.classList.remove(shakeClass);
       caseAnim.classList.add('open-anim'); 
@@ -844,21 +872,9 @@
       if (sequenceType === 'FINAL') {
           titleElem.innerText = "BUENO BYE, HERE'S THE REVEAL!";
       } else if (sequenceType === 'ELIMINATED') {
-          if (isHighValue) {
-              titleElem.innerText = `💥 A LA VE, YOU JUST LOST THAT ONE! 💥`;
-              overlay.classList.add('flash-sad');
-          } else {
-              titleElem.innerText = `🎉 ALL SICK, GOOD THING YOU DIDN'T PICK IT! 🎉`;
-              overlay.classList.add('flash-happy');
-          }
+          titleElem.innerText = "CASE OPENED!";
       } else {
-          if (!isHighValue) {
-              titleElem.innerText = `🎉 ALL SICK, ${playerName.toUpperCase()}! 🎉`;
-              overlay.classList.add('flash-happy');
-          } else {
-              titleElem.innerText = `💥 A LA VE, ALL BAD ${playerName.toUpperCase()}! 💥`;
-              overlay.classList.add('flash-sad');
-          }
+          titleElem.innerText = "REVEALED, HOMIE!";
       }
     }, shakeTime);
 
@@ -897,11 +913,11 @@
     }
 
     if (totalCasesOpenedGlobal === 8 && ad1ObjectUrl) {
-      playVideoAd(ad1ObjectUrl, finishOpeningFlow);
+      playVideoAd(ad1ObjectUrl, finishOpeningFlow, 'standard');
       return;
     } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl && !ad2HasPlayed) {
       ad2HasPlayed = true; 
-      playVideoAd(ad2ObjectUrl, finishOpeningFlow);
+      playVideoAd(ad2ObjectUrl, finishOpeningFlow, 'standard');
       return;
     }
 
@@ -922,6 +938,7 @@
     }
   }
 
+  // --- NEW LAST CHANCE & GAMBLER LOGIC ---
   function checkLastChanceOffer() {
     const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
     const overallAvg = totalSum / prizes.length;
@@ -1012,7 +1029,31 @@
     }
   }
 
-  function playVideoAd(videoUrl, callback) {
+  function trigger90sPopups() {
+    const overlay = document.getElementById('nineties-overlay');
+    overlay.innerHTML = '';
+    overlay.style.display = 'flex';
+    let count = 0;
+    
+    let popInterval = setInterval(() => {
+      if (count > 5) {
+        clearInterval(popInterval);
+        return;
+      }
+      let box = document.createElement('div');
+      box.className = 'win95-box';
+      box.style.top = (20 + Math.random() * 40) + '%';
+      box.style.left = (10 + Math.random() * 50) + '%';
+      box.innerHTML = `
+          <div class="win95-title"><span>⚠️ SYSTEM WARNING</span><span>X</span></div>
+          <div class="win95-content">CRITICAL ERROR:<br>PRIZE TOO CHAFA!<br><br><button style="font-size:12px; padding:2px 10px; border:2px solid; border-color:#fff #888 #888 #fff; background:#c0c0c0;">OK, FOO</button></div>
+      `;
+      overlay.appendChild(box);
+      count++;
+    }, 300);
+  }
+
+  function playVideoAd(videoUrl, callback, adType) {
     const adOverlay = document.getElementById('ad-overlay');
     const adVideo = document.getElementById('ad-video');
     const tapMsg = document.getElementById('tap-to-play-msg');
@@ -1020,12 +1061,26 @@
     currentAdCallback = callback;
     adVideo.src = videoUrl;
     adVideo.load();
-    adOverlay.style.display = 'flex';
-    tapMsg.style.display = 'none';
 
-    adVideo.onended = null;
-    adVideo.onerror = null;
-    adOverlay.onclick = null;
+    const startAdPlayback = () => {
+      adOverlay.style.display = 'flex';
+      tapMsg.style.display = 'none';
+
+      adVideo.onended = finishAd;
+      adVideo.onerror = finishAd;
+
+      let p = adVideo.play();
+      if(p !== undefined) {
+        p.catch((err) => {
+          tapMsg.style.display = 'block';
+          adOverlay.onclick = () => {
+            tapMsg.style.display = 'none';
+            adVideo.play();
+            adOverlay.onclick = null;
+          };
+        });
+      }
+    };
 
     const finishAd = () => {
       adOverlay.style.display = 'none';
@@ -1037,20 +1092,21 @@
       }
     };
 
-    adVideo.onended = finishAd;
-    adVideo.onerror = finishAd;
-
-    let p = adVideo.play();
-    if(p !== undefined) {
-      p.catch((err) => {
-        console.log("Autoplay caught:", err);
-        tapMsg.style.display = 'block';
-        adOverlay.onclick = () => {
-          tapMsg.style.display = 'none';
-          adVideo.play();
-          adOverlay.onclick = null;
-        };
-      });
+    // Trigger Pre-Ad Animataions
+    if (adType === '90s') {
+      trigger90sPopups();
+      setTimeout(() => {
+        document.getElementById('nineties-overlay').style.display = 'none';
+        startAdPlayback();
+      }, 2500);
+    } else {
+      // Standard static cut
+      const staticOverlay = document.getElementById('tv-cut-overlay');
+      staticOverlay.style.display = 'flex';
+      setTimeout(() => {
+        staticOverlay.style.display = 'none';
+        startAdPlayback();
+      }, 2500);
     }
   }
 
