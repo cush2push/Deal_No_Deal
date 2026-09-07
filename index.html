@@ -245,7 +245,7 @@
   <div id="top-bar">
     <div id="instruction-text">Pick your Keeper Briefcase, foo</div>
     <div id="round-info"><span id="player-display">Player</span> | Cases left: <span id="cases-left">-</span></div>
-    <button id="cast-btn" onclick="castToTV()">📺 Cast to TV</button>
+    <button id="cast-btn" onclick="toggleFullscreen()">📺 Cast to TV</button>
   </div>
   
   <div id="golden-area">
@@ -300,7 +300,7 @@
 <!-- BIGGER BANKER MODAL -->
 <div id="modal">
   <div id="modal-content">
-    <h2 id="modal-title">El Banker's Offer</h2>
+    <h2 id="modal-title">Pawn Shop Offer</h2>
     <img id="banker-img" src="banker.png" style="display: none; width: 180px; height: 180px; object-fit: cover; border-radius: 50%; margin: 10px auto; border: 5px solid #d4af37; box-shadow: 0 4px 15px rgba(0,0,0,0.8);">
     <p id="modal-text" style="font-size: 32px; font-weight: bold; color: #27ae60; margin: 25px 0;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
@@ -660,14 +660,28 @@
     });
   }
 
-  // Cast functionality
-  function castToTV() {
-    let elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
+  // Cast functionality with toggle
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+            alert("A la ve, can't go full screen right now: " + err.message);
+        });
+        showModal("Cast to TV", "Eeee homie! To get this game on the big screen, open your browser menu (the 3 dots in Chrome) and hit 'Cast...'. Select your Smart TV and get down!", [{text: "ORALE, I GOT IT", class: "deal-btn", action: closeModal}]);
+    } else {
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
     }
-    showModal("Cast to TV", "Eeee homie! To get this game on the big screen, open your browser menu (the 3 dots in Chrome) and hit 'Cast...'. Select your Smart TV and get down!", [{text: "ORALE, I GOT IT", class: "deal-btn", action: closeModal}]);
   }
+
+  document.addEventListener('fullscreenchange', () => {
+    const btn = document.getElementById('cast-btn');
+    if (document.fullscreenElement) {
+        btn.innerText = "❌ Exit TV Mode";
+    } else {
+        btn.innerText = "📺 Cast to TV";
+    }
+  });
 
   function handleCaseClick(index, btnElem) {
     if (isAnimating) return; 
@@ -1121,14 +1135,14 @@
       return (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev);
     });
 
-    showModal("El Banker is Calling...", `El Banker is offering you:\n\n${closestPrize.desc}`, [
-      { text: "ORALE", class: "deal-btn", action: () => acceptDeal(closestPrize) },
-      { text: "CHALE", class: "nodeal-btn", action: rejectDeal }
+    showModal("The Pawn Shop is Calling...", `The homie at the pawn shop says:\n\n"Look foo, I gotta make a profit here. Best I can do right now is..."\n\n${closestPrize.desc}`, [
+      { text: "ORALE (TAKE DEAL)", class: "deal-btn", action: () => acceptDeal(closestPrize) },
+      { text: "CHALE (WALK AWAY)", class: "nodeal-btn", action: rejectDeal }
     ], true);
   }
 
   function acceptDeal(offeredPrize) {
-    showModal("Game Over, Homie", `Eeee ${playerName} took the deal!\n\nYou're cruising down Central with:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}. Bueno bye!`, [], false);
+    showModal("Game Over, Homie", `Eeee ${playerName} took the pawn shop deal!\n\nYou're cruising down Central with:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}. Bueno bye!`, [], false);
   }
 
   function rejectDeal() {
