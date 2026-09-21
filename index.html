@@ -146,6 +146,41 @@
   .nodeal-btn { background: #c0392b; color: white; }
   .gamble-btn { background: #8e44ad; color: white; }
 
+  /* --- BONUS ROUND STYLES --- */
+  #bonus-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 4000; display: none; flex-direction: column; align-items: center; justify-content: center; overflow-y: auto; padding: 20px; }
+  .bonus-panel { background: #222; border: 3px solid #d4af37; border-radius: 10px; padding: 20px; text-align: center; max-width: 600px; width: 100%; display: none; }
+  .bonus-panel.active { display: flex; flex-direction: column; align-items: center; }
+  .bonus-title { color: #ffd700; font-size: 2em; margin-bottom: 15px; text-transform: uppercase; }
+
+  /* The Wheel */
+  .wheel-container { position: relative; width: 250px; height: 250px; margin: 20px auto; }
+  .wheel { width: 100%; height: 100%; border-radius: 50%; border: 5px solid #fff; background: conic-gradient(red 0 60deg, orange 60deg 120deg, yellow 120deg 180deg, green 180deg 240deg, blue 240deg 300deg, purple 300deg 360deg); transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1); }
+  .wheel-pointer { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid white; z-index: 10; }
+  .wheel-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 1.4em; display: none; color: gold; border: 2px solid gold; }
+
+  /* The Lock & Quiz */
+  .lock-container { display: flex; gap: 15px; margin: 20px 0; padding: 15px; background: #333; border-radius: 10px; border: 2px solid #555; }
+  .pin-slot { width: 40px; height: 80px; background: #111; border-radius: 5px; position: relative; overflow: hidden; }
+  .pin { width: 100%; height: 50%; background: #888; position: absolute; bottom: 0; transition: transform 0.3s, background 0.3s; }
+  .pin.unlocked { transform: translateY(-50%); background: #27ae60; }
+
+  .quiz-options { display: flex; gap: 15px; justify-content: center; width: 100%; margin-top: 20px; flex-wrap: wrap; }
+  .quiz-option { flex: 1; min-width: 150px; background: #444; border: 2px solid #666; border-radius: 8px; padding: 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; transition: transform 0.2s; }
+  .quiz-option:hover { transform: translateY(-5px); background: #555; }
+  .quiz-option.broken .lockpick { animation: breakTool 0.5s forwards; color: #ff3333; }
+  .quiz-option.success .lockpick { color: #27ae60; }
+  .lockpick { font-size: 2.5em; margin-top: 10px; transition: color 0.3s; }
+  
+  #quiz-loading { display: none; font-size: 1.2em; color: gold; animation: flashText 0.8s infinite alternate; }
+
+  @keyframes breakTool { 0% { transform: rotate(0deg); } 20% { transform: rotate(-20deg); } 40% { transform: rotate(20deg); } 100% { transform: rotate(45deg) translateY(20px); opacity: 0; } }
+
+  /* 25 Cases Vault Grid */
+  .bonus-vault-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; width: 100%; max-width: 450px; margin-left: auto; margin-right: auto; }
+  .bonus-case { width: 100%; aspect-ratio: 4 / 3; background: #8b9dc3; border: 2px solid #3b5998; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; color: black; cursor: pointer; transition: transform 0.2s; box-shadow: 2px 2px 4px rgba(0,0,0,0.5); background-image: linear-gradient(to bottom, #a2b2d4, #7388b5); }
+  .bonus-case:hover { transform: scale(1.1); }
+  .bonus-case.opened { background: #d4af37; font-size: 0.7em; text-align: center; line-height: 1.2; padding: 4px; border: 2px solid #b8860b; color: #000; }
+
   @media (max-width: 768px) {
     #main-area { flex-direction: column; align-items: center; }
     .prize-board { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 3px; margin-bottom: 10px; }
@@ -156,6 +191,8 @@
     #modal-content { padding: 20px; }
     #modal-title { font-size: 1.8em; }
     #cast-btn { margin-top: 5px; width: 100%; }
+    .bonus-case { font-size: 16px; }
+    .bonus-case.opened { font-size: 0.55em; }
   }
 </style>
 </head>
@@ -261,9 +298,7 @@
 </div>
 
 <!-- DYNAMIC CUTSCENE OVERLAY -->
-<div id="cutscene-overlay">
-  <!-- Content injected via JS -->
-</div>
+<div id="cutscene-overlay"></div>
 
 <!-- ROBUST FULL SCREEN ANIMATION OVERLAY (NEUTRAL REVEALS) -->
 <div id="fs-overlay" class="bg-calm">
@@ -282,9 +317,7 @@
 </div>
 
 <!-- 90s POPUP BUMPER OVERLAY -->
-<div id="nineties-overlay">
-  <!-- Popups injected via JS -->
-</div>
+<div id="nineties-overlay"></div>
 
 <!-- FANCY LAST CHANCE REVEAL OVERLAY -->
 <div id="last-chance-reveal">
@@ -305,6 +338,59 @@
     <p id="modal-text" style="font-size: 32px; font-weight: bold; color: #27ae60; margin: 25px 0;"></p>
     <div class="modal-buttons" id="modal-actions"></div>
   </div>
+</div>
+
+<!-- BONUS ROUND OVERLAY -->
+<div id="bonus-overlay">
+  
+  <!-- Age Selection -->
+  <div id="bonus-age-screen" class="bonus-panel active">
+    <h2 class="bonus-title">Vault Heist Bonus Round</h2>
+    <p style="margin-bottom: 20px;">Crack the lock by answering trivia to unlock the 25-Case Vault. Select your age range to set the difficulty:</p>
+    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+      <button onclick="initBonusRound('kids')">Kids (Easy)</button>
+      <button onclick="initBonusRound('teens')">Teens (Medium)</button>
+      <button onclick="initBonusRound('adults')">Adults (Hard)</button>
+    </div>
+  </div>
+
+  <!-- Wheel Spin -->
+  <div id="bonus-wheel-screen" class="bonus-panel">
+    <h2 class="bonus-title">Spin for Category</h2>
+    <div class="wheel-container">
+      <div class="wheel-pointer"></div>
+      <div class="wheel" id="bonus-wheel"></div>
+      <div class="wheel-label" id="wheel-result"></div>
+    </div>
+    <button id="spin-btn" onclick="spinBonusWheel()">SPIN THE WHEEL</button>
+  </div>
+
+  <!-- Quiz & Lockpick -->
+  <div id="bonus-quiz-screen" class="bonus-panel">
+    <h2 class="bonus-title">Pick the Lock</h2>
+    <p id="quiz-status">Pins Picked: 0/3 | Questions Left: 5</p>
+    
+    <div class="lock-container">
+      <div class="pin-slot"><div class="pin" id="pin-1"></div></div>
+      <div class="pin-slot"><div class="pin" id="pin-2"></div></div>
+      <div class="pin-slot"><div class="pin" id="pin-3"></div></div>
+    </div>
+
+    <div id="quiz-loading">Hacking into the mainframe...</div>
+    <h3 id="bonus-question" style="margin: 15px 0; min-height: 50px;"></h3>
+    
+    <div class="quiz-options" id="quiz-options-container">
+      <!-- Injected via JS -->
+    </div>
+  </div>
+
+  <!-- Vault Cases -->
+  <div id="bonus-vault-screen" class="bonus-panel">
+    <h2 class="bonus-title">Vault Unlocked!</h2>
+    <p style="font-size: 1.1em; margin-bottom: 20px;">The board has been reset. Your main prize has been replaced with <strong>$50 Cash!</strong> Pick ONE of the 25 cases to reveal your bonus prize.</p>
+    <div class="bonus-vault-grid" id="bonus-cases-container"></div>
+  </div>
+
 </div>
 
 <script>
@@ -334,85 +420,27 @@
   // Preset Engine Data
   const gamePresets = {
     tablet: [
-      { d: "15 Minutes", v: 15 },
-      { d: "20 Minutes", v: 20 },
-      { d: "25 Minutes", v: 25 },
-      { d: "30 Minutes", v: 30 },
-      { d: "35 Minutes", v: 35 },
-      { d: "40 Minutes", v: 40 },
-      { d: "45 Minutes", v: 45 },
-      { d: "50 Minutes", v: 50 },
-      { d: "1 Hour", v: 60 },
-      { d: "1 Hr 15 Mins", v: 75 },
-      { d: "1.5 Hours", v: 90 },
-      { d: "1 Hr 45 Mins", v: 105 },
-      { d: "2 Hours", v: 120 },
-      { d: "2.5 Hours", v: 150 },
-      { d: "3 Hours", v: 180 },
-      { d: "3.5 Hours", v: 210 },
-      { d: "4 Hours", v: 240 },
-      { d: "4.5 Hours", v: 270 },
-      { d: "5 Hours", v: 300 },
-      { d: "6 Hours", v: 360 },
-      { d: "7 Hours", v: 420 },
-      { d: "8 Hours", v: 480 },
-      { d: "10 Hours", v: 600 },
-      { d: "12 Hours", v: 720 },
-      { d: "All Day", v: 1440 }
+      { d: "15 Minutes", v: 15 }, { d: "20 Minutes", v: 20 }, { d: "25 Minutes", v: 25 }, { d: "30 Minutes", v: 30 },
+      { d: "35 Minutes", v: 35 }, { d: "40 Minutes", v: 40 }, { d: "45 Minutes", v: 45 }, { d: "50 Minutes", v: 50 },
+      { d: "1 Hour", v: 60 }, { d: "1 Hr 15 Mins", v: 75 }, { d: "1.5 Hours", v: 90 }, { d: "1 Hr 45 Mins", v: 105 },
+      { d: "2 Hours", v: 120 }, { d: "2.5 Hours", v: 150 }, { d: "3 Hours", v: 180 }, { d: "3.5 Hours", v: 210 },
+      { d: "4 Hours", v: 240 }, { d: "4.5 Hours", v: 270 }, { d: "5 Hours", v: 300 }, { d: "6 Hours", v: 360 },
+      { d: "7 Hours", v: 420 }, { d: "8 Hours", v: 480 }, { d: "10 Hours", v: 600 }, { d: "12 Hours", v: 720 }, { d: "All Day", v: 1440 }
     ],
     toy: [
-      { d: "$5 Toy", v: 5 },
-      { d: "$6 Toy", v: 6 },
-      { d: "$7 Toy", v: 7 },
-      { d: "$8 Toy", v: 8 },
-      { d: "$10 Toy", v: 10 },
-      { d: "$12 Toy", v: 12 },
-      { d: "$14 Toy", v: 14 },
-      { d: "$15 Toy", v: 15 },
-      { d: "$18 Toy", v: 18 },
-      { d: "$20 Toy", v: 20 },
-      { d: "$25 Toy", v: 25 },
-      { d: "$30 Toy", v: 30 },
-      { d: "$35 Toy", v: 35 },
-      { d: "$40 Toy", v: 40 },
-      { d: "$45 Toy", v: 45 },
-      { d: "$50 Toy", v: 50 },
-      { d: "$55 Toy", v: 55 },
-      { d: "$60 Toy", v: 60 },
-      { d: "$65 Toy", v: 65 },
-      { d: "$70 Toy", v: 70 },
-      { d: "$75 Toy", v: 75 },
-      { d: "$80 Toy", v: 80 },
-      { d: "$85 Toy", v: 85 },
-      { d: "$90 Toy", v: 90 },
-      { d: "$100 Toy", v: 100 }
+      { d: "$5 Toy", v: 5 }, { d: "$6 Toy", v: 6 }, { d: "$7 Toy", v: 7 }, { d: "$8 Toy", v: 8 }, { d: "$10 Toy", v: 10 },
+      { d: "$12 Toy", v: 12 }, { d: "$14 Toy", v: 14 }, { d: "$15 Toy", v: 15 }, { d: "$18 Toy", v: 18 }, { d: "$20 Toy", v: 20 },
+      { d: "$25 Toy", v: 25 }, { d: "$30 Toy", v: 30 }, { d: "$35 Toy", v: 35 }, { d: "$40 Toy", v: 40 }, { d: "$45 Toy", v: 45 },
+      { d: "$50 Toy", v: 50 }, { d: "$55 Toy", v: 55 }, { d: "$60 Toy", v: 60 }, { d: "$65 Toy", v: 65 }, { d: "$70 Toy", v: 70 },
+      { d: "$75 Toy", v: 75 }, { d: "$80 Toy", v: 80 }, { d: "$85 Toy", v: 85 }, { d: "$90 Toy", v: 90 }, { d: "$100 Toy", v: 100 }
     ],
     rest_burque: [
-      { d: "Dog House", v: 10 },
-      { d: "Mac's Steak in the Rough", v: 20 },
-      { d: "Twisters", v: 30 },
-      { d: "Golden Pride", v: 40 },
-      { d: "Federico's", v: 50 },
-      { d: "Dion's Pizza", v: 60 },
-      { d: "Frontier", v: 70 },
-      { d: "Garcia's Kitchen", v: 80 },
-      { d: "Barelas Coffee House", v: 90 },
-      { d: "Mary & Tito's", v: 100 },
-      { d: "Los Cuates", v: 110 },
-      { d: "Tomasita's", v: 120 },
-      { d: "Sadie's of NM", v: 130 },
-      { d: "El Modelo", v: 140 },
-      { d: "Cocina Azul", v: 150 },
-      { d: "El Pinto", v: 160 },
-      { d: "Church Street Cafe", v: 170 },
-      { d: "Range Cafe", v: 180 },
-      { d: "Nexus Brewery", v: 190 },
-      { d: "Perea's", v: 200 },
-      { d: "Seasons", v: 210 },
-      { d: "Farm & Table", v: 220 },
-      { d: "Antiquity", v: 230 },
-      { d: "Vernon's Speakeasy", v: 240 },
-      { d: "Campo at Los Poblanos", v: 250 }
+      { d: "Dog House", v: 10 }, { d: "Mac's Steak in the Rough", v: 20 }, { d: "Twisters", v: 30 }, { d: "Golden Pride", v: 40 },
+      { d: "Federico's", v: 50 }, { d: "Dion's Pizza", v: 60 }, { d: "Frontier", v: 70 }, { d: "Garcia's Kitchen", v: 80 },
+      { d: "Barelas Coffee House", v: 90 }, { d: "Mary & Tito's", v: 100 }, { d: "Los Cuates", v: 110 }, { d: "Tomasita's", v: 120 },
+      { d: "Sadie's of NM", v: 130 }, { d: "El Modelo", v: 140 }, { d: "Cocina Azul", v: 150 }, { d: "El Pinto", v: 160 },
+      { d: "Church Street Cafe", v: 170 }, { d: "Range Cafe", v: 180 }, { d: "Nexus Brewery", v: 190 }, { d: "Perea's", v: 200 },
+      { d: "Seasons", v: 210 }, { d: "Farm & Table", v: 220 }, { d: "Antiquity", v: 230 }, { d: "Vernon's Speakeasy", v: 240 }, { d: "Campo at Los Poblanos", v: 250 }
     ]
   };
 
@@ -444,7 +472,6 @@
   function handlePresetSelection() {
     const sel = document.getElementById('preset-select').value;
     const restSub = document.getElementById('restaurant-sub-select');
-    
     if (sel === 'restaurant') {
       restSub.style.display = 'block';
       document.getElementById('rest-preset-select').value = "";
@@ -452,19 +479,14 @@
     } else {
       restSub.style.display = 'none';
       toggleValuesDisplay(true); 
-      if (sel) {
-        applyPresetData(gamePresets[sel]);
-      }
+      if (sel) applyPresetData(gamePresets[sel]);
     }
   }
 
   function applyRestaurantPreset() {
     const sel = document.getElementById('rest-preset-select').value;
-    if (sel.startsWith("gps_")) {
-      fetchNearbyRestaurants(sel);
-    } else if (sel) {
-      applyPresetData(gamePresets[sel]);
-    }
+    if (sel.startsWith("gps_")) fetchNearbyRestaurants(sel);
+    else if (sel) applyPresetData(gamePresets[sel]);
   }
 
   function applyPresetData(data) {
@@ -478,79 +500,48 @@
   async function fetchNearbyRestaurants(category) {
     const loadMsg = document.getElementById('gps-loading');
     loadMsg.style.display = 'block';
-
     if (!navigator.geolocation) {
       alert("Your device don't support GPS foo!");
       loadMsg.style.display = 'none';
       return;
     }
-
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const lat = pos.coords.latitude;
       const lon = pos.coords.longitude;
-      const radius = 40000; 
-
-      const query = `
-        [out:json][timeout:15];
-        (
-          node["amenity"="restaurant"](around:${radius},${lat},${lon});
-          node["amenity"="fast_food"](around:${radius},${lat},${lon});
-        );
-        out tags 150;
-      `;
-
+      const query = `[out:json][timeout:15];(node["amenity"="restaurant"](around:40000,${lat},${lon});node["amenity"="fast_food"](around:40000,${lat},${lon}););out tags 150;`;
       try {
-        const res = await fetch("https://overpass-api.de/api/interpreter", {
-          method: "POST",
-          body: query
-        });
+        const res = await fetch("https://overpass-api.de/api/interpreter", { method: "POST", body: query });
         const data = await res.json();
-
         const chainsList = ["mcdonald", "wendy", "taco bell", "burger king", "subway", "sonic", "applebee", "chili", "olive garden", "kfc", "popeyes", "pizza hut", "domino", "denny", "ihop", "arby", "carl's", "chipotle", "panda express", "panera", "texas roadhouse", "outback", "raising cane", "chick-fil-a", "dion"];
-
-        let fastFood = [];
-        let sitDownChains = [];
-        let localSpots = [];
+        let fastFood = [], sitDownChains = [], localSpots = [];
 
         data.elements.forEach(el => {
           if (!el.tags || !el.tags.name) return;
           const name = el.tags.name;
           const lower = name.toLowerCase();
-
           if(fastFood.includes(name) || sitDownChains.includes(name) || localSpots.includes(name)) return;
-
           let isChain = chainsList.some(c => lower.includes(c));
-
-          if (el.tags.amenity === "fast_food" || (isChain && lower.includes("burger"))) {
-            fastFood.push(name);
-          } else if (isChain) {
-            sitDownChains.push(name);
-          } else {
-            localSpots.push(name);
-          }
+          if (el.tags.amenity === "fast_food" || (isChain && lower.includes("burger"))) fastFood.push(name);
+          else if (isChain) sitDownChains.push(name);
+          else localSpots.push(name);
         });
 
         let chosenList = [];
         if (category === "gps_fast") chosenList = fastFood.concat(fbFast);
         else if (category === "gps_chains") chosenList = sitDownChains.concat(fbChains);
         else chosenList = localSpots.concat(gamePresets['rest_burque'].map(p=>p.d));
-
         chosenList = [...new Set(chosenList)];
 
         for (let i = 1; i <= 25; i++) {
           document.getElementById(`desc-${i}`).value = chosenList[i-1] || `Mystery Spot ${i}`;
           document.getElementById(`val-${i}`).value = i * 10; 
         }
-
         loadMsg.innerText = "All set foo! List loaded.";
         setTimeout(() => loadMsg.style.display = 'none', 2000);
-
       } catch (err) {
-        console.error(err);
         loadMsg.innerText = "A la ve, internet acting up. Load a preset instead.";
       }
     }, (err) => {
-      console.error(err);
       loadMsg.innerText = "You blocked location, homie! Loading defaults.";
       if (category === "gps_fast") applyPresetData(fbFast.map((d,i) => ({d: d, v: (i+1)*10})));
       else if (category === "gps_chains") applyPresetData(fbChains.map((d,i) => ({d: d, v: (i+1)*10})));
@@ -561,9 +552,7 @@
 
   function handleWelcomeNext() {
     document.getElementById('welcome-screen').style.display = 'none';
-    const enableAds = document.getElementById('enable-ads').checked;
-    
-    if (enableAds) {
+    if (document.getElementById('enable-ads').checked) {
       document.getElementById('media-screen').style.display = 'block';
     } else {
       document.getElementById('setup-screen').style.display = 'block';
@@ -571,14 +560,9 @@
   }
 
   function goToSetup() {
-    const ad1File = document.getElementById('ad1-file').files[0];
-    const ad2File = document.getElementById('ad2-file').files[0];
-    const ad3File = document.getElementById('ad3-file').files[0];
-
-    if (ad1File) ad1ObjectUrl = URL.createObjectURL(ad1File);
-    if (ad2File) ad2ObjectUrl = URL.createObjectURL(ad2File);
-    if (ad3File) ad3ObjectUrl = URL.createObjectURL(ad3File);
-
+    if (document.getElementById('ad1-file').files[0]) ad1ObjectUrl = URL.createObjectURL(document.getElementById('ad1-file').files[0]);
+    if (document.getElementById('ad2-file').files[0]) ad2ObjectUrl = URL.createObjectURL(document.getElementById('ad2-file').files[0]);
+    if (document.getElementById('ad3-file').files[0]) ad3ObjectUrl = URL.createObjectURL(document.getElementById('ad3-file').files[0]);
     document.getElementById('media-screen').style.display = 'none';
     document.getElementById('setup-screen').style.display = 'block';
   }
@@ -591,22 +575,14 @@
   function startGame() {
     const inputVal = document.getElementById('player-input').value.trim();
     if (inputVal !== "") playerName = inputVal;
-    
     document.getElementById('player-display').innerText = playerName;
 
     prizes = [];
     for (let i = 1; i <= 25; i++) {
       let numericValue = parseFloat(document.getElementById(`val-${i}`).value);
       if (isNaN(numericValue) || numericValue <= 0) numericValue = 1;
-      
-      prizes.push({
-        id: i,
-        desc: document.getElementById(`desc-${i}`).value,
-        val: numericValue,
-        active: true
-      });
+      prizes.push({ id: i, desc: document.getElementById(`desc-${i}`).value, val: numericValue, active: true });
     }
-    
     prizes.sort((a, b) => a.val - b.val);
     renderPrizeBoards();
 
@@ -624,10 +600,7 @@
     dummyVideo.load();
     let p = dummyVideo.play();
     if(p !== undefined) {
-      p.then(() => {
-        dummyVideo.pause();
-        dummyVideo.currentTime = 0;
-      }).catch(() => {});
+      p.then(() => { dummyVideo.pause(); dummyVideo.currentTime = 0; }).catch(() => {});
     }
   }
 
@@ -635,12 +608,10 @@
     const left = document.getElementById('left-board');
     const right = document.getElementById('right-board');
     left.innerHTML = ''; right.innerHTML = '';
-    
     prizes.forEach((p, index) => {
       const div = document.createElement('div');
       div.className = `prize-item ${p.active ? '' : 'prize-eliminated'}`;
       div.id = `board-prize-${p.id}`;
-      // Display name ONLY
       div.innerHTML = `<span>${p.desc}</span>`;
       if (index < 13) left.appendChild(div);
       else right.appendChild(div);
@@ -660,7 +631,6 @@
     });
   }
 
-  // Cast functionality with toggle
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => {
@@ -668,19 +638,14 @@
         });
         showModal("Cast to TV", "Eeee homie! To get this game on the big screen, open your browser menu (the 3 dots in Chrome) and hit 'Cast...'. Select your Smart TV and get down!", [{text: "ORALE, I GOT IT", class: "deal-btn", action: closeModal}]);
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        }
+        if (document.exitFullscreen) document.exitFullscreen();
     }
   }
 
   document.addEventListener('fullscreenchange', () => {
     const btn = document.getElementById('cast-btn');
-    if (document.fullscreenElement) {
-        btn.innerText = "❌ Exit TV Mode";
-    } else {
-        btn.innerText = "📺 Cast to TV";
-    }
+    if (document.fullscreenElement) btn.innerText = "❌ Exit TV Mode";
+    else btn.innerText = "📺 Cast to TV";
   });
 
   function handleCaseClick(index, btnElem) {
@@ -705,12 +670,9 @@
       if (btnElem.classList.contains('keeper')) {
         gameState = 'AUTO_FINALE';
         updateInstructions(`${playerName}, you KEPT your case! Auto-eliminating a remaining case...`);
-        
         let remainingCases = cases.map((c, i) => ({c, i})).filter(item => item.c.active && item.i !== keeperCase.caseIndex);
         remainingCases.sort((a, b) => b.c.val - a.c.val);
-        
         let top3Vals = [prizes[24].val, prizes[23].val, prizes[22].val];
-        
         let caseToEliminateIndex = remainingCases[0].i; 
         if (remainingCases.length > 1 && top3Vals.includes(remainingCases[0].c.val)) {
             caseToEliminateIndex = remainingCases[1].i;
@@ -729,22 +691,18 @@
             }, 1000);
           }, 'ELIMINATED'); 
         }, 1200);
-
       } else if (!btnElem.classList.contains('opened')) {
         let oldKeeperIndex = keeperCase.caseIndex;
         let newKeeperIndex = index;
-
         let newBtn = document.getElementById(`case-${newKeeperIndex}`);
         let oldBtn = document.getElementById(`case-${oldKeeperIndex}`);
         newBtn.classList.add('keeper');
         oldBtn.classList.remove('keeper');
         document.getElementById('golden-podium').appendChild(newBtn);
         document.getElementById('cases-area').appendChild(oldBtn);
-
         keeperCase = { caseIndex: newKeeperIndex, data: cases[newKeeperIndex] };
         gameState = 'AUTO_FINALE';
         updateInstructions(`Eeeee ${playerName} SWAPPED! The unselected case is eliminated automatically.`);
-
         let thirdCaseIndex = cases.findIndex((c, i) => c.active && i !== newKeeperIndex && i !== oldKeeperIndex);
         
         isAnimating = true;
@@ -767,78 +725,46 @@
   function processFinalWin(winningPrize) {
     const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
     const overallAvg = totalSum / prizes.length;
-
     if (winningPrize.val < overallAvg) {
-      if (ad3ObjectUrl) {
-        playVideoAd(ad3ObjectUrl, checkLastChanceOffer, '90s');
-      } else {
-        checkLastChanceOffer();
-      }
+      if (ad3ObjectUrl) playVideoAd(ad3ObjectUrl, checkLastChanceOffer, '90s');
+      else checkLastChanceOffer();
     } else {
       finalizeGameOver(winningPrize);
     }
   }
 
-  // --- PROGRESSIVE TENSION ENGINE & 13 CUTSCENES ---
+  // --- CUTSCENE ENGINE ---
   function triggerOpeningSequence(index, callback, sequenceType = 'REGULAR') {
     const activeCasesCount = prizes.filter(p => p.active).length;
-    
-    let cutsceneTime = 1800;
-    let shakeTime = 1000;
-    let shakeClass = 'shake-light';
-    let bgClass = 'bg-calm';
+    let cutsceneTime = 1800, shakeTime = 1000, shakeClass = 'shake-light', bgClass = 'bg-calm';
     
     if (activeCasesCount <= 12 && activeCasesCount > 5) {
-      cutsceneTime = 2200;
-      shakeTime = 2000;
-      shakeClass = 'shake-light';
-      bgClass = 'bg-tense';
-    } 
-    else if (activeCasesCount <= 5 || sequenceType === 'FINAL') {
-      cutsceneTime = 2800;
-      shakeTime = 3500;
-      shakeClass = 'shake-heavy';
-      bgClass = 'bg-critical';
+      cutsceneTime = 2200; shakeTime = 2000; bgClass = 'bg-tense';
+    } else if (activeCasesCount <= 5 || sequenceType === 'FINAL') {
+      cutsceneTime = 2800; shakeTime = 3500; shakeClass = 'shake-heavy'; bgClass = 'bg-critical';
     }
 
     const cutscene = document.getElementById('cutscene-overlay');
     let cutsceneHTML = "";
 
-    if (sequenceType === 'FINAL') {
-      cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL, EEEE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
-    } else if (sequenceType === 'ELIMINATED') {
-      cutsceneHTML = `<div id="cutscene-text" style="color: #ff3333; text-shadow: 2px 2px #000;">LET'S SEE WHAT YOU DIDN'T PICK, FOO... 👀</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
-    } else {
+    if (sequenceType === 'FINAL') cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL, EEEE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    else if (sequenceType === 'ELIMINATED') cutsceneHTML = `<div id="cutscene-text" style="color: #ff3333;">LET'S SEE WHAT YOU DIDN'T PICK, FOO... 👀</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    else {
       const rand = Math.floor(Math.random() * 13);
       const caseNumStr = (index + 1).toString();
-      
-      if (rand === 0) {
-        cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr} LIKE WE AT SANDIA LABS...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
-      } else if (rand === 1) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #e74c3c;">SPIKING CASE ${caseNumStr} TO ${playerName.toUpperCase()} LIKE A BOSS...</div><div class="spike-container"><div class="volleyball-case">💼</div></div>`;
-      } else if (rand === 2) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">WILSON RECOVERED CASE ${caseNumStr} FROM THE RIO GRANDE...</div><div class="wilson-container"><div class="wilson-ball">🏐<span class="blood-hand">🖐️</span></div></div>`;
-      } else if (rand === 3) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #AA0000; text-shadow: 2px 2px #B3995D;">49ERS MINING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="display:inline-block; animation: swing 0.5s infinite alternate;">⛏️</span><span style="display:inline-block;">🟡</span></div>`;
-      } else if (rand === 4) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #00338D; text-shadow: 2px 2px #C60C30;">BILLS MAFIA SMASHING CASE ${caseNumStr} LIKE A LOBOS TAILGATE...</div><div style="font-size: 5rem; position: relative; height: 120px; width: 120px; margin: 0 auto;"><span style="position:absolute; top:-80px; left:20px; animation: drop 1s forwards cubic-bezier(.25,.8,.25,1);">🏃‍♂️</span><span style="position:absolute; bottom:0; left:20px; animation: breakTable 1s forwards ease-in;">🪑</span></div>`;
-      } else if (rand === 5) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #008E97; text-shadow: 2px 2px #FC4C02;">DOLPHINS DIVING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: dolphinJump 1.5s ease-in-out infinite;">🐬💼🌊</div>`;
-      } else if (rand === 6) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #002244; text-shadow: 2px 2px #C60C30;">PATRIOTS CHECKING PSI ON CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: deflate 1.5s forwards ease-out;">🏈💨</div>`;
-      } else if (rand === 7) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #740001; text-shadow: 2px 2px #D3A625;">REVELIO CASE ${caseNumStr}, A LA VE...</div><div style="font-size: 5rem;"><span style="animation: wandFlick 0.8s infinite alternate; display:inline-block;">🪄</span><span style="animation: spark 0.8s infinite alternate; display:inline-block;">✨</span></div>`;
-      } else if (rand === 8) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">CATCHING CASE ${caseNumStr}...</div><div style="font-size: 4rem; animation: snitchFly 2s linear infinite;">🪽🟡🪽</div>`;
-      } else if (rand === 9) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10;">RAISING CURTAIN ON CASE ${caseNumStr}...</div><div style="position:absolute; top:0; left:0; width:50%; height:100%; background:darkred; border-right:5px solid gold; animation: slideLeft 2s forwards;"></div><div style="position:absolute; top:0; right:0; width:50%; height:100%; background:darkred; border-left:5px solid gold; animation: slideRight 2s forwards;"></div>`;
-      } else if (rand === 10) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10; text-shadow: 2px 2px 5px #000;">SPOTLIGHT ON CASE ${caseNumStr}...</div><div class="spotlight"></div>`;
-      } else if (rand === 11) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">SORTING CASE ${caseNumStr}...</div><div style="font-size: 6rem; animation: hatWiggle 0.5s infinite;">🎩🤔</div>`;
-      } else if (rand === 12) {
-        cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">TOUCHDOWN CASE ${caseNumStr}, ORALE!</div><div style="font-size: 5rem; display:flex; justify-content:center; align-items:center;"><span style="animation: refSignal 0.8s infinite alternate;">🙌</span><span style="margin-left:10px;">🏈</span></div>`;
-      }
+      if (rand === 0) cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 1) cutsceneHTML = `<div id="cutscene-text" style="color: #e74c3c;">SPIKING CASE ${caseNumStr}...</div><div class="spike-container"><div class="volleyball-case">💼</div></div>`;
+      else if (rand === 2) cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">WILSON RECOVERED CASE ${caseNumStr}...</div><div class="wilson-container"><div class="wilson-ball">🏐<span class="blood-hand">🖐️</span></div></div>`;
+      else if (rand === 3) cutsceneHTML = `<div id="cutscene-text" style="color: #AA0000;">49ERS MINING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="display:inline-block; animation: swing 0.5s infinite alternate;">⛏️</span><span style="display:inline-block;">🟡</span></div>`;
+      else if (rand === 4) cutsceneHTML = `<div id="cutscene-text" style="color: #00338D;">BILLS MAFIA SMASHING CASE ${caseNumStr}...</div><div style="font-size: 5rem; position: relative; height: 120px; width: 120px; margin: 0 auto;"><span style="position:absolute; top:-80px; left:20px; animation: drop 1s forwards cubic-bezier(.25,.8,.25,1);">🏃‍♂️</span><span style="position:absolute; bottom:0; left:20px; animation: breakTable 1s forwards ease-in;">🪑</span></div>`;
+      else if (rand === 5) cutsceneHTML = `<div id="cutscene-text" style="color: #008E97;">DOLPHINS DIVING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: dolphinJump 1.5s ease-in-out infinite;">🐬💼🌊</div>`;
+      else if (rand === 6) cutsceneHTML = `<div id="cutscene-text" style="color: #002244;">PATRIOTS CHECKING PSI ON CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: deflate 1.5s forwards ease-out;">🏈💨</div>`;
+      else if (rand === 7) cutsceneHTML = `<div id="cutscene-text" style="color: #740001;">REVELIO CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="animation: wandFlick 0.8s infinite alternate; display:inline-block;">🪄</span><span style="animation: spark 0.8s infinite alternate; display:inline-block;">✨</span></div>`;
+      else if (rand === 8) cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">CATCHING CASE ${caseNumStr}...</div><div style="font-size: 4rem; animation: snitchFly 2s linear infinite;">🪽🟡🪽</div>`;
+      else if (rand === 9) cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10;">RAISING CURTAIN ON CASE ${caseNumStr}...</div><div style="position:absolute; top:0; left:0; width:50%; height:100%; background:darkred; border-right:5px solid gold; animation: slideLeft 2s forwards;"></div><div style="position:absolute; top:0; right:0; width:50%; height:100%; background:darkred; border-left:5px solid gold; animation: slideRight 2s forwards;"></div>`;
+      else if (rand === 10) cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10;">SPOTLIGHT ON CASE ${caseNumStr}...</div><div class="spotlight"></div>`;
+      else if (rand === 11) cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">SORTING CASE ${caseNumStr}...</div><div style="font-size: 6rem; animation: hatWiggle 0.5s infinite;">🎩🤔</div>`;
+      else if (rand === 12) cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">TOUCHDOWN CASE ${caseNumStr}!</div><div style="font-size: 5rem; display:flex; justify-content:center; align-items:center;"><span style="animation: refSignal 0.8s infinite alternate;">🙌</span><span style="margin-left:10px;">🏈</span></div>`;
     }
     
     cutscene.innerHTML = cutsceneHTML;
@@ -854,7 +780,6 @@
     pendingCaseIndex = index;
     pendingCallback = callback;
     const caseData = cases[index];
-
     const overlay = document.getElementById('fs-overlay');
     const caseAnim = document.getElementById('fs-case');
     const titleElem = document.getElementById('fs-title');
@@ -862,51 +787,33 @@
     overlay.className = bgClass;
     caseAnim.classList.remove('open-anim', 'shake-light', 'shake-heavy');
     
-    // Set NEUTRAL text during the shake
-    if (sequenceType === 'FINAL') {
-      titleElem.innerText = `THE FINAL REVEAL, EEEE...`;
-    } else if (sequenceType === 'ELIMINATED') {
-      titleElem.innerText = `LET'S SEE WHAT WAS LEFT BEHIND...`;
-    } else {
-      titleElem.innerText = `LOCKING IN, FOO...`;
-    }
+    if (sequenceType === 'FINAL') titleElem.innerText = `THE FINAL REVEAL, EEEE...`;
+    else if (sequenceType === 'ELIMINATED') titleElem.innerText = `LET'S SEE WHAT WAS LEFT BEHIND...`;
+    else titleElem.innerText = `LOCKING IN, FOO...`;
 
     document.getElementById('fs-prize-text').innerHTML = `${caseData.desc}`;
-    
     overlay.style.display = 'flex';
     
     caseAnim.classList.add(shakeClass);
     void caseAnim.offsetWidth; 
 
-    // Pure neutral reveals when the lid pops
     setTimeout(() => { 
       caseAnim.classList.remove(shakeClass);
       caseAnim.classList.add('open-anim'); 
-      
-      if (sequenceType === 'FINAL') {
-          titleElem.innerText = "BUENO BYE, HERE'S THE REVEAL!";
-      } else if (sequenceType === 'ELIMINATED') {
-          titleElem.innerText = "CASE OPENED!";
-      } else {
-          titleElem.innerText = "REVEALED, HOMIE!";
-      }
+      if (sequenceType === 'FINAL') titleElem.innerText = "BUENO BYE, HERE'S THE REVEAL!";
+      else if (sequenceType === 'ELIMINATED') titleElem.innerText = "CASE OPENED!";
+      else titleElem.innerText = "REVEALED, HOMIE!";
     }, shakeTime);
 
     let timeLeft = 5;
     const timerElem = document.getElementById('fs-timer');
     timerElem.innerText = `Continuing in ${timeLeft}s...`;
-
     clearInterval(timerInterval);
-    
     setTimeout(() => {
       timerInterval = setInterval(() => {
         timeLeft--;
-        if (timeLeft > 0) {
-          timerElem.innerText = `Continuing in ${timeLeft}s...`;
-        } else {
-          clearInterval(timerInterval);
-          closeFullscreen();
-        }
+        if (timeLeft > 0) timerElem.innerText = `Continuing in ${timeLeft}s...`;
+        else { clearInterval(timerInterval); closeFullscreen(); }
       }, 1000);
     }, shakeTime);
   }
@@ -914,27 +821,20 @@
   function closeFullscreen() {
     clearInterval(timerInterval);
     document.getElementById('fs-overlay').style.display = 'none';
-    
     const index = pendingCaseIndex;
     const caseData = cases[index];
     caseData.active = false;
-
     document.getElementById(`case-${index}`).classList.add('opened');
     document.getElementById(`board-prize-${caseData.id}`).classList.add('prize-eliminated');
 
-    if (gameState !== 'FINAL_REVEAL' && gameState !== 'AUTO_FINALE') {
-      totalCasesOpenedGlobal++;
-    }
+    if (gameState !== 'FINAL_REVEAL' && gameState !== 'AUTO_FINALE') totalCasesOpenedGlobal++;
 
-    if (totalCasesOpenedGlobal === 8 && ad1ObjectUrl) {
-      playVideoAd(ad1ObjectUrl, finishOpeningFlow, 'standard');
-      return;
-    } else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl && !ad2HasPlayed) {
+    if (totalCasesOpenedGlobal === 8 && ad1ObjectUrl) { playVideoAd(ad1ObjectUrl, finishOpeningFlow, 'standard'); return; }
+    else if (totalCasesOpenedGlobal === 22 && ad2ObjectUrl && !ad2HasPlayed) {
       ad2HasPlayed = true; 
       playVideoAd(ad2ObjectUrl, finishOpeningFlow, 'standard');
       return;
     }
-
     finishOpeningFlow();
   }
 
@@ -942,21 +842,13 @@
     let cb = pendingCallback;
     pendingCallback = null; 
     isAnimating = false; 
-    
-    if (cb) {
-      cb();
-    } else {
-      casesOpenedThisRound++;
-      updateInstructions();
-      checkRoundProgress();
-    }
+    if (cb) cb();
+    else { casesOpenedThisRound++; updateInstructions(); checkRoundProgress(); }
   }
 
-  // --- NEW LAST CHANCE & GAMBLER LOGIC ---
   function checkLastChanceOffer() {
     const totalSum = prizes.reduce((acc, p) => acc + p.val, 0);
     const overallAvg = totalSum / prizes.length;
-    
     let eligibleItems = prizes.filter(p => p.val > finalWinningPrize.val && p.val <= (overallAvg * 1.20));
 
     if (eligibleItems.length === 0) {
@@ -968,7 +860,6 @@
 
     if (eligibleItems.length > 0) {
       const safePrize = eligibleItems[Math.floor(Math.random() * eligibleItems.length)];
-      
       showModal(
         "A la makina!", 
         `${playerName}, your prize came up short foo!\n\n Don't be a baby cry, eeee that prize is alll chafa, but you can play it safe for a guaranteed hook up, or you wanna go for broke and get the enchiladas or what?`,
@@ -981,7 +872,6 @@
       );
       return;
     }
-    
     finalizeGameOver(finalWinningPrize);
   }
 
@@ -991,15 +881,8 @@
     const vaultText = document.getElementById('vault-text');
     revealContainer.style.display = 'flex';
     vaultText.innerText = "UNLOCKING VAULT, A LA VE...";
-
-    setTimeout(() => {
-      vaultText.innerHTML = `🌟 ALL SICK UPGRADE! 🌟<br><br>${newItem.desc}`;
-    }, 1500);
-
-    setTimeout(() => {
-      revealContainer.style.display = 'none';
-      showModal("Game Over, Homie", `Eeee ${playerName}, you played it safe and you're cruising back to the pad with:\n\n${newItem.desc}. Bueno bye!`, [], false);
-    }, 4500);
+    setTimeout(() => { vaultText.innerHTML = `🌟 ALL SICK UPGRADE! 🌟<br><br>${newItem.desc}`; }, 1500);
+    setTimeout(() => { revealContainer.style.display = 'none'; finalizeGameOver(newItem); }, 4500);
   }
 
   function executeGamblersPass() {
@@ -1008,28 +891,15 @@
     const vaultText = document.getElementById('vault-text');
     revealContainer.style.display = 'flex';
     vaultText.innerText = "🎲 ROLLING FOR ALL THE ENCHILADAS... 🎲";
-
     setTimeout(() => {
       const randomPrize = prizes[Math.floor(Math.random() * prizes.length)];
       vaultText.innerHTML = `🎲 GAMBLER'S PASS RESULT! 🎲<br><br>${randomPrize.desc}`;
-
-      setTimeout(() => {
-        revealContainer.style.display = 'none';
-        showModal("Game Over, Homie", `Eeee ${playerName}, your Gambler's Pass landed on:\n\n${randomPrize.desc}. You're cruising back to the pad with it! Bueno bye!`, [], false);
-      }, 4000);
+      setTimeout(() => { revealContainer.style.display = 'none'; finalizeGameOver(randomPrize); }, 4000);
     }, 2000);
   }
 
-  function finalizeGameOver(prize) {
-    closeModal();
-    showModal("Game Over, Homie", `Bueno bye, foo! ${playerName}, you're cruising down Central with:\n\n${prize.desc}. All sick!`, [], false);
-  }
-
   function updateInstructions(override = null) {
-    if (override) {
-      document.getElementById('instruction-text').innerText = override;
-      return;
-    }
+    if (override) { document.getElementById('instruction-text').innerText = override; return; }
     const target = roundSchedule[currentRound];
     const left = target - casesOpenedThisRound;
     document.getElementById('cases-left').innerText = left > 0 ? left : 0;
@@ -1038,33 +908,7 @@
 
   function checkRoundProgress() {
     const target = roundSchedule[currentRound];
-    if (casesOpenedThisRound >= target) {
-      triggerBanker();
-    }
-  }
-
-  function trigger90sPopups() {
-    const overlay = document.getElementById('nineties-overlay');
-    overlay.innerHTML = '';
-    overlay.style.display = 'flex';
-    let count = 0;
-    
-    let popInterval = setInterval(() => {
-      if (count > 5) {
-        clearInterval(popInterval);
-        return;
-      }
-      let box = document.createElement('div');
-      box.className = 'win95-box';
-      box.style.top = (20 + Math.random() * 40) + '%';
-      box.style.left = (10 + Math.random() * 50) + '%';
-      box.innerHTML = `
-          <div class="win95-title"><span>⚠️ SYSTEM WARNING</span><span>X</span></div>
-          <div class="win95-content">CRITICAL ERROR:<br>PRIZE TOO CHAFA!<br><br><button style="font-size:12px; padding:2px 10px; border:2px solid; border-color:#fff #888 #888 #fff; background:#c0c0c0;">OK, FOO</button></div>
-      `;
-      overlay.appendChild(box);
-      count++;
-    }, 300);
+    if (casesOpenedThisRound >= target) triggerBanker();
   }
 
   function playVideoAd(videoUrl, callback, adType) {
@@ -1073,54 +917,39 @@
     const tapMsg = document.getElementById('tap-to-play-msg');
     
     currentAdCallback = callback;
-    adVideo.src = videoUrl;
-    adVideo.load();
+    adVideo.src = videoUrl; adVideo.load();
 
     const startAdPlayback = () => {
-      adOverlay.style.display = 'flex';
-      tapMsg.style.display = 'none';
-
-      adVideo.onended = finishAd;
-      adVideo.onerror = finishAd;
-
+      adOverlay.style.display = 'flex'; tapMsg.style.display = 'none';
+      adVideo.onended = finishAd; adVideo.onerror = finishAd;
       let p = adVideo.play();
       if(p !== undefined) {
         p.catch((err) => {
           tapMsg.style.display = 'block';
-          adOverlay.onclick = () => {
-            tapMsg.style.display = 'none';
-            adVideo.play();
-            adOverlay.onclick = null;
-          };
+          adOverlay.onclick = () => { tapMsg.style.display = 'none'; adVideo.play(); adOverlay.onclick = null; };
         });
       }
     };
 
-    const finishAd = () => {
-      adOverlay.style.display = 'none';
-      adVideo.pause();
-      if (currentAdCallback) {
-        let cb = currentAdCallback;
-        currentAdCallback = null;
-        cb();
-      }
-    };
+    const finishAd = () => { adOverlay.style.display = 'none'; adVideo.pause(); if (currentAdCallback) { let cb = currentAdCallback; currentAdCallback = null; cb(); } };
 
-    // Trigger Pre-Ad Animataions
     if (adType === '90s') {
-      trigger90sPopups();
-      setTimeout(() => {
-        document.getElementById('nineties-overlay').style.display = 'none';
-        startAdPlayback();
-      }, 2500);
+      const overlay = document.getElementById('nineties-overlay');
+      overlay.innerHTML = ''; overlay.style.display = 'flex';
+      let count = 0;
+      let popInterval = setInterval(() => {
+        if (count > 5) { clearInterval(popInterval); return; }
+        let box = document.createElement('div'); box.className = 'win95-box';
+        box.style.top = (20 + Math.random() * 40) + '%'; box.style.left = (10 + Math.random() * 50) + '%';
+        box.innerHTML = `<div class="win95-title"><span>⚠️ WARNING</span><span>X</span></div><div class="win95-content">CRITICAL ERROR:<br>PRIZE TOO CHAFA!<br><br><button>OK, FOO</button></div>`;
+        overlay.appendChild(box);
+        count++;
+      }, 300);
+      setTimeout(() => { document.getElementById('nineties-overlay').style.display = 'none'; startAdPlayback(); }, 2500);
     } else {
-      // Standard static cut
       const staticOverlay = document.getElementById('tv-cut-overlay');
       staticOverlay.style.display = 'flex';
-      setTimeout(() => {
-        staticOverlay.style.display = 'none';
-        startAdPlayback();
-      }, 2500);
+      setTimeout(() => { staticOverlay.style.display = 'none'; startAdPlayback(); }, 2500);
     }
   }
 
@@ -1128,62 +957,254 @@
     const activePrizes = prizes.filter(p => p.active);
     const sum = activePrizes.reduce((acc, p) => acc + p.val, 0);
     const ev = sum / activePrizes.length;
-    const modifier = (Math.random() * 0.20) + 0.45; 
-    const targetVal = ev * modifier;
+    const targetVal = ev * ((Math.random() * 0.20) + 0.45); 
 
-    let closestPrize = prizes.reduce((prev, curr) => {
-      return (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev);
-    });
-
+    let closestPrize = prizes.reduce((prev, curr) => (Math.abs(curr.val - targetVal) < Math.abs(prev.val - targetVal) ? curr : prev));
     showModal("The Pawn Shop is Calling...", `The homie at the pawn shop says:\n\n"Look foo, I gotta make a profit here. Best I can do right now is..."\n\n${closestPrize.desc}`, [
-      { text: "ORALE (TAKE DEAL)", class: "deal-btn", action: () => acceptDeal(closestPrize) },
-      { text: "CHALE (WALK AWAY)", class: "nodeal-btn", action: rejectDeal }
+      { text: "ORALE (TAKE DEAL)", class: "deal-btn", action: () => { closeModal(); let msg = `Eeee ${playerName} took the pawn shop deal!\n\nYou're cruising down Central with:\n\n${closestPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}.`; finalizeGameOver(closestPrize, msg); } },
+      { text: "CHALE (WALK AWAY)", class: "nodeal-btn", action: () => { closeModal(); casesOpenedThisRound = 0; currentRound++; if (currentRound >= roundSchedule.length) { gameState = 'FINALE_CHOICE'; updateInstructions(`Eeeee 3 Cases Left! Click Keeper to KEEP, or a board case to SWAP.`); document.getElementById('cases-left').innerText = "FINAL"; document.getElementById(`case-${keeperCase.caseIndex}`).onclick = () => handleCaseClick(keeperCase.caseIndex, document.getElementById(`case-${keeperCase.caseIndex}`)); } else { updateInstructions(); } } }
     ], true);
-  }
-
-  function acceptDeal(offeredPrize) {
-    showModal("Game Over, Homie", `Eeee ${playerName} took the pawn shop deal!\n\nYou're cruising down Central with:\n\n${offeredPrize.desc}!\n\nYour keeper case actually had:\n${keeperCase.data.desc}. Bueno bye!`, [], false);
-  }
-
-  function rejectDeal() {
-    closeModal();
-    casesOpenedThisRound = 0;
-    currentRound++;
-    
-    if (currentRound >= roundSchedule.length) {
-      gameState = 'FINALE_CHOICE';
-      updateInstructions(`Eeeee 3 Cases Left, ${playerName}! Click your Keeper to KEEP, or click a board case to SWAP.`);
-      document.getElementById('cases-left').innerText = "FINAL";
-      document.getElementById(`case-${keeperCase.caseIndex}`).onclick = () => handleCaseClick(keeperCase.caseIndex, document.getElementById(`case-${keeperCase.caseIndex}`));
-    } else {
-      updateInstructions();
-    }
   }
 
   function showModal(title, text, buttons, showBanker = false) {
     document.getElementById('modal-title').innerText = title;
-    
-    const bankerImg = document.getElementById('banker-img');
-    if (showBanker) {
-      bankerImg.style.display = 'block';
-    } else {
-      bankerImg.style.display = 'none';
-    }
-
+    document.getElementById('banker-img').style.display = showBanker ? 'block' : 'none';
     document.getElementById('modal-text').innerText = text;
     const actions = document.getElementById('modal-actions');
     actions.innerHTML = '';
     buttons.forEach(btn => {
-      const b = document.createElement('button');
-      b.innerText = btn.text;
-      if (btn.class) b.className = btn.class;
-      b.onclick = btn.action;
-      actions.appendChild(b);
+      const b = document.createElement('button'); b.innerText = btn.text; if (btn.class) b.className = btn.class; b.onclick = btn.action; actions.appendChild(b);
     });
     document.getElementById('modal').style.display = 'flex';
   }
 
   function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+
+  // --- UNIFIED END GAME & BONUS ROUND API ENGINE ---
+  function finalizeGameOver(prize, customMsg = null) {
+    closeModal();
+    finalWinningPrize = prize; 
+    let msg = customMsg || `Bueno bye, foo! ${playerName}, you're cruising down Central with:\n\n${prize.desc}. All sick!`;
+    
+    showModal(
+      "Game Over, Homie", 
+      msg, 
+      [
+        { text: "PLAY VAULT HEIST BONUS", class: "gamble-btn", action: startBonusSequence },
+        { text: "I'M GOOD, BUENO BYE", class: "nodeal-btn", action: () => { closeModal(); alert("Bueno bye, homie!"); } }
+      ], 
+      false
+    );
+  }
+
+  // --- API SETTINGS & CATEGORY MAPPING ---
+  const apiCategories = {
+    kids: [ { name: "Cartoons", id: 32 }, { name: "Video Games", id: 15 }, { name: "Animals", id: 27 }, { name: "Board Games", id: 16 } ],
+    teens: [ { name: "Pop Music", id: 12 }, { name: "Movies", id: 11 }, { name: "Video Games", id: 15 }, { name: "Science", id: 17 } ],
+    adults: [ { name: "Gen Knowledge", id: 9 }, { name: "Television", id: 14 }, { name: "History", id: 23 }, { name: "Geography", id: 22 } ]
+  };
+
+  const difficultyMap = { kids: 'easy', teens: 'medium', adults: 'hard' };
+
+  let bonusState = {
+    ageGroup: '',
+    categoryObj: null,
+    questions: [],
+    currentQIndex: 0,
+    pinsUnlocked: 0,
+    questionsAsked: 0,
+    maxQuestions: 5,
+    targetPins: 3
+  };
+
+  function startBonusSequence() {
+    closeModal();
+    document.getElementById('bonus-overlay').style.display = 'flex';
+    showBonusPanel('bonus-age-screen');
+  }
+
+  function showBonusPanel(panelId) {
+    document.querySelectorAll('.bonus-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(panelId).classList.add('active');
+  }
+
+  function initBonusRound(ageGroup) {
+    bonusState.ageGroup = ageGroup;
+    bonusState.pinsUnlocked = 0;
+    bonusState.questionsAsked = 0;
+    document.querySelectorAll('.pin').forEach(p => p.classList.remove('unlocked'));
+    showBonusPanel('bonus-wheel-screen');
+  }
+
+  function spinBonusWheel() {
+    document.getElementById('spin-btn').style.display = 'none';
+    const wheel = document.getElementById('bonus-wheel');
+    const label = document.getElementById('wheel-result');
+    label.style.display = 'none';
+    
+    const deg = Math.floor(Math.random() * 360) + 1440; 
+    wheel.style.transform = `rotate(${deg}deg)`;
+    
+    setTimeout(() => {
+      const cats = apiCategories[bonusState.ageGroup];
+      bonusState.categoryObj = cats[Math.floor(Math.random() * cats.length)];
+      
+      label.innerText = bonusState.categoryObj.name;
+      label.style.display = 'block';
+      
+      setTimeout(() => {
+        showBonusPanel('bonus-quiz-screen');
+        fetchTriviaAPI();
+      }, 2500);
+    }, 3000);
+  }
+
+  // --- HTML Decoder Helper ---
+  function decodeHTML(html) {
+    var txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  }
+
+  async function fetchTriviaAPI() {
+    const loading = document.getElementById('quiz-loading');
+    const container = document.getElementById('quiz-options-container');
+    const questionText = document.getElementById('bonus-question');
+    
+    loading.style.display = 'block';
+    container.innerHTML = '';
+    questionText.innerText = '';
+    
+    const diff = difficultyMap[bonusState.ageGroup];
+    const url = `https://opentdb.com/api.php?amount=5&category=${bonusState.categoryObj.id}&difficulty=${diff}&type=multiple`;
+
+    try {
+      const res = await fetch(url);
+      const data = await res.json();
+      
+      if (data.response_code === 0 && data.results.length > 0) {
+        bonusState.questions = data.results.map(q => {
+          let options = [q.correct_answer, q.incorrect_answers[0], q.incorrect_answers[1]];
+          options = options.map(decodeHTML);
+          const correct = decodeHTML(q.correct_answer);
+          options.sort(() => 0.5 - Math.random());
+          const correctIndex = options.indexOf(correct);
+          return { q: decodeHTML(q.question), a: options, c: correctIndex };
+        });
+        loading.style.display = 'none';
+        bonusState.currentQIndex = 0;
+        loadBonusQuestion();
+      } else {
+        loadOfflineFallback();
+      }
+    } catch (err) {
+      loadOfflineFallback();
+    }
+  }
+
+  function loadOfflineFallback() {
+    document.getElementById('quiz-loading').style.display = 'none';
+    // Small emergency local database just in case the API goes down during a live game
+    const backupDb = [
+      { q: "What color is the sky?", a: ["Blue", "Green", "Red"], c: 0 },
+      { q: "How many legs does a spider have?", a: ["6", "8", "10"], c: 1 },
+      { q: "What is 5 + 5?", a: ["8", "10", "12"], c: 1 },
+      { q: "Which animal says 'Moo'?", a: ["Pig", "Cow", "Horse"], c: 1 },
+      { q: "What planet do we live on?", a: ["Mars", "Venus", "Earth"], c: 2 }
+    ];
+    bonusState.questions = backupDb;
+    bonusState.currentQIndex = 0;
+    loadBonusQuestion();
+  }
+
+  function loadBonusQuestion() {
+    const qData = bonusState.questions[bonusState.currentQIndex];
+    document.getElementById('bonus-question').innerText = qData.q;
+    document.getElementById('quiz-status').innerText = `Pins Picked: ${bonusState.pinsUnlocked}/3 | Questions Left: ${bonusState.maxQuestions - bonusState.questionsAsked}`;
+    
+    const container = document.getElementById('quiz-options-container');
+    container.innerHTML = '';
+    
+    qData.a.forEach((ansText, index) => {
+      const isCorrect = (index === qData.c);
+      const div = document.createElement('div');
+      div.className = 'quiz-option';
+      div.innerHTML = `<span style="font-weight:bold; font-size:1.1em; text-align:center;">${ansText}</span><span class="lockpick">🪛</span>`;
+      div.onclick = () => handleBonusAnswer(div, isCorrect);
+      container.appendChild(div);
+    });
+  }
+
+  function handleBonusAnswer(element, isCorrect) {
+    if (element.classList.contains('broken') || element.classList.contains('success')) return;
+    document.querySelectorAll('.quiz-option').forEach(el => el.onclick = null); 
+    
+    bonusState.questionsAsked++;
+
+    if (isCorrect) {
+      element.classList.add('success');
+      bonusState.pinsUnlocked++;
+      document.getElementById(`pin-${bonusState.pinsUnlocked}`).classList.add('unlocked');
+    } else {
+      element.classList.add('broken');
+    }
+
+    setTimeout(() => {
+      if (bonusState.pinsUnlocked >= bonusState.targetPins) {
+        triggerVaultUnlock();
+      } else if (bonusState.questionsAsked >= bonusState.maxQuestions) {
+        alert(`A la ve ${playerName}, you broke too many tools foo! The lock is jammed. Enjoy your main prize!`);
+        document.getElementById('bonus-overlay').style.display = 'none';
+      } else {
+        bonusState.currentQIndex++;
+        loadBonusQuestion();
+      }
+    }, 1500);
+  }
+
+  function triggerVaultUnlock() {
+    showBonusPanel('bonus-vault-screen');
+    const container = document.getElementById('bonus-cases-container');
+    container.innerHTML = '';
+    
+    let bonusPrizes = prizes.map(p => {
+      if (finalWinningPrize && p.id === finalWinningPrize.id) {
+        return { id: p.id, desc: "$50 Cash", val: 50 };
+      }
+      return { id: p.id, desc: p.desc, val: p.val };
+    });
+    
+    bonusPrizes.sort(() => 0.5 - Math.random());
+    
+    for (let i = 0; i < 25; i++) {
+      const c = document.createElement('div');
+      c.className = 'bonus-case';
+      c.innerText = i + 1;
+      c.onclick = () => revealBonusCase(c, bonusPrizes[i]);
+      container.appendChild(c);
+    }
+  }
+
+  function revealBonusCase(element, wonPrize) {
+    document.querySelectorAll('.bonus-case').forEach(el => el.onclick = null);
+    element.classList.add('opened');
+    element.innerHTML = `<span>${wonPrize.desc}</span>`;
+    
+    setTimeout(() => {
+      document.getElementById('bonus-overlay').style.display = 'none';
+      let mainPrizeText = finalWinningPrize ? finalWinningPrize.desc : "Nothing (Error)";
+      
+      showModal(
+        "Game Over, Homie", 
+        `Eeee ${playerName}, you cracked the vault and scored:\n\n${wonPrize.desc}\n\nPlus your main prize:\n${mainPrizeText}\n\nBueno bye!`, 
+        [
+          { text: "START A NEW GAME", class: "deal-btn", action: () => location.reload() }
+        ], 
+        false
+      );
+    }, 2500);
+  }
 </script>
 </body>
 </html>
