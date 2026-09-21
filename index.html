@@ -10,6 +10,33 @@
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; transition: background 0.2s; }
   button:hover { background: #f1c40f; }
   
+  /* --- CENTRAL AVE INTRO SCREEN --- */
+  #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0c10; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 8vh; overflow: hidden; }
+  .intro-title { font-size: 3.5em; color: #f1c40f; text-transform: uppercase; text-shadow: 3px 3px 0 #8b0000, 6px 6px 0px #000; z-index: 10; margin-bottom: 5px; text-align: center; line-height: 1.1; }
+  .intro-subtitle { font-size: 1.8em; color: #fff; z-index: 10; margin-bottom: 40px; font-weight: bold; text-shadow: 2px 2px 5px #000; }
+  
+  .sidewalk { position: absolute; bottom: calc(20% + 120px); width: 100%; height: 70px; background: #444; border-top: 3px solid #666; display: flex; align-items: flex-end; padding-bottom: 5px; }
+  .central-ave { position: absolute; bottom: 20%; width: 100%; height: 120px; background: #222; border-top: 4px solid #555; border-bottom: 4px solid #555; }
+  .lane-lines { position: absolute; top: 50%; width: 100%; height: 6px; background: repeating-linear-gradient(90deg, #fff 0, #fff 30px, transparent 30px, transparent 60px); transform: translateY(-50%); }
+  
+  .street-sign { position: absolute; top: -50px; left: 50%; transform: translateX(-50%); background: #005020; border: 3px solid white; color: white; padding: 5px 20px; font-family: sans-serif; font-weight: bold; font-size: 1.5em; border-radius: 6px; box-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
+  .street-sign::after { content: ''; position: absolute; bottom: -20px; left: 20%; width: 6px; height: 20px; background: #777; }
+  .street-sign::before { content: ''; position: absolute; bottom: -20px; right: 20%; width: 6px; height: 20px; background: #777; }
+
+  .scenery { position: absolute; font-size: 3.5em; display: flex; align-items: center; gap: 5px; line-height: 1; }
+  .camp { left: 5%; }
+  .apd { right: 5%; animation: copLights 0.6s infinite alternate; }
+  
+  .lowrider-container { position: absolute; bottom: calc(20% + 15px); left: -150px; font-size: 5em; animation: driveCentral 9s linear infinite; display: flex; align-items: flex-end; line-height: 1; z-index: 5; }
+  .lowrider-car { animation: bounceRide 0.4s infinite alternate; }
+  
+  @keyframes driveCentral { 0% { left: -200px; } 100% { left: 110%; } }
+  @keyframes bounceRide { 0% { transform: translateY(0) rotate(-2deg); } 100% { transform: translateY(-15px) rotate(3deg); } }
+  @keyframes copLights { 0% { text-shadow: -15px 0 25px red, 15px 0 25px blue; } 100% { text-shadow: -15px 0 25px blue, 15px 0 25px red; } }
+  
+  .start-btn { z-index: 10; font-size: 1.5em; padding: 15px 30px; border-radius: 8px; border: 3px solid #f1c40f; background: #8b0000; color: white; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.8); text-transform: uppercase; margin-top: 20px; }
+  .start-btn:hover { transform: scale(1.1); background: #a00000; }
+
   /* Generic Container Card */
   .flow-screen { max-width: 480px; width: 100%; margin: 60px auto; background: #222; padding: 25px; border-radius: 10px; border: 2px solid #d4af37; text-align: left; display: none; }
   .flow-screen h1 { color: #ffd700; margin-bottom: 5px; text-align: center; }
@@ -62,7 +89,6 @@
   /* --- MASSIVE DYNAMIC CUTSCENE ENGINE --- */
   #cutscene-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1500; display: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
   #cutscene-text { font-size: 1.6em; letter-spacing: 2px; font-weight: bold; margin-bottom: 20px; animation: flashText 0.5s infinite alternate; text-transform: uppercase; text-align: center; padding: 0 20px; z-index: 10; }
-  @keyframes flashText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
 
   .scan-line-container { width: 80%; max-width: 300px; height: 4px; background: #222; position: relative; overflow: hidden; border-radius: 2px; margin: 0 auto; }
   .scan-line { position: absolute; top: 0; left: -50px; width: 100px; height: 100%; background: #f1c40f; box-shadow: 0 0 15px #f1c40f; animation: scanAnim 1s infinite linear; }
@@ -73,6 +99,7 @@
   .blood-hand { position: absolute; color: #cc0000; font-size: 2.5rem; top: 12px; left: 18px; text-shadow: none; opacity: 0.9; transform: rotate(-15deg); }
   .spotlight { position: absolute; width: 200vw; height: 200vh; top: -50vh; left: -50vw; background: radial-gradient(circle at 50% 50%, transparent 5%, rgba(0,0,0,0.98) 15%); animation: spotMove 2s infinite alternate ease-in-out; z-index: 5; pointer-events: none; }
 
+  @keyframes flashText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
   @keyframes scanAnim { 0% { left: -100px; } 100% { left: 100%; } }
   @keyframes spikeIt { 0% { bottom: 0; left: -50px; transform: rotate(0deg) scale(0.5); } 40% { bottom: 150px; left: 120px; transform: rotate(180deg) scale(1.2); animation-timing-function: cubic-bezier(.55,.085,.68,.53); } 100% { bottom: -100px; left: 250px; transform: rotate(360deg) scale(0.8); } }
   @keyframes driftBob { 0% { transform: translateY(0px) translateX(-80px) rotate(-15deg); } 50% { transform: translateY(-30px) translateX(0px) rotate(10deg); } 100% { transform: translateY(0px) translateX(80px) rotate(-15deg); } }
@@ -193,21 +220,54 @@
     #cast-btn { margin-top: 5px; width: 100%; }
     .bonus-case { font-size: 16px; }
     .bonus-case.opened { font-size: 0.55em; }
+    
+    #intro-screen { padding-top: 15vh; }
+    .intro-title { font-size: 2.8em; }
+    .intro-subtitle { font-size: 1.3em; }
   }
 </style>
 </head>
 <body>
 
+<!-- NEW CENTRAL AVE ANIMATED INTRO SCREEN -->
+<div id="intro-screen">
+  <div class="intro-title">Deal or No Deal</div>
+  <div class="intro-subtitle">BURQUE EDITION</div>
+  
+  <div class="sidewalk">
+    <div class="scenery camp">🛒⛺🧍</div>
+    <div class="scenery apd">🚓👮📝🧍‍♂️</div>
+  </div>
+  <div class="central-ave">
+    <div class="street-sign">CENTRAL AVE</div>
+    <div class="lane-lines"></div>
+    <div class="lowrider-container">
+      <div class="lowrider-car">🚗</div>
+    </div>
+  </div>
+  
+  <button class="start-btn" onclick="dismissIntro()">CRUISE CENTRAL (START)</button>
+</div>
+
 <!-- STEP 1: WELCOME SCREEN -->
-<div id="welcome-screen" class="flow-screen" style="display: block;">
+<div id="welcome-screen" class="flow-screen">
   <h1>Deal or No Deal</h1>
   <p style="color: #aaa; text-align: center; margin-bottom: 25px;">Welcome to the ultimate game of chance.</p>
   
-  <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
-    <label style="color: #f1c40f; font-weight: bold; margin-bottom: 10px; display: block;">Are you 18 or older?</label>
-    <select id="age-check" style="width: 100%; padding: 10px; font-size: 16px; background: #444; color: white; border: 1px solid #666; border-radius: 5px;">
+  <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: left;">
+    <label style="color: #f1c40f; font-weight: bold; margin-bottom: 5px; display: block;">Are you 18 or older?</label>
+    <select id="age-check" onchange="toggleSexyPreset()" style="width: 100%; padding: 10px; font-size: 16px; background: #444; color: white; border: 1px solid #666; border-radius: 5px;">
       <option value="under18">No, I'm under 18</option>
       <option value="18plus">Yes, I'm 18 or older</option>
+    </select>
+  </div>
+
+  <div style="background: #333; padding: 15px; border-radius: 5px; margin-bottom: 15px; text-align: left;">
+    <label style="color: #f1c40f; font-weight: bold; margin-bottom: 5px; display: block;">Bonus Round Difficulty (Vault Heist):</label>
+    <select id="bonus-difficulty" style="width: 100%; padding: 10px; font-size: 16px; background: #444; color: white; border: 1px solid #666; border-radius: 5px;">
+      <option value="kids">Easy (Kids 7-12)</option>
+      <option value="teens">Medium (Teens 13-17)</option>
+      <option value="adults" selected>Hard (Adults 18+)</option>
     </select>
   </div>
 
@@ -255,7 +315,7 @@
       <option value="">Custom (Manual Entry)</option>
       <option value="tablet">Tablet Time (15 mins to All Day)</option>
       <option value="toy">Toy Run ($5 to $100)</option>
-      <option value="sexy" id="preset-sexy">Sexy Time (Couples Activities)</option>
+      <option value="sexy" id="preset-sexy" disabled>Sexy Time (Requires 18+)</option>
       <option value="restaurant">Dinner Roulette (Restaurants)</option>
     </select>
 
@@ -351,20 +411,9 @@
 
 <!-- BONUS ROUND OVERLAY -->
 <div id="bonus-overlay">
-  
-  <!-- Age Selection -->
-  <div id="bonus-age-screen" class="bonus-panel active">
-    <h2 class="bonus-title">Vault Heist Bonus Round</h2>
-    <p style="margin-bottom: 20px;">Crack the lock by answering trivia to unlock the 25-Case Vault. Select your age range to set the difficulty:</p>
-    <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-      <button onclick="initBonusRound('kids')">Kids (Easy)</button>
-      <button onclick="initBonusRound('teens')">Teens (Medium)</button>
-      <button onclick="initBonusRound('adults')">Adults (Hard)</button>
-    </div>
-  </div>
 
   <!-- Wheel Spin -->
-  <div id="bonus-wheel-screen" class="bonus-panel">
+  <div id="bonus-wheel-screen" class="bonus-panel active">
     <h2 class="bonus-title">Spin for Category</h2>
     <div class="wheel-container">
       <div class="wheel-pointer"></div>
@@ -418,13 +467,35 @@
   let totalCasesOpenedGlobal = 0;
   
   let ad2HasPlayed = false;
-  let isAnimating = false; // Lock to prevent multi-tap timer looping bug
+  let isAnimating = false;
 
   let pendingCaseIndex = null;
   let pendingCallback = null;
   let timerInterval = null;
   let finalWinningPrize = null;
   let currentAdCallback = null;
+
+  function dismissIntro() {
+    document.getElementById('intro-screen').style.display = 'none';
+    document.getElementById('welcome-screen').style.display = 'block';
+  }
+
+  function toggleSexyPreset() {
+    const isAdult = (document.getElementById('age-check').value === '18plus');
+    const sexyOpt = document.getElementById('preset-sexy');
+    
+    if (!isAdult) {
+      sexyOpt.disabled = true;
+      sexyOpt.text = "Sexy Time (Requires 18+)";
+      if (document.getElementById('preset-select').value === 'sexy') {
+        document.getElementById('preset-select').value = "";
+        toggleValuesDisplay(true);
+      }
+    } else {
+      sexyOpt.disabled = false;
+      sexyOpt.text = "Sexy Time (Couples Activities)";
+    }
+  }
 
   // Preset Engine Data
   const gamePresets = {
@@ -444,15 +515,15 @@
       { d: "$75 Toy", v: 75 }, { d: "$80 Toy", v: 80 }, { d: "$85 Toy", v: 85 }, { d: "$90 Toy", v: 90 }, { d: "$100 Toy", v: 100 }
     ],
     sexy: [
-      { d: "Romantic Cuddling", v: 10 }, { d: "Sensual Foot Massage", v: 20 }, { d: "Neck & Shoulder Rub", v: 30 }, 
-      { d: "Write a Naughty Note", v: 40 }, { d: "Extended Make-out", v: 50 }, { d: "Shower Together", v: 60 }, 
-      { d: "Bubble Bath for Two", v: 70 }, { d: "Naked Breakfast in Bed", v: 80 }, { d: "Naked Movie Night", v: 90 }, 
-      { d: "Blindfold Taste Test", v: 100 }, { d: "Full Body Massage", v: 110 }, { d: "Hot Oil Massage", v: 120 }, 
-      { d: "Feather Tickling", v: 130 }, { d: "Ice Cube Teasing", v: 140 }, { d: "Naughty Truth or Dare", v: 150 }, 
-      { d: "Striptease", v: 160 }, { d: "Lap Dance", v: 170 }, { d: "Lingerie/Underwear Show", v: 180 }, 
-      { d: "Roleplay Scenario", v: 190 }, { d: "Light Bondage", v: 200 }, { d: "Body Paint/Chocolate", v: 210 }, 
-      { d: "Morning Quickie", v: 220 }, { d: "Extended Foreplay", v: 230 }, { d: "Share a Secret Fantasy", v: 240 }, 
-      { d: "Winner's Choice (Wildcard)", v: 250 }
+      { d: "Your Custom Activity 1", v: 10 }, { d: "Your Custom Activity 2", v: 20 }, { d: "Your Custom Activity 3", v: 30 }, 
+      { d: "Your Custom Activity 4", v: 40 }, { d: "Your Custom Activity 5", v: 50 }, { d: "Your Custom Activity 6", v: 60 }, 
+      { d: "Your Custom Activity 7", v: 70 }, { d: "Your Custom Activity 8", v: 80 }, { d: "Your Custom Activity 9", v: 90 }, 
+      { d: "Your Custom Activity 10", v: 100 }, { d: "Your Custom Activity 11", v: 110 }, { d: "Your Custom Activity 12", v: 120 }, 
+      { d: "Your Custom Activity 13", v: 130 }, { d: "Your Custom Activity 14", v: 140 }, { d: "Your Custom Activity 15", v: 150 }, 
+      { d: "Your Custom Activity 16", v: 160 }, { d: "Your Custom Activity 17", v: 170 }, { d: "Your Custom Activity 18", v: 180 }, 
+      { d: "Your Custom Activity 19", v: 190 }, { d: "Your Custom Activity 20", v: 200 }, { d: "Your Custom Activity 21", v: 210 }, 
+      { d: "Your Custom Activity 22", v: 220 }, { d: "Your Custom Activity 23", v: 230 }, { d: "Your Custom Activity 24", v: 240 }, 
+      { d: "Your Custom Activity 25", v: 250 }
     ],
     rest_burque: [
       { d: "Dog House", v: 10 }, { d: "Mac's Steak in the Rough", v: 20 }, { d: "Twisters", v: 30 }, { d: "Golden Pride", v: 40 },
@@ -571,18 +642,6 @@
   }
 
   function handleWelcomeNext() {
-    // Check the age gate logic here
-    const isAdult = (document.getElementById('age-check').value === '18plus');
-    const sexyOpt = document.getElementById('preset-sexy');
-    
-    if (!isAdult) {
-      sexyOpt.disabled = true;
-      sexyOpt.text = "Sexy Time (Requires 18+)";
-    } else {
-      sexyOpt.disabled = false;
-      sexyOpt.text = "Sexy Time (Couples Activities)";
-    }
-
     document.getElementById('welcome-screen').style.display = 'none';
     if (document.getElementById('enable-ads').checked) {
       document.getElementById('media-screen').style.display = 'block';
@@ -1053,7 +1112,10 @@
   function startBonusSequence() {
     closeModal();
     document.getElementById('bonus-overlay').style.display = 'flex';
-    showBonusPanel('bonus-age-screen');
+    
+    // Grab the pre-selected difficulty from the Welcome Screen
+    const selectedDiff = document.getElementById('bonus-difficulty').value;
+    initBonusRound(selectedDiff);
   }
 
   function showBonusPanel(panelId) {
