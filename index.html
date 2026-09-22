@@ -25,12 +25,11 @@
   .intro-subtitle { font-size: 2em; color: #fff; font-weight: bold; text-shadow: 2px 2px 5px #000; margin: 0; letter-spacing: 2px; }
   .chile-red { color: #e74c3c; }
   .chile-green { color: #2ecc71; }
-  .burque-emojis { font-size: 3.5em; margin: 20px 0; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
   
   .start-btn { 
     font-size: 1.5em; padding: 15px 30px; border-radius: 8px; border: 3px solid #f1c40f; 
     background: #8b0000; color: white; cursor: pointer; transition: transform 0.2s, background 0.2s; 
-    box-shadow: 0 5px 25px rgba(0,0,0,0.9); text-transform: uppercase; font-weight: bold; margin-top: 10px;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.9); text-transform: uppercase; font-weight: bold; margin-top: 20px;
   }
   .start-btn:hover { transform: scale(1.1); background: #a00000; }
 
@@ -83,36 +82,15 @@
   .briefcase.keeper { margin: 0; transform: scale(1.15); cursor: default; width: 85px; height: 60px; }
   .briefcase.keeper:hover { transform: scale(1.15); }
 
-  /* --- MASSIVE DYNAMIC CUTSCENE ENGINE --- */
+  /* --- DYNAMIC CUTSCENE ENGINE --- */
   #cutscene-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 1500; display: none; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; }
   #cutscene-text { font-size: 1.6em; letter-spacing: 2px; font-weight: bold; margin-bottom: 20px; animation: flashText 0.5s infinite alternate; text-transform: uppercase; text-align: center; padding: 0 20px; z-index: 10; }
 
   .scan-line-container { width: 80%; max-width: 300px; height: 4px; background: #222; position: relative; overflow: hidden; border-radius: 2px; margin: 0 auto; }
   .scan-line { position: absolute; top: 0; left: -50px; width: 100px; height: 100%; background: #f1c40f; box-shadow: 0 0 15px #f1c40f; animation: scanAnim 1s infinite linear; }
-  .spike-container { position: relative; width: 300px; height: 200px; margin: 0 auto; overflow: hidden; }
-  .volleyball-case { font-size: 4.5rem; position: absolute; bottom: 0; left: -50px; animation: spikeIt 1.5s cubic-bezier(.25,.8,.25,1) forwards; }
-  .wilson-container { position: relative; width: 100%; max-width: 400px; height: 150px; display: flex; align-items: center; justify-content: center; margin: 0 auto; }
-  .wilson-ball { font-size: 5rem; position: relative; animation: driftBob 2.5s ease-in-out infinite; line-height: 1; }
-  .blood-hand { position: absolute; color: #cc0000; font-size: 2.5rem; top: 12px; left: 18px; text-shadow: none; opacity: 0.9; transform: rotate(-15deg); }
-  .spotlight { position: absolute; width: 200vw; height: 200vh; top: -50vh; left: -50vw; background: radial-gradient(circle at 50% 50%, transparent 5%, rgba(0,0,0,0.98) 15%); animation: spotMove 2s infinite alternate ease-in-out; z-index: 5; pointer-events: none; }
 
   @keyframes flashText { 0% { opacity: 0.4; } 100% { opacity: 1; } }
   @keyframes scanAnim { 0% { left: -100px; } 100% { left: 100%; } }
-  @keyframes spikeIt { 0% { bottom: 0; left: -50px; transform: rotate(0deg) scale(0.5); } 40% { bottom: 150px; left: 120px; transform: rotate(180deg) scale(1.2); animation-timing-function: cubic-bezier(.55,.085,.68,.53); } 100% { bottom: -100px; left: 250px; transform: rotate(360deg) scale(0.8); } }
-  @keyframes driftBob { 0% { transform: translateY(0px) translateX(-80px) rotate(-15deg); } 50% { transform: translateY(-30px) translateX(0px) rotate(10deg); } 100% { transform: translateY(0px) translateX(80px) rotate(-15deg); } }
-  @keyframes swing { 0% { transform: rotate(-20deg); } 100% { transform: rotate(45deg); } }
-  @keyframes drop { 0% { transform: translateY(-120px) rotate(0deg); } 100% { transform: translateY(10px) rotate(45deg); } }
-  @keyframes breakTable { 0%, 80% { transform: rotate(0deg); } 100% { transform: rotate(15deg) translateY(10px); } }
-  @keyframes dolphinJump { 0% { transform: translate(-80px, 40px) rotate(-20deg); } 50% { transform: translate(0px, -40px) rotate(0deg); } 100% { transform: translate(80px, 40px) rotate(20deg); } }
-  @keyframes deflate { 0% { transform: scale(1); } 100% { transform: scale(1, 0.4); opacity: 0.8; } }
-  @keyframes wandFlick { 0% { transform: rotate(0deg); } 100% { transform: rotate(-30deg); } }
-  @keyframes spark { 0% { opacity: 0.2; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1.5); } }
-  @keyframes snitchFly { 0% { transform: translate(-80px, 20px); } 25% { transform: translate(0, -30px); } 50% { transform: translate(80px, 20px); } 75% { transform: translate(0, 30px); } 100% { transform: translate(-80px, 20px); } }
-  @keyframes slideLeft { 0% { width: 50%; } 100% { width: 0%; } }
-  @keyframes slideRight { 0% { width: 50%; } 100% { width: 0%; } }
-  @keyframes spotMove { 0% { transform: translate(-20%, -10%); } 100% { transform: translate(20%, 10%); } }
-  @keyframes hatWiggle { 0% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-10deg); } }
-  @keyframes refSignal { 0% { transform: translateY(0); } 100% { transform: translateY(-20px); } }
 
   /* Full Screen Animation Overlay */
   #fs-overlay { position: fixed; top:0; left:0; width: 100%; height: 100%; z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; perspective: 1200px; padding: 20px; transition: background 1s ease; }
@@ -229,9 +207,7 @@
     <h1 class="intro-title">Deal or No Deal</h1>
     <h2 class="intro-subtitle"><span class="chile-red">BURQUE</span> <span class="chile-green">EDITION</span></h2>
     
-    <div class="burque-emojis">🎈 🌶️ 🏜️ 🐻</div>
-    
-    <p style="color: #ddd; font-size: 1.2em; margin-bottom: 25px;">Red or Green, homie?</p>
+    <p style="color: #ddd; font-size: 1.4em; margin-top: 25px;">Red or Green, homie?</p>
     
     <button class="start-btn" onclick="dismissIntro()">ORALE, LET'S PLAY</button>
   </div>
@@ -812,7 +788,7 @@
     }
   }
 
-  // --- CUTSCENE ENGINE ---
+  // --- REBUILT BURQUE THEMED CUTSCENES (NO EMOJIS) ---
   function triggerOpeningSequence(index, callback, sequenceType = 'REGULAR') {
     const activeCasesCount = prizes.filter(p => p.active).length;
     let cutsceneTime = 1800, shakeTime = 1000, shakeClass = 'shake-light', bgClass = 'bg-calm';
@@ -825,25 +801,30 @@
 
     const cutscene = document.getElementById('cutscene-overlay');
     let cutsceneHTML = "";
+    const caseNumStr = (index + 1).toString();
 
-    if (sequenceType === 'FINAL') cutsceneHTML = `<div id="cutscene-text">PREPARING FINAL REVEAL, EEEE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
-    else if (sequenceType === 'ELIMINATED') cutsceneHTML = `<div id="cutscene-text" style="color: #ff3333;">LET'S SEE WHAT YOU DIDN'T PICK, FOO... 👀</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    if (sequenceType === 'FINAL') {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #ffd700;">PREPARING FINAL REVEAL, EEEE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    } 
+    else if (sequenceType === 'ELIMINATED') {
+        cutsceneHTML = `<div id="cutscene-text" style="color: #ff3333;">LET'S SEE WHAT YOU DIDN'T PICK, FOO...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+    } 
     else {
       const rand = Math.floor(Math.random() * 13);
-      const caseNumStr = (index + 1).toString();
-      if (rand === 0) cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
-      else if (rand === 1) cutsceneHTML = `<div id="cutscene-text" style="color: #e74c3c;">SPIKING CASE ${caseNumStr}...</div><div class="spike-container"><div class="volleyball-case">💼</div></div>`;
-      else if (rand === 2) cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">WILSON RECOVERED CASE ${caseNumStr}...</div><div class="wilson-container"><div class="wilson-ball">🏐<span class="blood-hand">🖐️</span></div></div>`;
-      else if (rand === 3) cutsceneHTML = `<div id="cutscene-text" style="color: #AA0000;">49ERS MINING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="display:inline-block; animation: swing 0.5s infinite alternate;">⛏️</span><span style="display:inline-block;">🟡</span></div>`;
-      else if (rand === 4) cutsceneHTML = `<div id="cutscene-text" style="color: #00338D;">BILLS MAFIA SMASHING CASE ${caseNumStr}...</div><div style="font-size: 5rem; position: relative; height: 120px; width: 120px; margin: 0 auto;"><span style="position:absolute; top:-80px; left:20px; animation: drop 1s forwards cubic-bezier(.25,.8,.25,1);">🏃‍♂️</span><span style="position:absolute; bottom:0; left:20px; animation: breakTable 1s forwards ease-in;">🪑</span></div>`;
-      else if (rand === 5) cutsceneHTML = `<div id="cutscene-text" style="color: #008E97;">DOLPHINS DIVING FOR CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: dolphinJump 1.5s ease-in-out infinite;">🐬💼🌊</div>`;
-      else if (rand === 6) cutsceneHTML = `<div id="cutscene-text" style="color: #002244;">PATRIOTS CHECKING PSI ON CASE ${caseNumStr}...</div><div style="font-size: 5rem; animation: deflate 1.5s forwards ease-out;">🏈💨</div>`;
-      else if (rand === 7) cutsceneHTML = `<div id="cutscene-text" style="color: #740001;">REVELIO CASE ${caseNumStr}...</div><div style="font-size: 5rem;"><span style="animation: wandFlick 0.8s infinite alternate; display:inline-block;">🪄</span><span style="animation: spark 0.8s infinite alternate; display:inline-block;">✨</span></div>`;
-      else if (rand === 8) cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">CATCHING CASE ${caseNumStr}...</div><div style="font-size: 4rem; animation: snitchFly 2s linear infinite;">🪽🟡🪽</div>`;
-      else if (rand === 9) cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10;">RAISING CURTAIN ON CASE ${caseNumStr}...</div><div style="position:absolute; top:0; left:0; width:50%; height:100%; background:darkred; border-right:5px solid gold; animation: slideLeft 2s forwards;"></div><div style="position:absolute; top:0; right:0; width:50%; height:100%; background:darkred; border-left:5px solid gold; animation: slideRight 2s forwards;"></div>`;
-      else if (rand === 10) cutsceneHTML = `<div id="cutscene-text" style="color: #fff; z-index: 10;">SPOTLIGHT ON CASE ${caseNumStr}...</div><div class="spotlight"></div>`;
-      else if (rand === 11) cutsceneHTML = `<div id="cutscene-text" style="color: #D3A625;">SORTING CASE ${caseNumStr}...</div><div style="font-size: 6rem; animation: hatWiggle 0.5s infinite;">🎩🤔</div>`;
-      else if (rand === 12) cutsceneHTML = `<div id="cutscene-text" style="color: #fff;">TOUCHDOWN CASE ${caseNumStr}!</div><div style="font-size: 5rem; display:flex; justify-content:center; align-items:center;"><span style="animation: refSignal 0.8s infinite alternate;">🙌</span><span style="margin-left:10px;">🏈</span></div>`;
+      
+      if (rand === 0) cutsceneHTML = `<div id="cutscene-text" style="color:#f1c40f;">SECURELY TRANSFERRING CASE ${caseNumStr} FROM SANDIA LABS...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 1) cutsceneHTML = `<div id="cutscene-text" style="color:#2ecc71;">ROASTING CASE ${caseNumStr} WITH HATCH GREEN CHILE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 2) cutsceneHTML = `<div id="cutscene-text" style="color:#e74c3c;">APD HELICOPTER HOVERING OVER CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 3) cutsceneHTML = `<div id="cutscene-text" style="color:#fff;">LOBOS HOWLING FOR CASE ${caseNumStr} AT THE PIT...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 4) cutsceneHTML = `<div id="cutscene-text" style="color:#ff7b54;">HOT AIR BALLOON DROPPING CASE ${caseNumStr} OVER THE RIO GRANDE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 5) cutsceneHTML = `<div id="cutscene-text" style="color:#a83232;">BOUNCING DOWN CENTRAL TO DELIVER CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 6) cutsceneHTML = `<div id="cutscene-text" style="color:#3498db;">BRINGING DOWN CASE ${caseNumStr} ON THE SANDIA TRAMWAY...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 7) cutsceneHTML = `<div id="cutscene-text" style="color:#f39c12;">STUCK IN THE BIG I TRAFFIC WITH CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 8) cutsceneHTML = `<div id="cutscene-text" style="color:#9b59b6;">SEARCHING THE ARROYOS FOR CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 9) cutsceneHTML = `<div id="cutscene-text" style="color:#1abc9c;">WALTER AND JESSE SECURING CASE ${caseNumStr} IN THE RV...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 10) cutsceneHTML = `<div id="cutscene-text" style="color:#e67e22;">SPRING WINDS BLOWING IN CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 11) cutsceneHTML = `<div id="cutscene-text" style="color:#ecf0f1;">CRUISING HISTORIC ROUTE 66 WITH CASE ${caseNumStr}...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
+      else if (rand === 12) cutsceneHTML = `<div id="cutscene-text" style="color:#d35400;">ORDERING CASE ${caseNumStr} CHRISTMAS STYLE...</div><div class="scan-line-container"><div class="scan-line"></div></div>`;
     }
     
     cutscene.innerHTML = cutsceneHTML;
