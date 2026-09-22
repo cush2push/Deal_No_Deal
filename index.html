@@ -10,54 +10,63 @@
   button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #d4af37; border: none; font-weight: bold; border-radius: 5px; transition: background 0.2s; }
   button:hover { background: #f1c40f; }
   
-  /* --- 1ST PERSON CENTRAL AVE INTRO SCREEN --- */
-  #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0c10; z-index: 9999; display: flex; flex-direction: column; overflow: hidden; perspective: 800px; }
+  /* --- 3D FIRST PERSON CENTRAL AVE INTRO --- */
+  #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #001122 0%, #110022 50%, #050505 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; perspective: 800px; overflow: hidden; }
   
-  .sky { position: absolute; top: 0; left: 0; width: 100%; height: 50%; background: linear-gradient(to bottom, #050510, #1a1a3a); display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 5vh; z-index: 10; }
-  .horizon { position: absolute; top: 50%; left: 0; width: 100%; height: 4px; background: #f1c40f; box-shadow: 0 0 20px #f1c40f, 0 0 40px #f1c40f; z-index: 5; }
+  .fp-sky { position: absolute; top: 10%; width: 100%; text-align: center; z-index: 10; pointer-events: none; }
+  .intro-title { font-size: 3.5em; color: #f1c40f; text-transform: uppercase; text-shadow: 3px 3px 0 #8b0000, 6px 6px 0px #000; margin-bottom: 5px; line-height: 1.1; }
+  .intro-subtitle { font-size: 1.8em; color: #fff; font-weight: bold; text-shadow: 2px 2px 5px #000; }
   
-  .intro-title { font-size: 3.5em; color: #f1c40f; text-transform: uppercase; text-shadow: 3px 3px 0 #8b0000, 6px 6px 0px #000; z-index: 10; margin-bottom: 5px; text-align: center; line-height: 1.1; }
-  .intro-subtitle { font-size: 1.8em; color: #fff; z-index: 10; font-weight: bold; text-shadow: 2px 2px 5px #000; }
+  .fp-world { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
   
-  .world { position: absolute; top: 50%; left: 0; width: 100%; height: 50%; transform-style: preserve-3d; z-index: 1; }
+  /* Flat Ground & Road */
+  .fp-ground { position: absolute; top: 50%; left: -50%; width: 200%; height: 150%; background: #151515; transform-origin: top center; transform: rotateX(75deg); border-top: 2px solid #f1c40f; }
+  .fp-road { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 400px; height: 100%; background: #222; border-left: 5px solid #aaa; border-right: 5px solid #aaa; }
+  .fp-lines { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 150px, #f1c40f 150px, #f1c40f 300px); animation: driveRoad 1.2s linear infinite; }
   
-  .road { position: absolute; top: 0; left: 50%; width: 3000px; height: 1500px; margin-left: -1500px; background: #222; transform-origin: top center; transform: rotateX(82deg); border-left: 15px solid #555; border-right: 15px solid #555; }
-  .road-lines { position: absolute; top: 0; left: 50%; width: 20px; height: 200%; margin-left: -10px; background: repeating-linear-gradient(to bottom, transparent 0, transparent 150px, #fff 150px, #fff 300px); animation: driveRoad 0.6s linear infinite; }
+  .fp-intersection { position: absolute; top: 0; left: -100vw; width: 200vw; height: 100px; background: #2a2a2a; border-top: 5px dashed #fff; border-bottom: 5px dashed #fff; animation: approachIntersection 5.2s linear infinite; }
   
-  @keyframes driveRoad { 0% { transform: translateY(-300px); } 100% { transform: translateY(0); } }
+  @keyframes driveRoad { 0% { background-position: 0 0; } 100% { background-position: 0 300px; } }
+  @keyframes approachIntersection { 0% { top: 0%; opacity: 0; } 5% { opacity: 1; } 100% { top: 100%; opacity: 1; } }
 
-  .scenery-item { position: absolute; top: -10px; left: 50%; font-size: 2em; transform-origin: bottom center; z-index: 2; opacity: 0; white-space: nowrap; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
+  /* 3D Objects (Buildings, People, Cars) */
+  .fp-objects { position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-style: preserve-3d; }
+  .fp-obj { position: absolute; top: 0; left: 0; transform: translate(-50%, -100%) translateZ(-3000px); animation: approachObj 5.2s linear infinite; white-space: nowrap; }
   
-  .camp { animation: passLeft 2.5s infinite ease-in; }
-  .apd { animation: passRight 3s infinite ease-in; animation-delay: 1.2s; }
-  .street-sign-3d { position: absolute; top: -30px; left: 50%; background: #005020; border: 2px solid white; color: white; padding: 2px 10px; font-family: sans-serif; font-weight: bold; font-size: 1em; border-radius: 4px; animation: passOverhead 3.5s infinite ease-in; animation-delay: 0.5s; opacity: 0; text-shadow: none; }
-
-  @keyframes passLeft {
-    0% { transform: translate(-30px, 0) scale(0.05); opacity: 0; }
-    5% { opacity: 1; }
-    100% { transform: translate(-1500px, 600px) scale(8); opacity: 1; }
-  }
-  @keyframes passRight {
-    0% { transform: translate(30px, 0) scale(0.05); opacity: 0; text-shadow: -2px 0 5px red, 2px 0 5px blue; }
-    5% { opacity: 1; }
-    100% { transform: translate(1500px, 600px) scale(8); opacity: 1; text-shadow: -40px 0 50px red, 40px 0 50px blue; }
-  }
-  @keyframes passOverhead {
-    0% { transform: translate(-50%, 0) scale(0.1); opacity: 0; }
-    5% { opacity: 1; }
-    100% { transform: translate(-50%, -800px) scale(10); opacity: 1; }
+  @keyframes approachObj { 
+    0% { transform: translate(-50%, -100%) translateZ(-3000px); opacity: 0; } 
+    5% { opacity: 1; } 
+    100% { transform: translate(-50%, -100%) translateZ(1000px); opacity: 1; } 
   }
 
-  /* Dashboard & Steering Wheel */
-  .dashboard { position: absolute; bottom: -50px; left: -10%; width: 120%; height: 25vh; background: linear-gradient(to bottom, #111, #000); border-top: 15px solid #050505; border-radius: 50% 50% 0 0; z-index: 10; box-shadow: inset 0 20px 50px rgba(0,0,0,0.9); pointer-events: none; }
-  .steering-wheel { position: absolute; bottom: -50px; left: 15%; width: 35vh; height: 35vh; border: 4vh solid #222; border-radius: 50%; z-index: 11; box-shadow: inset 0 5px 15px rgba(0,0,0,1), 0 15px 25px rgba(0,0,0,0.9); background: radial-gradient(circle at center, transparent 35%, #1a1a1a 40%, transparent 41%); pointer-events: none; animation: vibrateWheel 0.1s infinite alternate; }
-  .steering-wheel::after { content: ''; position: absolute; top: 50%; left: -5%; width: 110%; height: 4vh; background: #222; transform: translateY(-50%); box-shadow: 0 5px 10px rgba(0,0,0,0.8); }
-  .steering-wheel::before { content: ''; position: absolute; top: 50%; left: 50%; width: 12vh; height: 12vh; background: #333; border-radius: 50%; transform: translate(-50%, -50%); border: 3px solid #111; z-index: 2; box-shadow: 0 5px 10px rgba(0,0,0,0.5); }
+  /* Scenery Placements */
+  .left-1 { margin-left: -500px; margin-top: -100px; }
+  .left-2 { margin-left: -700px; margin-top: -50px; }
+  .right-1 { margin-left: 500px; margin-top: -100px; }
+  .right-2 { margin-left: 700px; margin-top: -50px; }
   
-  @keyframes vibrateWheel { 0% { transform: rotate(-1deg) translateY(0); } 100% { transform: rotate(1deg) translateY(-2px); } }
+  /* Neon Hotel Signs */
+  .neon-sign { font-size: 3.5em; font-family: 'Courier New', monospace; font-weight: bold; padding: 15px; border: 5px solid; border-radius: 12px; background: rgba(0,0,0,0.85); box-shadow: 10px 10px 30px rgba(0,0,0,0.9); }
+  .neon-pink { color: #ff00ff; border-color: #ff00ff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; box-shadow: 0 0 15px #ff00ff inset; }
+  .neon-cyan { color: #00ffff; border-color: #00ffff; text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; box-shadow: 0 0 15px #00ffff inset; }
+  .neon-yellow { color: #ffff00; border-color: #ffff00; text-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; box-shadow: 0 0 15px #ffff00 inset; }
 
-  .intro-ui { position: absolute; bottom: 8vh; left: 50%; transform: translateX(-50%); z-index: 20; }
-  .start-btn { font-size: 1.5em; padding: 15px 30px; border-radius: 8px; border: 3px solid #f1c40f; background: #8b0000; color: white; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 15px rgba(0,0,0,0.8), 0 0 20px rgba(139,0,0,0.8); text-transform: uppercase; }
+  /* Sprites */
+  .homeless { font-size: 4em; }
+  .cop { font-size: 4.5em; text-shadow: -15px 0 25px red, 15px 0 25px blue; animation: copLights 0.4s infinite alternate; }
+  @keyframes copLights { 0% { text-shadow: -15px 0 25px red, 15px 0 25px blue; } 100% { text-shadow: -15px 0 25px blue, 15px 0 25px red; } }
+
+  /* Red Light Runner & Intersection */
+  .traffic-light-container { margin-left: 250px; margin-top: -450px; }
+  .traffic-light { display: inline-block; width: 40px; height: 110px; background: #222; border-radius: 10px; border: 3px solid #555; position: relative; }
+  .light-bulb { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 25px; height: 25px; border-radius: 50%; background: #27ae60; box-shadow: 0 0 20px #27ae60; animation: turnRed 5.2s linear infinite; }
+  @keyframes turnRed { 0%, 65% { background: #27ae60; box-shadow: 0 0 20px #27ae60; bottom: 15px; } 66%, 100% { background: #e74c3c; box-shadow: 0 0 30px #e74c3c; bottom: 70px; } }
+
+  .runner-car-inner { font-size: 6em; margin-top: 50px; animation: zipAcross 5.2s linear infinite; transform: scaleX(-1); }
+  @keyframes zipAcross { 0%, 68% { transform: translateX(2000px) scaleX(-1); } 75%, 100% { transform: translateX(-2000px) scaleX(-1); } }
+
+  /* Start Button */
+  .start-btn { position: absolute; bottom: 8vh; z-index: 1000; font-size: 1.5em; padding: 15px 30px; border-radius: 8px; border: 3px solid #f1c40f; background: #8b0000; color: white; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 25px rgba(0,0,0,0.9); text-transform: uppercase; }
   .start-btn:hover { transform: scale(1.1); background: #a00000; }
 
   /* Generic Container Card */
@@ -246,39 +255,68 @@
     
     .intro-title { font-size: 2.8em; }
     .intro-subtitle { font-size: 1.3em; }
-    .steering-wheel { width: 25vh; height: 25vh; left: 10%; bottom: -30px; border-width: 3vh; }
-    .dashboard { height: 20vh; bottom: -30px; }
+    .start-btn { bottom: 3vh; }
   }
 </style>
 </head>
 <body>
 
-<!-- NEW CENTRAL AVE 1ST PERSON INTRO SCREEN -->
+<!-- NEW CENTRAL AVE 3D ANIMATED INTRO SCREEN -->
 <div id="intro-screen">
-  <div class="sky">
+  
+  <div class="fp-sky">
     <div class="intro-title">Deal or No Deal</div>
     <div class="intro-subtitle">BURQUE EDITION</div>
   </div>
-  <div class="horizon"></div>
   
-  <!-- 3D World -->
-  <div class="world">
-    <div class="road">
-      <div class="road-lines"></div>
+  <div class="fp-world">
+    <div class="fp-ground">
+      <div class="fp-road">
+        <div class="fp-lines"></div>
+      </div>
+      <!-- Moving Intersections -->
+      <div class="fp-intersection" style="animation-delay: 0s;"></div>
+      <div class="fp-intersection" style="animation-delay: 2.6s;"></div>
     </div>
-    <div class="scenery-item camp">🛒⛺🧍</div>
-    <div class="scenery-item apd">🚓👮📝🧍‍♂️</div>
-    <div class="street-sign-3d">CENTRAL AVE</div>
+    
+    <div class="fp-objects">
+      
+      <!-- Sequence 1 (0s) -->
+      <div class="fp-obj left-1" style="animation-delay: 0s;">
+        <div class="neon-sign neon-pink">EL VADO MOTEL</div>
+      </div>
+      <div class="fp-obj right-1" style="animation-delay: 0s;">
+        <div class="homeless">🛒⛺🧍‍♂️</div>
+      </div>
+      
+      <!-- Sequence 2 (1.3s) -->
+      <div class="fp-obj left-2" style="animation-delay: 1.3s;">
+        <div class="homeless">🧍‍♂️🛑 <span class="cop">🚓👮</span></div>
+      </div>
+      <div class="fp-obj right-2" style="animation-delay: 1.3s;">
+        <div class="neon-sign neon-cyan">DE ANZA LODGE</div>
+      </div>
+      
+      <!-- Intersection Red Light & Runner (2.6s) -->
+      <div class="fp-obj traffic-light-container" style="animation-delay: 2.6s;">
+        <div class="traffic-light"><div class="light-bulb"></div></div>
+      </div>
+      <div class="fp-obj" style="animation-delay: 2.6s;">
+        <div class="runner-car-inner">🏎️💨</div>
+      </div>
+      
+      <!-- Sequence 3 (3.9s) -->
+      <div class="fp-obj left-1" style="animation-delay: 3.9s;">
+        <div class="neon-sign neon-yellow">ZIA MOTOR LODGE</div>
+      </div>
+      <div class="fp-obj right-1" style="animation-delay: 3.9s;">
+        <div class="homeless">🗑️🔥🧍‍♂️</div>
+      </div>
+
+    </div>
   </div>
-  
-  <!-- Dashboard -->
-  <div class="dashboard"></div>
-  <div class="steering-wheel"></div>
-  
-  <!-- UI -->
-  <div class="intro-ui">
-    <button class="start-btn" onclick="dismissIntro()">CRUISE CENTRAL (START)</button>
-  </div>
+
+  <button class="start-btn" onclick="dismissIntro()">CRUISE CENTRAL (START)</button>
 </div>
 
 <!-- STEP 1: WELCOME SCREEN -->
@@ -347,7 +385,7 @@
       <option value="">Custom (Manual Entry)</option>
       <option value="tablet">Tablet Time (15 mins to All Day)</option>
       <option value="toy">Toy Run ($5 to $100)</option>
-      <option value="sexy" id="preset-sexy" disabled>Sexy Time (Requires 18+)</option>
+      <option value="sexy" id="preset-sexy" style="display: none;" hidden>Sexy Time (Couples Activities)</option>
       <option value="restaurant">Dinner Roulette (Restaurants)</option>
     </select>
 
@@ -517,15 +555,15 @@
     const sexyOpt = document.getElementById('preset-sexy');
     
     if (!isAdult) {
-      sexyOpt.disabled = true;
-      sexyOpt.text = "Sexy Time (Requires 18+)";
+      sexyOpt.style.display = 'none';
+      sexyOpt.hidden = true;
       if (document.getElementById('preset-select').value === 'sexy') {
         document.getElementById('preset-select').value = "";
         toggleValuesDisplay(true);
       }
     } else {
-      sexyOpt.disabled = false;
-      sexyOpt.text = "Sexy Time (Couples Activities)";
+      sexyOpt.style.display = 'block';
+      sexyOpt.hidden = false;
     }
   }
 
@@ -1231,7 +1269,6 @@
 
   function loadOfflineFallback() {
     document.getElementById('quiz-loading').style.display = 'none';
-    // Small emergency local database just in case the API goes down during a live game
     const backupDb = [
       { q: "What color is the sky?", a: ["Blue", "Green", "Red"], c: 0 },
       { q: "How many legs does a spider have?", a: ["6", "8", "10"], c: 1 },
@@ -1334,3 +1371,4 @@
 </script>
 </body>
 </html>
+
