@@ -11,63 +11,83 @@
   button:hover { background: #f1c40f; }
   
   /* --- 3D FIRST PERSON CENTRAL AVE INTRO --- */
-  #intro-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, #001122 0%, #110022 50%, #050505 100%); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; perspective: 800px; overflow: hidden; }
-  
-  .fp-sky { position: absolute; top: 10%; width: 100%; text-align: center; z-index: 10; pointer-events: none; }
-  .intro-title { font-size: 3.5em; color: #f1c40f; text-transform: uppercase; text-shadow: 3px 3px 0 #8b0000, 6px 6px 0px #000; margin-bottom: 5px; line-height: 1.1; }
-  .intro-subtitle { font-size: 1.8em; color: #fff; font-weight: bold; text-shadow: 2px 2px 5px #000; }
-  
-  .fp-world { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
-  
-  /* Flat Ground & Road */
-  .fp-ground { position: absolute; top: 50%; left: -50%; width: 200%; height: 150%; background: #151515; transform-origin: top center; transform: rotateX(75deg); border-top: 2px solid #f1c40f; }
-  .fp-road { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 400px; height: 100%; background: #222; border-left: 5px solid #aaa; border-right: 5px solid #aaa; }
-  .fp-lines { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 12px; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 150px, #f1c40f 150px, #f1c40f 300px); animation: driveRoad 1.2s linear infinite; }
-  
-  .fp-intersection { position: absolute; top: 0; left: -100vw; width: 200vw; height: 100px; background: #2a2a2a; border-top: 5px dashed #fff; border-bottom: 5px dashed #fff; animation: approachIntersection 5.2s linear infinite; }
-  
-  @keyframes driveRoad { 0% { background-position: 0 0; } 100% { background-position: 0 300px; } }
-  @keyframes approachIntersection { 0% { top: 0%; opacity: 0; } 5% { opacity: 1; } 100% { top: 100%; opacity: 1; } }
+  #intro-screen {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, #000b18 0%, #1a0033 40%, #000 60%);
+    z-index: 9999; overflow: hidden; font-family: Arial, sans-serif;
+  }
+  .fp-sky { position: absolute; top: 5%; width: 100%; text-align: center; z-index: 10; pointer-events: none; }
+  .intro-title { font-size: 3.5em; color: #f1c40f; text-transform: uppercase; text-shadow: 3px 3px 0 #8b0000, 6px 6px 0 #000; margin: 0; }
+  .intro-subtitle { font-size: 1.8em; color: #fff; font-weight: bold; text-shadow: 2px 2px 5px #000; margin-top: 5px; }
 
-  /* 3D Objects (Buildings, People, Cars) */
-  .fp-objects { position: absolute; top: 50%; left: 50%; width: 0; height: 0; transform-style: preserve-3d; }
-  .fp-obj { position: absolute; top: 0; left: 0; transform: translate(-50%, -100%) translateZ(-3000px); animation: approachObj 5.2s linear infinite; white-space: nowrap; }
-  
-  @keyframes approachObj { 
-    0% { transform: translate(-50%, -100%) translateZ(-3000px); opacity: 0; } 
-    5% { opacity: 1; } 
-    100% { transform: translate(-50%, -100%) translateZ(1000px); opacity: 1; } 
+  .fp-camera {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    perspective: 400px; perspective-origin: 50% 40%;
+  }
+  .fp-ground {
+    position: absolute; top: 40%; left: -50vw; width: 200vw; height: 150vh;
+    background: #111; transform-origin: top center; transform: rotateX(75deg);
+    transform-style: preserve-3d; border-top: 3px solid #f1c40f;
+  }
+  .fp-road {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 400px; height: 100%; background: #222; border-left: 6px solid #aaa; border-right: 6px solid #aaa;
+  }
+  .fp-lines {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 100%;
+    background: repeating-linear-gradient(0deg, #fff 0, #fff 100px, transparent 100px, transparent 200px);
+    animation: roadScroll 0.6s linear infinite;
+  }
+  @keyframes roadScroll { 100% { background-position: 0 200px; } }
+
+  .scenery-group {
+    position: absolute; top: 0; left: 50%; width: 1px; height: 1px;
+    transform-style: preserve-3d; animation: moveTowardCamera 8s linear infinite;
+  }
+  @keyframes moveTowardCamera {
+    0% { top: 0%; opacity: 0; }
+    5% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { top: 120%; opacity: 0; }
   }
 
-  /* Scenery Placements */
-  .left-1 { margin-left: -500px; margin-top: -100px; }
-  .left-2 { margin-left: -700px; margin-top: -50px; }
-  .right-1 { margin-left: 500px; margin-top: -100px; }
-  .right-2 { margin-left: 700px; margin-top: -50px; }
-  
-  /* Neon Hotel Signs */
-  .neon-sign { font-size: 3.5em; font-family: 'Courier New', monospace; font-weight: bold; padding: 15px; border: 5px solid; border-radius: 12px; background: rgba(0,0,0,0.85); box-shadow: 10px 10px 30px rgba(0,0,0,0.9); }
-  .neon-pink { color: #ff00ff; border-color: #ff00ff; text-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff; box-shadow: 0 0 15px #ff00ff inset; }
-  .neon-cyan { color: #00ffff; border-color: #00ffff; text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; box-shadow: 0 0 15px #00ffff inset; }
-  .neon-yellow { color: #ffff00; border-color: #ffff00; text-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00; box-shadow: 0 0 15px #ffff00 inset; }
+  .stand-up {
+    position: absolute; bottom: 0; transform-origin: bottom center;
+    transform: translateX(-50%) rotateX(-75deg); display: flex; align-items: flex-end; justify-content: center;
+  }
+  .pos-left { left: -300px; }
+  .pos-right { left: 300px; }
+  .pos-far-left { left: -450px; }
 
-  /* Sprites */
-  .homeless { font-size: 4em; }
-  .cop { font-size: 4.5em; text-shadow: -15px 0 25px red, 15px 0 25px blue; animation: copLights 0.4s infinite alternate; }
-  @keyframes copLights { 0% { text-shadow: -15px 0 25px red, 15px 0 25px blue; } 100% { text-shadow: -15px 0 25px blue, 15px 0 25px red; } }
+  .neon-sign { font-family: 'Courier New', Courier, monospace; font-size: 35px; font-weight: bold; padding: 15px; border: 4px solid; border-radius: 10px; background: rgba(0,0,0,0.8); white-space: nowrap; }
+  .neon-pink { color: #ff00ff; border-color: #ff00ff; text-shadow: 0 0 10px #ff00ff; box-shadow: 0 0 20px #ff00ff inset; }
+  .neon-cyan { color: #00ffff; border-color: #00ffff; text-shadow: 0 0 10px #00ffff; box-shadow: 0 0 20px #00ffff inset; }
+  .neon-yellow { color: #ffff00; border-color: #ffff00; text-shadow: 0 0 10px #ffff00; box-shadow: 0 0 20px #ffff00 inset; }
 
-  /* Red Light Runner & Intersection */
-  .traffic-light-container { margin-left: 250px; margin-top: -450px; }
-  .traffic-light { display: inline-block; width: 40px; height: 110px; background: #222; border-radius: 10px; border: 3px solid #555; position: relative; }
-  .light-bulb { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); width: 25px; height: 25px; border-radius: 50%; background: #27ae60; box-shadow: 0 0 20px #27ae60; animation: turnRed 5.2s linear infinite; }
-  @keyframes turnRed { 0%, 65% { background: #27ae60; box-shadow: 0 0 20px #27ae60; bottom: 15px; } 66%, 100% { background: #e74c3c; box-shadow: 0 0 30px #e74c3c; bottom: 70px; } }
+  .homeless { font-size: 65px; filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.8)); white-space: nowrap; }
+  .cop { font-size: 70px; filter: drop-shadow(5px 5px 0px rgba(0,0,0,0.8)); animation: copLights 0.4s infinite alternate; }
+  @keyframes copLights { 0% { filter: drop-shadow(0 0 20px red); } 100% { filter: drop-shadow(0 0 20px blue); } }
 
-  .runner-car-inner { font-size: 6em; margin-top: 50px; animation: zipAcross 5.2s linear infinite; transform: scaleX(-1); }
-  @keyframes zipAcross { 0%, 68% { transform: translateX(2000px) scaleX(-1); } 75%, 100% { transform: translateX(-2000px) scaleX(-1); } }
+  .crosswalk { position: absolute; top: -50px; left: -50vw; width: 100vw; height: 100px; background: #333; border-top: 10px dashed #fff; border-bottom: 10px dashed #fff; transform: translateX(-50vw); }
 
-  /* Start Button */
-  .start-btn { position: absolute; bottom: 8vh; z-index: 1000; font-size: 1.5em; padding: 15px 30px; border-radius: 8px; border: 3px solid #f1c40f; background: #8b0000; color: white; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 25px rgba(0,0,0,0.9); text-transform: uppercase; }
-  .start-btn:hover { transform: scale(1.1); background: #a00000; }
+  .traffic-light-box { background: #111; padding: 5px; border-radius: 10px; border: 3px solid #555; display: flex; flex-direction: column; gap: 5px; margin-bottom: 20px; }
+  .bulb { width: 25px; height: 25px; border-radius: 50%; background: #222; }
+  .bulb-red { animation: tl-red 8s infinite; }
+  .bulb-yellow { animation: tl-yellow 8s infinite; }
+  .bulb-green { animation: tl-green 8s infinite; }
+  @keyframes tl-green { 0%, 45% { background: #2ecc71; box-shadow: 0 0 20px #2ecc71; } 46%, 100% { background: #222; box-shadow: none; } }
+  @keyframes tl-yellow { 0%, 45% { background: #222; } 46%, 60% { background: #f1c40f; box-shadow: 0 0 20px #f1c40f; } 61%, 100% { background: #222; } }
+  @keyframes tl-red { 0%, 60% { background: #222; } 61%, 100% { background: #e74c3c; box-shadow: 0 0 20px #e74c3c; } }
+
+  .runner-car { position: absolute; font-size: 110px; transform-origin: bottom center; transform: rotateX(-75deg) scaleX(-1); bottom: -20px; animation: runnerZip 8s linear infinite; z-index: 10; }
+  @keyframes runnerZip { 0%, 65% { left: 100vw; opacity: 0; } 66% { opacity: 1; } 75% { left: -100vw; opacity: 1; } 76%, 100% { left: -100vw; opacity: 0; } }
+
+  .player-car { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 140px; z-index: 100; animation: bounceCar 0.3s infinite alternate; filter: drop-shadow(0 20px 10px rgba(0,0,0,0.8)); pointer-events: none; }
+  @keyframes bounceCar { 0% { transform: translateX(-50%) translateY(0); } 100% { transform: translateX(-50%) translateY(-10px); } }
+
+  .start-btn { position: absolute; bottom: 8vh; left: 50%; transform: translateX(-50%); z-index: 1000; font-size: 1.5em; padding: 15px 30px; border-radius: 8px; border: 3px solid #f1c40f; background: #8b0000; color: white; cursor: pointer; transition: transform 0.2s, background 0.2s; box-shadow: 0 5px 25px rgba(0,0,0,0.9); text-transform: uppercase; font-weight: bold; }
+  .start-btn:hover { transform: translateX(-50%) scale(1.1); background: #a00000; }
 
   /* Generic Container Card */
   .flow-screen { max-width: 480px; width: 100%; margin: 60px auto; background: #222; padding: 25px; border-radius: 10px; border: 2px solid #d4af37; text-align: left; display: none; }
@@ -255,7 +275,7 @@
     
     .intro-title { font-size: 2.8em; }
     .intro-subtitle { font-size: 1.3em; }
-    .start-btn { bottom: 3vh; }
+    .fp-ground { top: 45%; }
   }
 </style>
 </head>
@@ -269,52 +289,63 @@
     <div class="intro-subtitle">BURQUE EDITION</div>
   </div>
   
-  <div class="fp-world">
+  <div class="fp-camera">
     <div class="fp-ground">
       <div class="fp-road">
         <div class="fp-lines"></div>
       </div>
-      <!-- Moving Intersections -->
-      <div class="fp-intersection" style="animation-delay: 0s;"></div>
-      <div class="fp-intersection" style="animation-delay: 2.6s;"></div>
-    </div>
-    
-    <div class="fp-objects">
       
-      <!-- Sequence 1 (0s) -->
-      <div class="fp-obj left-1" style="animation-delay: 0s;">
-        <div class="neon-sign neon-pink">EL VADO MOTEL</div>
-      </div>
-      <div class="fp-obj right-1" style="animation-delay: 0s;">
-        <div class="homeless">🛒⛺🧍‍♂️</div>
-      </div>
-      
-      <!-- Sequence 2 (1.3s) -->
-      <div class="fp-obj left-2" style="animation-delay: 1.3s;">
-        <div class="homeless">🧍‍♂️🛑 <span class="cop">🚓👮</span></div>
-      </div>
-      <div class="fp-obj right-2" style="animation-delay: 1.3s;">
-        <div class="neon-sign neon-cyan">DE ANZA LODGE</div>
-      </div>
-      
-      <!-- Intersection Red Light & Runner (2.6s) -->
-      <div class="fp-obj traffic-light-container" style="animation-delay: 2.6s;">
-        <div class="traffic-light"><div class="light-bulb"></div></div>
-      </div>
-      <div class="fp-obj" style="animation-delay: 2.6s;">
-        <div class="runner-car-inner">🏎️💨</div>
-      </div>
-      
-      <!-- Sequence 3 (3.9s) -->
-      <div class="fp-obj left-1" style="animation-delay: 3.9s;">
-        <div class="neon-sign neon-yellow">ZIA MOTOR LODGE</div>
-      </div>
-      <div class="fp-obj right-1" style="animation-delay: 3.9s;">
-        <div class="homeless">🗑️🔥🧍‍♂️</div>
+      <!-- Scenery Group 1 (starts immediately) -->
+      <div class="scenery-group" style="animation-delay: 0s;">
+        <div class="stand-up pos-left">
+          <div class="neon-sign neon-pink">EL VADO MOTEL</div>
+        </div>
+        <div class="stand-up pos-right">
+          <div class="homeless">🛒⛺🧍‍♂️</div>
+        </div>
       </div>
 
+      <!-- Scenery Group 2 (starts later) -->
+      <div class="scenery-group" style="animation-delay: 2.6s;">
+        <div class="stand-up pos-far-left">
+          <div class="cop">🚓👮</div>
+        </div>
+        <div class="stand-up pos-right">
+          <div class="neon-sign neon-cyan">DE ANZA LODGE</div>
+        </div>
+      </div>
+
+      <!-- Scenery Group 3: Intersection & Red Light Runner -->
+      <div class="scenery-group" style="animation-delay: 5.3s;">
+        <!-- Flat Crosswalk on ground -->
+        <div class="crosswalk"></div>
+        
+        <!-- Stoplight standing up on corner -->
+        <div class="stand-up pos-right">
+          <div class="traffic-light-box">
+            <div class="bulb bulb-red"></div>
+            <div class="bulb bulb-yellow"></div>
+            <div class="bulb bulb-green"></div>
+          </div>
+        </div>
+
+        <!-- Car that zips across -->
+        <div class="runner-car">🏎️💨</div>
+      </div>
+
+      <!-- Scenery Group 4 -->
+      <div class="scenery-group" style="animation-delay: 8s;">
+        <div class="stand-up pos-left">
+          <div class="neon-sign neon-yellow">ZIA MOTOR LODGE</div>
+        </div>
+        <div class="stand-up pos-right">
+          <div class="homeless">🗑️🔥🧍‍♂️</div>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="player-car">🚘</div>
 
   <button class="start-btn" onclick="dismissIntro()">CRUISE CENTRAL (START)</button>
 </div>
@@ -1371,4 +1402,3 @@
 </script>
 </body>
 </html>
-
